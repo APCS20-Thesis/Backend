@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CDPServiceClient interface {
 	CheckHealth(ctx context.Context, in *CheckHealthRequest, opts ...grpc.CallOption) (*CommonResponse, error)
+	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 }
 
 type cDPServiceClient struct {
@@ -42,11 +43,21 @@ func (c *cDPServiceClient) CheckHealth(ctx context.Context, in *CheckHealthReque
 	return out, nil
 }
 
+func (c *cDPServiceClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error) {
+	out := new(LoginResponse)
+	err := c.cc.Invoke(ctx, "/api.CDPService/Login", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CDPServiceServer is the server API for CDPService service.
 // All implementations must embed UnimplementedCDPServiceServer
 // for forward compatibility
 type CDPServiceServer interface {
 	CheckHealth(context.Context, *CheckHealthRequest) (*CommonResponse, error)
+	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 	mustEmbedUnimplementedCDPServiceServer()
 }
 
@@ -56,6 +67,9 @@ type UnimplementedCDPServiceServer struct {
 
 func (UnimplementedCDPServiceServer) CheckHealth(context.Context, *CheckHealthRequest) (*CommonResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckHealth not implemented")
+}
+func (UnimplementedCDPServiceServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
 func (UnimplementedCDPServiceServer) mustEmbedUnimplementedCDPServiceServer() {}
 
@@ -88,6 +102,24 @@ func _CDPService_CheckHealth_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CDPService_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LoginRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDPServiceServer).Login(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.CDPService/Login",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDPServiceServer).Login(ctx, req.(*LoginRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CDPService_ServiceDesc is the grpc.ServiceDesc for CDPService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -98,6 +130,10 @@ var CDPService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CheckHealth",
 			Handler:    _CDPService_CheckHealth_Handler,
+		},
+		{
+			MethodName: "Login",
+			Handler:    _CDPService_Login_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
