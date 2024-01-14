@@ -1,0 +1,20 @@
+openapi: 3.0.3
+
+info:
+  title: API
+  version: 1.0.0
+paths:
+  /accounts/login:
+    get:
+      operationId: asd
+      tags:
+        - common
+      responses:
+        "200":
+          description: no
+          content:
+            application/json:
+              schema:
+                description: ok
+      security:
+        - tokenAuth: []

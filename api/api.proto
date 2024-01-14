@@ -1,0 +1,27 @@
+syntax = "proto3";
+package api;
+option go_package = "github.com/APCS20-Thesis/Backend/api";
+
+import "google/rpc/code.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/wrappers.proto";
+
+service CDPService {
+  rpc CheckHealth(CheckHealthRequest) returns (CommonResponse) {
+    option (google.api.http) = {
+      get: "/health"
+    };
+  }
+}
+
+// CheckHealthRequest
+message CheckHealthRequest { }
+
+// Common Response.
+message CommonResponse {
+  // code
+  int32 code = 1;
+  // message
+  string message = 2;
+}
+
