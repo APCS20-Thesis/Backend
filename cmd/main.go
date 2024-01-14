@@ -5,6 +5,7 @@ import (
 	pb "github.com/APCS20-Thesis/Backend/api"
 	"github.com/APCS20-Thesis/Backend/config"
 	"github.com/APCS20-Thesis/Backend/internal/service"
+	"github.com/go-logr/logr"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -14,11 +15,16 @@ import (
 	"net/http"
 )
 
+// global variables
+var logger logr.Logger
+
 func main() {
 	cfg, err := config.Load()
 	if err != nil {
 		log.Fatalln("Failed to load config:", err)
 	}
+
+	logger = cfg.Log.MustBuildLogR()
 
 	// Create a listener on TCP port
 	lis, err := net.Listen("tcp", cfg.ServerConfig.GrpcServerAddress) // ":10443"
@@ -30,7 +36,7 @@ func main() {
 	s := grpc.NewServer()
 	reflection.Register(s)
 	// Attach the Greeter service to the server
-	cdpService, err := service.NewService()
+	cdpService, err := service.NewService(logger)
 	if err != nil {
 		log.Fatalln("Failed to create new service:", err)
 		return
