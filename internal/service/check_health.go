@@ -2,13 +2,14 @@ package service
 
 import (
 	"context"
-	pb "github.com/APCS20-Thesis/Backend/api"
 	"google.golang.org/grpc/codes"
+
+	"github.com/APCS20-Thesis/Backend/api"
 )
 
-func (s *Service) CheckHealth(ctx context.Context, request *pb.CheckHealthRequest) (*pb.CommonResponse, error) {
-	return &pb.CommonResponse{
+func (s *Service) CheckHealth(ctx context.Context, request *api.CheckHealthRequest) (*api.CommonResponse, error) {
+	return &api.CommonResponse{
 		Code:    int32(codes.OK),
-		Message: "Hello",
+		Message: "Success",
 	}, nil
 }

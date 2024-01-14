@@ -1,8 +1,14 @@
 package config
 
 type Config struct {
+	Base         `mapstructure:",squash"`
 	ServerConfig ServerConfig     `json:"server_config" mapstructure:"server_config"`
 	PostgreSQL   PostgreSQLConfig `json:"postgresql" mapstructure:"postgresql"`
+}
+
+type Base struct {
+	Env string    `json:"env" mapstructure:"env"`
+	Log LogConfig `json:"log" mapstructure:"log"`
 }
 
 func loadDefaultConfig() *Config {
