@@ -2,8 +2,10 @@ package config
 
 type Config struct {
 	Base         `mapstructure:",squash"`
-	ServerConfig ServerConfig     `json:"server_config" mapstructure:"server_config"`
-	PostgreSQL   PostgreSQLConfig `json:"postgresql" mapstructure:"postgresql"`
+	ServerConfig ServerConfig `json:"server_config" mapstructure:"server_config"`
+
+	PostgreSQL      PostgreSQLConfig `json:"postgresql" mapstructure:"postgresql"`
+	MigrationFolder string           `json:"migration_folder" mapstructure:"migration_folder"`
 }
 
 type Base struct {
@@ -17,7 +19,17 @@ func loadDefaultConfig() *Config {
 			HttpServerAddress: ":10080",
 			GrpcServerAddress: ":10443",
 		},
-		PostgreSQL: PostgreSQLConfig{},
+		PostgreSQL: PostgreSQLConfig{
+			DBConfig: DBConfig{
+				Host:     "127.0.0.1",
+				Database: "cdp_service",
+				Port:     5432,
+				Username: "cdp_service",
+				Password: "postgres",
+				Options:  "?sslmode=disable",
+			},
+		},
+		MigrationFolder: "file://sql/migrations",
 	}
 	return c
 }

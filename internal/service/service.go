@@ -6,7 +6,8 @@ import (
 )
 
 type Service struct {
-	log logr.Logger
+	log        logr.Logger
+	jwtManager *JWTManager
 	//// more connector here
 	//store  store.StoreQuerier
 	//gormDb *gorm.DB
@@ -17,8 +18,9 @@ type Service struct {
 	api.UnimplementedCDPServiceServer
 }
 
-func NewService(logger logr.Logger) (*Service, error) {
+func NewService(logger logr.Logger, jwtManager *JWTManager) (*Service, error) {
 	return &Service{
-		log: logger,
+		log:        logger,
+		jwtManager: jwtManager,
 	}, nil
 }
