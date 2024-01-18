@@ -26,13 +26,13 @@ func NewJWTManager(secretKey string, tokenDuration time.Duration) *JWTManager {
 }
 
 // Generate generates and signs a new token for a user
-func (manager *JWTManager) Generate(user *api.User) (string, error) {
+func (manager *JWTManager) Generate(account *api.Account, role string) (string, error) {
 	claims := UserClaims{
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(manager.tokenDuration).Unix(),
 		},
-		Username: user.Username,
-		//Role:     user.Role,
+		Username: account.Username,
+		Role:     role,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

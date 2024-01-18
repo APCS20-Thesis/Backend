@@ -9,6 +9,7 @@ import (
 	"github.com/go-logr/logr"
 	migrateV4 "github.com/golang-migrate/migrate/v4"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/rs/cors"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -29,6 +30,12 @@ import (
 
 // global variables
 var logger logr.Logger
+
+const (
+	secretKey     = "secret"
+	tokenDuration = 15 * time.Minute
+)
+const versionTimeFormat = "20060102150405"
 
 func main() {
 	if err := run(os.Args); err != nil {
@@ -87,11 +94,18 @@ func serverAction(cliCtx *cli.Context) error {
 	}
 
 	// Create a gRPC server object
-	s := grpc.NewServer()
+	jwtManager := service.NewJWTManager(secretKey, tokenDuration)
+	interceptor := service.NewAuthInterceptor(jwtManager, accessibleRoles())
+	s := grpc.NewServer(grpc.UnaryInterceptor(interceptor.Unary()))
 	reflection.Register(s)
 	// Attach the Greeter service to the server
-	jwtManager := service.NewJWTManager(secretKey, tokenDuration)
-	cdpService, err := service.NewService(logger, jwtManager)
+
+	gormDb, err := ConnectPostgresql(cfg.PostgreSQL.String())
+	if err != nil {
+		log.Fatalln("Failed to init gorm db:", err)
+		return err
+	}
+	cdpService, err := service.NewService(logger, cfg, gormDb, jwtManager)
 	if err != nil {
 		log.Fatalln("Failed to create new service:", err)
 		return err
@@ -117,17 +131,46 @@ func serverAction(cliCtx *cli.Context) error {
 		return err
 	}
 
-	gwmux := runtime.NewServeMux(runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{OrigName: true, EmitDefaults: true}))
-	// Register Greeter
+	gwmux := runtime.NewServeMux(runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
+		OrigName:     true,
+		EmitDefaults: true,
+	}))
+
 	err = pb.RegisterCDPServiceHandler(context.Background(), gwmux, conn)
 	if err != nil {
 		log.Fatalln("Failed to register gateway:", err)
 		return err
 	}
+	//TODO: Tìm vị trí ??
+	withCors := cors.New(cors.Options{
+		AllowOriginFunc:  func(origin string) bool { return true },
+		AllowedMethods:   []string{"GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"ACCEPT", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300,
+	}).Handler(gwmux)
+
+	// bữa tui đinhj làm theo linknày
+	//https://dev.to/techschoolguru/use-grpc-interceptor-for-authorization-with-jwt-1c5h
+	// này cho grpc mà hả
+	// thì đi vô là tính cho http luôn, http là lớp bọc ngoài của grpc thôi
+	// http => grpc => interceptor/middleware => internal
+	// không nên http => middleware => grpc => internal á (cách tạo ra http HandlerFunc mới hình như giống cấu trúc này hơn)
+	// ừm tui thấy giống ở dưới hơn
+	// phần auth nó đang để là một service mới, nhưng ông đừng tạo mới, cứ implêmnt trong CDP service luôn
+	// 		câu trên của bà =>> implement trong CDP service là ở đâu,
+	// à có kìa, nó là hôm bữa tui làm
+	// khai báo jwt manager
+	// xong trong service.go (chỗ khai báo Service của mình) sẽ thêm jwtManager đó rồi
+	// implement code chạy authen xử lý như nào thì cứ để trong Service đó là được
+	//
+
+	// qua service.go commnent nào
 
 	gwServer := &http.Server{
 		Addr:    cfg.ServerConfig.HttpServerAddress,
-		Handler: gwmux,
+		Handler: withCors, // nè
 	}
 	log.Println("Serving gRPC-Gateway for REST on http://0.0.0.0" + cfg.ServerConfig.HttpServerAddress)
 	log.Fatalln(gwServer.ListenAndServe())
@@ -225,5 +268,13 @@ func MigrateCliCommand(sourceURL string, databaseURL string) []*cli.Command {
 				return nil
 			},
 		},
+	}
+}
+
+func accessibleRoles() map[string][]string {
+	const rootServicePath = "/api.CDPService/"
+	return map[string][]string{
+		rootServicePath + "Admin":   {"admin"},
+		rootServicePath + "GetInfo": {"admin", "user"},
 	}
 }

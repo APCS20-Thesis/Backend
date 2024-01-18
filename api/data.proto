@@ -12,7 +12,7 @@ import "google/protobuf/wrappers.proto";
 //*****************************************//
 
 // User
-message User {
+message Account {
   // username
   string username = 1;
   // first_name

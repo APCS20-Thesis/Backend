@@ -20,6 +20,19 @@ service CDPService {
       body : "*"
     };
   }
+
+  rpc SignUp(SignUpRequest) returns (CommonResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/auth/sign-up"
+      body : "*"
+    };
+  }
+
+  rpc GetInfo(GetInfoRequest) returns (Account) {
+    option (google.api.http) = {
+      get : "/api/v1/auth/me"
+    };
+  }
 }
 
 // CheckHealthRequest
@@ -31,9 +44,7 @@ message CheckHealthRequest { }
 
 // LoginRequest
 message LoginRequest {
-  // username
   string username = 1;
-  // password
   string password = 2;
 }
 
@@ -46,11 +57,28 @@ message LoginResponse {
   // access_token
   string access_token = 3;
   // user data
-  User user = 4;
+  Account account = 4;
 }
 
+// Signup Request
+message SignUpRequest {
+  // username
+  string username = 1;
+  // password
+  string password = 2;
+  // first_name
+  string first_name = 3;
+  // last_name
+  string last_name = 4;
+  // email
+  string email = 5;
+}
+// Me Request - Account info
+message GetInfoRequest {}
+// Info Response is User
 
-// Common Response.
+
+// Common Response
 message CommonResponse {
   // code
   int32 code = 1;

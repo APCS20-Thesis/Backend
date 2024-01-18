@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type User struct {
+type Account struct {
 	ID        int64     `gorm:"primary_key"`
 	Uuid      uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()"`
 	Username  string    `gorm:"not null"`
@@ -18,6 +18,6 @@ type User struct {
 	UpdatedAt time.Time `gorm:"autoUpdateTime"`
 }
 
-func (User) TableName() string {
-	return "user"
+func (Account) TableName() string {
+	return "account"
 }
