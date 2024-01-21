@@ -10,7 +10,7 @@ import (
 type Business interface {
 	ProcessLogin(ctx context.Context, request *api.LoginRequest) (*api.Account, error)
 	ProcessSignUp(ctx context.Context, request *api.SignUpRequest) (*api.CommonResponse, error)
-	ProcessGetInfo(ctx context.Context, username string) (*api.Account, error)
+	ProcessGetAccountInfo(ctx context.Context) (*api.Account, error)
 }
 
 type business struct {

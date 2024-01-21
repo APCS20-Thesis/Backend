@@ -1,9 +1,10 @@
 package service
 
 import (
-	"fmt"
 	"github.com/APCS20-Thesis/Backend/api"
 	"github.com/dgrijalva/jwt-go"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"time"
 )
 
@@ -16,8 +17,8 @@ type JWTManager struct {
 // UserClaims is a custom JWT claims that contains some user's information
 type UserClaims struct {
 	jwt.StandardClaims
-	Username string `json:"username"`
-	Role     string `json:"role"`
+	UUID string `json:"uuid"`
+	Role string `json:"role"`
 }
 
 // NewJWTManager returns a new JWT manager
@@ -31,8 +32,8 @@ func (manager *JWTManager) Generate(account *api.Account, role string) (string, 
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(manager.tokenDuration).Unix(),
 		},
-		Username: account.Username,
-		Role:     role,
+		UUID: account.Uuid,
+		Role: role,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -47,7 +48,7 @@ func (manager *JWTManager) Verify(accessToken string) (*UserClaims, error) {
 		func(token *jwt.Token) (interface{}, error) {
 			_, ok := token.Method.(*jwt.SigningMethodHMAC)
 			if !ok {
-				return nil, fmt.Errorf("unexpected token signing method")
+				return nil, status.Error(codes.Internal, "Unexpected token signing method")
 			}
 
 			return []byte(manager.secretKey), nil
@@ -55,12 +56,12 @@ func (manager *JWTManager) Verify(accessToken string) (*UserClaims, error) {
 	)
 
 	if err != nil {
-		return nil, fmt.Errorf("invalid token: %w", err)
+		return nil, err
 	}
 
 	claims, ok := token.Claims.(*UserClaims)
 	if !ok {
-		return nil, fmt.Errorf("invalid token claims")
+		return nil, status.Error(codes.Internal, "Invalid token claims")
 	}
 
 	return claims, nil

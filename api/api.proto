@@ -6,6 +6,7 @@ import "google/rpc/code.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/wrappers.proto";
 import "data.proto";
+import "validate/validate.proto";
 
 service CDPService {
   rpc CheckHealth(CheckHealthRequest) returns (CommonResponse) {
@@ -28,7 +29,7 @@ service CDPService {
     };
   }
 
-  rpc GetInfo(GetInfoRequest) returns (Account) {
+  rpc GetAccountInfo(GetAccountInfoRequest) returns (GetAccountInfoResponse) {
     option (google.api.http) = {
       get : "/api/v1/auth/me"
     };
@@ -44,8 +45,10 @@ message CheckHealthRequest { }
 
 // LoginRequest
 message LoginRequest {
-  string username = 1;
-  string password = 2;
+  // username
+  string username = 1 [(validate.rules).string.len = 1];
+  // password
+  string password = 2 [(validate.rules).string.len = 8];
 }
 
 // LoginResponse
@@ -56,27 +59,35 @@ message LoginResponse {
   string message = 2;
   // access_token
   string access_token = 3;
-  // user data
+  // account
   Account account = 4;
 }
 
 // Signup Request
 message SignUpRequest {
   // username
-  string username = 1;
+  string username = 1 [(validate.rules).string.len = 1];
   // password
-  string password = 2;
+  string password = 2 [(validate.rules).string.len = 8];
   // first_name
-  string first_name = 3;
+  string first_name = 3 [(validate.rules).string.len = 1];
   // last_name
-  string last_name = 4;
+  string last_name = 4 [(validate.rules).string.len = 1];
   // email
-  string email = 5;
+  string email = 5 [(validate.rules).string.email = true];
 }
-// Me Request - Account info
-message GetInfoRequest {}
-// Info Response is User
+// GetAccountInfo Request
+message GetAccountInfoRequest { }
 
+// GetAccountInfo Response
+message GetAccountInfoResponse {
+  // code
+  int32 code = 1;
+  // message
+  string message = 2;
+  // account
+  Account account = 3;
+}
 
 // Common Response
 message CommonResponse {

@@ -141,10 +141,9 @@ func serverAction(cliCtx *cli.Context) error {
 		log.Fatalln("Failed to register gateway:", err)
 		return err
 	}
-	//TODO: Tìm vị trí ??
 	gwServer := &http.Server{
 		Addr:    cfg.ServerConfig.HttpServerAddress,
-		Handler: cors(gwmux), // nè
+		Handler: cors(gwmux),
 	}
 	log.Println("Serving gRPC-Gateway for REST on http://0.0.0.0" + cfg.ServerConfig.HttpServerAddress)
 	log.Fatalln(gwServer.ListenAndServe())
@@ -248,8 +247,8 @@ func MigrateCliCommand(sourceURL string, databaseURL string) []*cli.Command {
 func accessibleRoles() map[string][]string {
 	const rootServicePath = "/api.CDPService/"
 	return map[string][]string{
-		rootServicePath + "Admin":   {"admin"},
-		rootServicePath + "GetInfo": {"admin", "user"},
+		rootServicePath + "Admin":          {"admin"},
+		rootServicePath + "GetAccountInfo": {"admin", "user"},
 	}
 }
 

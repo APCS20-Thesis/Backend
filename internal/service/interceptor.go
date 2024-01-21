@@ -25,47 +25,49 @@ func (interceptor *AuthInterceptor) Unary() grpc.UnaryServerInterceptor {
 		info *grpc.UnaryServerInfo,
 		handler grpc.UnaryHandler,
 	) (interface{}, error) {
-		log.Println("--> unary interceptor: ", info.FullMethod)
+		log.Println("Full method in interceptor: ", info.FullMethod)
+		md, ok := metadata.FromIncomingContext(ctx)
+		if !ok {
+			return nil, status.Error(codes.Unauthenticated, "Metadata is not provided")
+		}
 
-		err := interceptor.authorize(ctx, info.FullMethod)
+		claims, err := interceptor.authorize(ctx, md, info.FullMethod)
 		if err != nil {
 			return nil, err
+		}
+		if claims != nil {
+			md.Append("account_uuid", claims.UUID)
+			ctx = metadata.NewIncomingContext(ctx, md)
 		}
 
 		return handler(ctx, req)
 	}
 }
 
-func (interceptor *AuthInterceptor) authorize(ctx context.Context, method string) error {
+func (interceptor *AuthInterceptor) authorize(ctx context.Context, md metadata.MD, method string) (*UserClaims, error) {
 	accessibleRoles, ok := interceptor.accessibleRoles[method]
 	if !ok {
 		// everyone can access
-		return nil
+		return nil, nil
 	}
-
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return status.Errorf(codes.Unauthenticated, "Metadata is not provided")
-	}
-
 	values := md["authorization"]
 	if len(values) == 0 {
-		return status.Errorf(codes.Unauthenticated, "Authorization token is not provided")
+		return nil, status.Errorf(codes.Unauthenticated, "Authorization token is not provided")
 	}
 
 	accessToken := values[0]
 	claims, err := interceptor.jwtManager.Verify(accessToken)
 	if err != nil {
-		return status.Errorf(codes.Unauthenticated, "Access token is invalid: %v", err)
+		return nil, err
 	}
 
 	for _, role := range accessibleRoles {
 		if role == claims.Role {
-			return nil
+			return claims, nil
 		}
 	}
 
-	return status.Error(codes.PermissionDenied, "No permission to access")
+	return nil, status.Error(codes.PermissionDenied, "No permission to access")
 }
 
 //func unpackFullMethod(fullMethod string) (string, string) {

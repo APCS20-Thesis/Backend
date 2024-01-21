@@ -8,15 +8,14 @@ import (
 )
 
 func (b *business) ProcessSignUp(ctx context.Context, request *api.SignUpRequest) (*api.CommonResponse, error) {
-	createAccountParams := repository.CreateAccountParams{
-		Username:  request.Username,
-		Password:  request.Password,
-		FirstName: request.FirstName,
-		LastName:  request.LastName,
-		Email:     request.Email,
-	}
-
-	err := b.repository.AccountRepository.CreateAccount(ctx, &createAccountParams)
+	err := b.repository.AccountRepository.
+		CreateAccount(ctx, &repository.CreateAccountParams{
+			Username:  request.Username,
+			Password:  request.Password,
+			FirstName: request.FirstName,
+			LastName:  request.LastName,
+			Email:     request.Email,
+		})
 	if err != nil {
 		b.log.WithName("ProcessSignUp").WithValues("request", request).Error(err, "Fail to create user data")
 		return nil, err

@@ -11,14 +11,16 @@ import "google/protobuf/wrappers.proto";
 // Authentication
 //*****************************************//
 
-// User
+// Account
 message Account {
+  // uuid;
+  string uuid = 1;
   // username
-  string username = 1;
+  string username = 2;
   // first_name
-  string first_name = 2;
+  string first_name = 3;
   // last_name
-  string last_name = 3;
+  string last_name = 4;
   // email
-  string email = 4;
+  string email = 5;
 }

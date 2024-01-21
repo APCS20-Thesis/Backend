@@ -19,10 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	CDPService_CheckHealth_FullMethodName = "/api.CDPService/CheckHealth"
-	CDPService_Login_FullMethodName       = "/api.CDPService/Login"
-	CDPService_SignUp_FullMethodName      = "/api.CDPService/SignUp"
-	CDPService_GetInfo_FullMethodName     = "/api.CDPService/GetInfo"
+	CDPService_CheckHealth_FullMethodName    = "/api.CDPService/CheckHealth"
+	CDPService_Login_FullMethodName          = "/api.CDPService/Login"
+	CDPService_SignUp_FullMethodName         = "/api.CDPService/SignUp"
+	CDPService_GetAccountInfo_FullMethodName = "/api.CDPService/GetAccountInfo"
 )
 
 // CDPServiceClient is the client API for CDPService service.
@@ -32,7 +32,7 @@ type CDPServiceClient interface {
 	CheckHealth(ctx context.Context, in *CheckHealthRequest, opts ...grpc.CallOption) (*CommonResponse, error)
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	SignUp(ctx context.Context, in *SignUpRequest, opts ...grpc.CallOption) (*CommonResponse, error)
-	GetInfo(ctx context.Context, in *GetInfoRequest, opts ...grpc.CallOption) (*Account, error)
+	GetAccountInfo(ctx context.Context, in *GetAccountInfoRequest, opts ...grpc.CallOption) (*GetAccountInfoResponse, error)
 }
 
 type cDPServiceClient struct {
@@ -70,9 +70,9 @@ func (c *cDPServiceClient) SignUp(ctx context.Context, in *SignUpRequest, opts .
 	return out, nil
 }
 
-func (c *cDPServiceClient) GetInfo(ctx context.Context, in *GetInfoRequest, opts ...grpc.CallOption) (*Account, error) {
-	out := new(Account)
-	err := c.cc.Invoke(ctx, CDPService_GetInfo_FullMethodName, in, out, opts...)
+func (c *cDPServiceClient) GetAccountInfo(ctx context.Context, in *GetAccountInfoRequest, opts ...grpc.CallOption) (*GetAccountInfoResponse, error) {
+	out := new(GetAccountInfoResponse)
+	err := c.cc.Invoke(ctx, CDPService_GetAccountInfo_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +86,7 @@ type CDPServiceServer interface {
 	CheckHealth(context.Context, *CheckHealthRequest) (*CommonResponse, error)
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 	SignUp(context.Context, *SignUpRequest) (*CommonResponse, error)
-	GetInfo(context.Context, *GetInfoRequest) (*Account, error)
+	GetAccountInfo(context.Context, *GetAccountInfoRequest) (*GetAccountInfoResponse, error)
 	mustEmbedUnimplementedCDPServiceServer()
 }
 
@@ -103,8 +103,8 @@ func (UnimplementedCDPServiceServer) Login(context.Context, *LoginRequest) (*Log
 func (UnimplementedCDPServiceServer) SignUp(context.Context, *SignUpRequest) (*CommonResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SignUp not implemented")
 }
-func (UnimplementedCDPServiceServer) GetInfo(context.Context, *GetInfoRequest) (*Account, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetInfo not implemented")
+func (UnimplementedCDPServiceServer) GetAccountInfo(context.Context, *GetAccountInfoRequest) (*GetAccountInfoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAccountInfo not implemented")
 }
 func (UnimplementedCDPServiceServer) mustEmbedUnimplementedCDPServiceServer() {}
 
@@ -173,20 +173,20 @@ func _CDPService_SignUp_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
-func _CDPService_GetInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetInfoRequest)
+func _CDPService_GetAccountInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAccountInfoRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CDPServiceServer).GetInfo(ctx, in)
+		return srv.(CDPServiceServer).GetAccountInfo(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: CDPService_GetInfo_FullMethodName,
+		FullMethod: CDPService_GetAccountInfo_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CDPServiceServer).GetInfo(ctx, req.(*GetInfoRequest))
+		return srv.(CDPServiceServer).GetAccountInfo(ctx, req.(*GetAccountInfoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -211,8 +211,8 @@ var CDPService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _CDPService_SignUp_Handler,
 		},
 		{
-			MethodName: "GetInfo",
-			Handler:    _CDPService_GetInfo_Handler,
+			MethodName: "GetAccountInfo",
+			Handler:    _CDPService_GetAccountInfo_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
