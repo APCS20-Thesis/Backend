@@ -9,7 +9,7 @@ import (
 	"github.com/go-logr/logr"
 	migrateV4 "github.com/golang-migrate/migrate/v4"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"github.com/rs/cors"
+	"github.com/spf13/viper"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -20,6 +20,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -135,42 +136,15 @@ func serverAction(cliCtx *cli.Context) error {
 		OrigName:     true,
 		EmitDefaults: true,
 	}))
-
 	err = pb.RegisterCDPServiceHandler(context.Background(), gwmux, conn)
 	if err != nil {
 		log.Fatalln("Failed to register gateway:", err)
 		return err
 	}
 	//TODO: Tìm vị trí ??
-	withCors := cors.New(cors.Options{
-		AllowOriginFunc:  func(origin string) bool { return true },
-		AllowedMethods:   []string{"GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"ACCEPT", "Authorization", "Content-Type", "X-CSRF-Token"},
-		ExposedHeaders:   []string{"Link"},
-		AllowCredentials: true,
-		MaxAge:           300,
-	}).Handler(gwmux)
-
-	// bữa tui đinhj làm theo linknày
-	//https://dev.to/techschoolguru/use-grpc-interceptor-for-authorization-with-jwt-1c5h
-	// này cho grpc mà hả
-	// thì đi vô là tính cho http luôn, http là lớp bọc ngoài của grpc thôi
-	// http => grpc => interceptor/middleware => internal
-	// không nên http => middleware => grpc => internal á (cách tạo ra http HandlerFunc mới hình như giống cấu trúc này hơn)
-	// ừm tui thấy giống ở dưới hơn
-	// phần auth nó đang để là một service mới, nhưng ông đừng tạo mới, cứ implêmnt trong CDP service luôn
-	// 		câu trên của bà =>> implement trong CDP service là ở đâu,
-	// à có kìa, nó là hôm bữa tui làm
-	// khai báo jwt manager
-	// xong trong service.go (chỗ khai báo Service của mình) sẽ thêm jwtManager đó rồi
-	// implement code chạy authen xử lý như nào thì cứ để trong Service đó là được
-	//
-
-	// qua service.go commnent nào
-
 	gwServer := &http.Server{
 		Addr:    cfg.ServerConfig.HttpServerAddress,
-		Handler: withCors, // nè
+		Handler: cors(gwmux), // nè
 	}
 	log.Println("Serving gRPC-Gateway for REST on http://0.0.0.0" + cfg.ServerConfig.HttpServerAddress)
 	log.Fatalln(gwServer.ListenAndServe())
@@ -277,4 +251,28 @@ func accessibleRoles() map[string][]string {
 		rootServicePath + "Admin":   {"admin"},
 		rootServicePath + "GetInfo": {"admin", "user"},
 	}
+}
+
+func allowedOrigin(origin string) bool {
+	if viper.GetString("cors") == "*" {
+		return true
+	}
+	if matched, _ := regexp.MatchString(viper.GetString("cors"), origin); matched {
+		return true
+	}
+	return false
+}
+
+func cors(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if allowedOrigin(r.Header.Get("Origin")) {
+			w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE")
+			w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, Authorization, ResponseType")
+		}
+		if r.Method == "OPTIONS" {
+			return
+		}
+		h.ServeHTTP(w, r)
+	})
 }

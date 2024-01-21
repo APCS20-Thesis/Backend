@@ -16,7 +16,7 @@ type Base struct {
 func loadDefaultConfig() *Config {
 	c := &Config{
 		ServerConfig: ServerConfig{
-			HttpServerAddress: ":10080",
+			HttpServerAddress: ":11080",
 			GrpcServerAddress: ":10443",
 		},
 		PostgreSQL: PostgreSQLConfig{
