@@ -13,7 +13,7 @@ import "google/protobuf/wrappers.proto";
 
 // Account
 message Account {
-  // uuid;
+  // uuid
   string uuid = 1;
   // username
   string username = 2;

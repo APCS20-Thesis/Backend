@@ -7,7 +7,14 @@ import (
 )
 
 func (s *Service) GetAccountInfo(ctx context.Context, request *api.GetAccountInfoRequest) (*api.GetAccountInfoResponse, error) {
-	account, err := s.business.AuthBusiness.ProcessGetAccountInfo(ctx)
+	accountUuid, err := GetMetadata(ctx, "account_uuid")
+	if err != nil {
+		s.log.WithName("GetAccountInfo").
+			WithValues("Context", ctx).
+			Error(err, "Cannot get account_uuid from context")
+		return nil, err
+	}
+	account, err := s.business.AuthBusiness.ProcessGetAccountInfo(ctx, accountUuid)
 	if err != nil {
 		return nil, err
 	}

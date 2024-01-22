@@ -5,8 +5,8 @@ import (
 	"github.com/APCS20-Thesis/Backend/api"
 )
 
-func (b *business) ProcessGetAccountInfo(ctx context.Context) (*api.Account, error) {
-	account, err := b.repository.AccountRepository.GetAccountInfo(ctx)
+func (b *business) ProcessGetAccountInfo(ctx context.Context, accountUuid string) (*api.Account, error) {
+	account, err := b.repository.AccountRepository.GetAccountInfo(ctx, accountUuid)
 	if err != nil {
 		b.log.WithName("ProcessGetAccountInfo").WithValues("Context", ctx).Error(err, "Fail to get info user")
 		return nil, err

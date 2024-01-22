@@ -46,9 +46,9 @@ message CheckHealthRequest { }
 // LoginRequest
 message LoginRequest {
   // username
-  string username = 1 [(validate.rules).string.len = 1];
+  string username = 1 [(validate.rules).string.min_len = 1];
   // password
-  string password = 2 [(validate.rules).string.len = 8];
+  string password = 2 [(validate.rules).string.min_len = 8];
 }
 
 // LoginResponse
@@ -66,16 +66,17 @@ message LoginResponse {
 // Signup Request
 message SignUpRequest {
   // username
-  string username = 1 [(validate.rules).string.len = 1];
+  string username = 1 [(validate.rules).string.min_len = 1];
   // password
-  string password = 2 [(validate.rules).string.len = 8];
+  string password = 2 [(validate.rules).string.min_len = 8];
   // first_name
-  string first_name = 3 [(validate.rules).string.len = 1];
+  string first_name = 3 [(validate.rules).string.min_len = 1];
   // last_name
-  string last_name = 4 [(validate.rules).string.len = 1];
+  string last_name = 4 [(validate.rules).string.min_len = 1];
   // email
   string email = 5 [(validate.rules).string.email = true];
 }
+
 // GetAccountInfo Request
 message GetAccountInfoRequest { }
 

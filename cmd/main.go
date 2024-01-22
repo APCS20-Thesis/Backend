@@ -96,7 +96,8 @@ func serverAction(cliCtx *cli.Context) error {
 
 	// Create a gRPC server object
 	jwtManager := service.NewJWTManager(secretKey, tokenDuration)
-	interceptor := service.NewAuthInterceptor(jwtManager, accessibleRoles())
+	interceptor := service.NewAuthInterceptor(jwtManager, config.AccessibleRoles())
+
 	s := grpc.NewServer(grpc.UnaryInterceptor(interceptor.Unary()))
 	reflection.Register(s)
 	// Attach the Greeter service to the server
@@ -241,14 +242,6 @@ func MigrateCliCommand(sourceURL string, databaseURL string) []*cli.Command {
 				return nil
 			},
 		},
-	}
-}
-
-func accessibleRoles() map[string][]string {
-	const rootServicePath = "/api.CDPService/"
-	return map[string][]string{
-		rootServicePath + "Admin":          {"admin"},
-		rootServicePath + "GetAccountInfo": {"admin", "user"},
 	}
 }
 

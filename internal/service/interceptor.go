@@ -31,7 +31,7 @@ func (interceptor *AuthInterceptor) Unary() grpc.UnaryServerInterceptor {
 			return nil, status.Error(codes.Unauthenticated, "Metadata is not provided")
 		}
 
-		claims, err := interceptor.authorize(ctx, md, info.FullMethod)
+		claims, err := interceptor.authorize(ctx, info.FullMethod)
 		if err != nil {
 			return nil, err
 		}
@@ -44,18 +44,19 @@ func (interceptor *AuthInterceptor) Unary() grpc.UnaryServerInterceptor {
 	}
 }
 
-func (interceptor *AuthInterceptor) authorize(ctx context.Context, md metadata.MD, method string) (*UserClaims, error) {
+func (interceptor *AuthInterceptor) authorize(ctx context.Context, method string) (*UserClaims, error) {
 	accessibleRoles, ok := interceptor.accessibleRoles[method]
 	if !ok {
 		// everyone can access
 		return nil, nil
 	}
-	values := md["authorization"]
-	if len(values) == 0 {
-		return nil, status.Errorf(codes.Unauthenticated, "Authorization token is not provided")
+
+	accessToken, err := GetMetadata(ctx, "authorization")
+	if err != nil {
+		log.Fatalln("Cannot get accessToken from context", err)
+		return nil, err
 	}
 
-	accessToken := values[0]
 	claims, err := interceptor.jwtManager.Verify(accessToken)
 	if err != nil {
 		return nil, err
@@ -68,6 +69,23 @@ func (interceptor *AuthInterceptor) authorize(ctx context.Context, md metadata.M
 	}
 
 	return nil, status.Error(codes.PermissionDenied, "No permission to access")
+}
+
+func AddMetadata(ctx context.Context, md metadata.MD, keys []string) {
+	//TODO: Try to implement it
+}
+
+func GetMetadata(ctx context.Context, key string) (string, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return "", status.Error(codes.Unauthenticated, "Metadata is not provided")
+	}
+	values := md[key]
+	if len(values) == 0 {
+		return "", status.Errorf(codes.Unauthenticated, "Key is not provided")
+	}
+
+	return values[0], nil
 }
 
 //func unpackFullMethod(fullMethod string) (string, string) {

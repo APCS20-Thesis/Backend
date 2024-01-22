@@ -2,9 +2,9 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"github.com/APCS20-Thesis/Backend/internal/model"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 )
@@ -12,7 +12,7 @@ import (
 type AccountRepository interface {
 	FindAccount(ctx context.Context, username string, password string) (*model.Account, error)
 	CreateAccount(ctx context.Context, params *CreateAccountParams) error
-	GetAccountInfo(ctx context.Context) (*model.Account, error)
+	GetAccountInfo(ctx context.Context, accountUuid string) (*model.Account, error)
 }
 
 type accountRepo struct {
@@ -44,41 +44,40 @@ type CreateAccountParams struct {
 }
 
 func (r *accountRepo) CreateAccount(ctx context.Context, params *CreateAccountParams) error {
-	var count int64
+	var account model.Account
+
 	err := r.WithContext(ctx).Table(r.TableName).
 		Where("username = ? OR email = ?", params.Username, params.Email).
-		Count(&count).Error
-	if err != nil {
-		return err
-	}
-	if count != 0 {
-		return status.Error(codes.AlreadyExists, "Username is already used")
-	}
-	account := &model.Account{
-		Username:  params.Username,
-		Password:  params.Password,
-		Email:     params.Email,
-		FirstName: params.FirstName,
-		LastName:  params.LastName,
+		First(&account).Error
+
+	if err == nil {
+		if account.Username == params.Username {
+			return status.Error(codes.AlreadyExists, "Username is already used")
+		}
+		return status.Error(codes.AlreadyExists, "Email is already used")
 	}
 
-	err = r.WithContext(ctx).Create(&account).Error
-	if err != nil {
-		return err
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		account := &model.Account{
+			Username:  params.Username,
+			Password:  params.Password,
+			Email:     params.Email,
+			FirstName: params.FirstName,
+			LastName:  params.LastName,
+		}
+
+		createErr := r.WithContext(ctx).Table(r.TableName).Create(&account).Error
+		if createErr != nil {
+			return err
+		}
+		return nil
 	}
-	return nil
+	return err
 }
 
-func (r *accountRepo) GetAccountInfo(ctx context.Context) (*model.Account, error) {
+func (r *accountRepo) GetAccountInfo(ctx context.Context, accountUuid string) (*model.Account, error) {
 	var account model.Account
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return nil, status.Error(codes.Internal, "Cannot get metadata")
-	}
-	accountUuid := md["account_uuid"]
-	if len(accountUuid) == 0 {
-		return nil, status.Error(codes.Internal, "Cannot get account uuid")
-	}
+
 	err := r.WithContext(ctx).Table(r.TableName).
 		Where("uuid = ?", accountUuid).
 		First(&account).Error
