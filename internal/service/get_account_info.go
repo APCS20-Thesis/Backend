@@ -3,11 +3,12 @@ package service
 import (
 	"context"
 	"github.com/APCS20-Thesis/Backend/api"
+	"github.com/APCS20-Thesis/Backend/internal/constants"
 	"google.golang.org/grpc/codes"
 )
 
 func (s *Service) GetAccountInfo(ctx context.Context, request *api.GetAccountInfoRequest) (*api.GetAccountInfoResponse, error) {
-	accountUuid, err := GetMetadata(ctx, "account_uuid")
+	accountUuid, err := GetMetadata(ctx, constants.KeyAccountUuid)
 	if err != nil {
 		s.log.WithName("GetAccountInfo").
 			WithValues("Context", ctx).

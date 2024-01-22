@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/APCS20-Thesis/Backend/internal/constants"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -36,7 +37,7 @@ func (interceptor *AuthInterceptor) Unary() grpc.UnaryServerInterceptor {
 			return nil, err
 		}
 		if claims != nil {
-			md.Append("account_uuid", claims.UUID)
+			md.Append(constants.KeyAccountUuid, claims.UUID)
 			ctx = metadata.NewIncomingContext(ctx, md)
 		}
 
@@ -51,7 +52,7 @@ func (interceptor *AuthInterceptor) authorize(ctx context.Context, method string
 		return nil, nil
 	}
 
-	accessToken, err := GetMetadata(ctx, "authorization")
+	accessToken, err := GetMetadata(ctx, constants.KeyAuthorization)
 	if err != nil {
 		log.Fatalln("Cannot get accessToken from context", err)
 		return nil, err
