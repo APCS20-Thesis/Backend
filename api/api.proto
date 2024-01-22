@@ -5,6 +5,8 @@ option go_package = "github.com/APCS20-Thesis/Backend/api";
 import "google/rpc/code.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/wrappers.proto";
+import "data.proto";
+import "validate/validate.proto";
 
 service CDPService {
   rpc CheckHealth(CheckHealthRequest) returns (CommonResponse) {
@@ -12,12 +14,83 @@ service CDPService {
       get: "/health"
     };
   }
+
+  rpc Login(LoginRequest) returns (LoginResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/auth/login"
+      body : "*"
+    };
+  }
+
+  rpc SignUp(SignUpRequest) returns (CommonResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/auth/sign-up"
+      body : "*"
+    };
+  }
+
+  rpc GetAccountInfo(GetAccountInfoRequest) returns (GetAccountInfoResponse) {
+    option (google.api.http) = {
+      get : "/api/v1/auth/me"
+    };
+  }
 }
 
 // CheckHealthRequest
 message CheckHealthRequest { }
 
-// Common Response.
+//*****************************************//
+// Authentication
+//*****************************************//
+
+// LoginRequest
+message LoginRequest {
+  // username
+  string username = 1 [(validate.rules).string.min_len = 1];
+  // password
+  string password = 2 [(validate.rules).string.min_len = 8];
+}
+
+// LoginResponse
+message LoginResponse {
+  // code
+  int32 code = 1;
+  // message
+  string message = 2;
+  // access_token
+  string access_token = 3;
+  // account
+  Account account = 4;
+}
+
+// Signup Request
+message SignUpRequest {
+  // username
+  string username = 1 [(validate.rules).string.min_len = 1];
+  // password
+  string password = 2 [(validate.rules).string.min_len = 8];
+  // first_name
+  string first_name = 3 [(validate.rules).string.min_len = 1];
+  // last_name
+  string last_name = 4 [(validate.rules).string.min_len = 1];
+  // email
+  string email = 5 [(validate.rules).string.email = true];
+}
+
+// GetAccountInfo Request
+message GetAccountInfoRequest { }
+
+// GetAccountInfo Response
+message GetAccountInfoResponse {
+  // code
+  int32 code = 1;
+  // message
+  string message = 2;
+  // account
+  Account account = 3;
+}
+
+// Common Response
 message CommonResponse {
   // code
   int32 code = 1;

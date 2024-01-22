@@ -1,0 +1,26 @@
+syntax = "proto3";
+package api;
+option go_package = "github.com/APCS20-Thesis/Backend/api";
+
+import "google/rpc/code.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/wrappers.proto";
+
+
+//*****************************************//
+// Authentication
+//*****************************************//
+
+// Account
+message Account {
+  // uuid
+  string uuid = 1;
+  // username
+  string username = 2;
+  // first_name
+  string first_name = 3;
+  // last_name
+  string last_name = 4;
+  // email
+  string email = 5;
+}
