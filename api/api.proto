@@ -34,7 +34,15 @@ service CDPService {
       get : "/api/v1/auth/me"
     };
   }
+
+  rpc CreateDataSourceMySQL(CreateDataSourceMySQLRequest) returns (CreateDataSourceMySQLResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/data-source/mysql"
+      body : "*"
+    };
+  }
 }
+
 
 // CheckHealthRequest
 message CheckHealthRequest { }
@@ -89,6 +97,37 @@ message GetAccountInfoResponse {
   // account
   Account account = 3;
 }
+
+//*****************************************//
+// Data Source
+//*****************************************//
+
+// CreateDataSourceMySQLRequest
+message CreateDataSourceMySQLRequest {
+  // name - name of data source
+  string name = 1 [(validate.rules).string.min_len = 1];
+  // host
+  string host = 2 [(validate.rules).string.min_len = 1];
+  // port - 3306 by default
+  string port = 3 [(validate.rules).string.min_len = 1];
+  // database - database name
+  string database = 4 [(validate.rules).string.min_len = 1];
+  // username
+  string username = 5 [(validate.rules).string.min_len = 1];
+  // password
+  string password = 6 [(validate.rules).string.min_len = 1];
+  // description - description of data source
+  string description = 7;
+}
+
+// CreateDataSourceMySQLResponse
+message CreateDataSourceMySQLResponse {
+  // code
+  int32 code = 1;
+  // message
+  string message = 2;
+}
+
 
 // Common Response
 message CommonResponse {
