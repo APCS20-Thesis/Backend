@@ -24,14 +24,3 @@ message Account {
   // email
   string email = 5;
 }
-
-//*****************************************//
-// Data Source
-//*****************************************//
-
-message MappingOption {
-  // source_field - field in data source
-  string source_field = 1;
-  // dest_field - field in destination delta table
-  string dest_field = 2;
-}
