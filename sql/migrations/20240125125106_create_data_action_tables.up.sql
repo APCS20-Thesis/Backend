@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS data_source (
 
 CREATE TABLE IF NOT EXISTS data_action (
     id bigserial not null constraint data_action_pk primary key,
-    event_type varchar(255) not null,
+    action_type varchar(255) not null,
     payload jsonb,
     status varchar(255) not null ,
     run_count int not null,
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS data_action (
 
 CREATE TABLE IF NOT EXISTS data_action_run (
     id bigserial not null constraint data_action_run_pk primary key,
-    event_id bigint not null,
+    action_id bigint not null,
     run_id int not null,
     status varchar(255) not null,
     error varchar(255),
