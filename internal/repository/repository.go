@@ -1,13 +1,21 @@
 package repository
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 type Repository struct {
 	AccountRepository
+	DataSourceRepository
+	DataActionRepository
+	DataActionRunRepository
 }
 
 func NewRepository(db *gorm.DB) *Repository {
 	return &Repository{
-		NewAccountRepository(db),
+		AccountRepository:       NewAccountRepository(db),
+		DataSourceRepository:    NewDataSourceRepository(db),
+		DataActionRepository:    NewDataActionRepository(db),
+		DataActionRunRepository: NewDataActionRunRepository(db),
 	}
 }
