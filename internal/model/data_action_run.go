@@ -11,13 +11,14 @@ const (
 	DataActionRunStatus_Success    = "DONE"
 	DataActionRunStatus_Processing = "PROCESSING"
 	DataActionRunStatus_Failed     = "FAILED"
+	DataActionRunStatus_Canceled   = "CANCELED"
 )
 
 type DataActionRun struct {
 	ID          int64 `gorm:"primaryKey"`
-	EventId     int64
+	ActionId    int64
 	RunId       int64
-	Status      string
+	Status      DataActionRunStatus
 	Error       string
 	AccountUuid uuid.UUID
 	CreatedAt   time.Time `gorm:"autoCreateTime"`
