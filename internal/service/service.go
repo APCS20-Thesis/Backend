@@ -20,6 +20,7 @@ type Service struct {
 
 	// embedded unimplemented service server
 	api.UnimplementedCDPServiceServer
+	api.UnimplementedCDPServiceFile
 }
 
 func NewService(logger logr.Logger, config *config.Config, gormDb *gorm.DB, jwtManager *JWTManager) (*Service, error) {

@@ -38,6 +38,8 @@ const (
 )
 const versionTimeFormat = "20060102150405"
 
+var RootFolder string
+
 func main() {
 	if err := run(os.Args); err != nil {
 		log.Fatal(err)
@@ -140,6 +142,11 @@ func serverAction(cliCtx *cli.Context) error {
 	err = pb.RegisterCDPServiceHandler(context.Background(), gwmux, conn)
 	if err != nil {
 		log.Fatalln("Failed to register gateway:", err)
+		return err
+	}
+	err = pb.RegisterCDPServiceImportFile(context.Background(), gwmux, cdpService)
+	if err != nil {
+		log.Fatalln("Failed to register import file:", err)
 		return err
 	}
 	gwServer := &http.Server{

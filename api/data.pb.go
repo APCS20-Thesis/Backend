@@ -29,7 +29,7 @@ type Account struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// uuid;
+	// uuid
 	Uuid string `protobuf:"bytes,1,opt,name=uuid,proto3" json:"uuid,omitempty"`
 	// username
 	Username string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
