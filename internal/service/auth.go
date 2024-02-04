@@ -1,68 +1,58 @@
 package service
 
 import (
+	"context"
 	"github.com/APCS20-Thesis/Backend/api"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/APCS20-Thesis/Backend/internal/constants"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-	"time"
 )
 
-// JWTManager is a JSON web token manager
-type JWTManager struct {
-	secretKey     string
-	tokenDuration time.Duration
-}
-
-// UserClaims is a custom JWT claims that contains some user's information
-type UserClaims struct {
-	jwt.StandardClaims
-	UUID string `json:"uuid"`
-	Role string `json:"role"`
-}
-
-// NewJWTManager returns a new JWT manager
-func NewJWTManager(secretKey string, tokenDuration time.Duration) *JWTManager {
-	return &JWTManager{secretKey, tokenDuration}
-}
-
-// Generate generates and signs a new token for a user
-func (manager *JWTManager) Generate(account *api.Account, role string) (string, error) {
-	claims := UserClaims{
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(manager.tokenDuration).Unix(),
-		},
-		UUID: account.Uuid,
-		Role: role,
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(manager.secretKey))
-}
-
-// Verify verifies the access token string and return a user claim if the token is valid
-func (manager *JWTManager) Verify(accessToken string) (*UserClaims, error) {
-	token, err := jwt.ParseWithClaims(
-		accessToken,
-		&UserClaims{},
-		func(token *jwt.Token) (interface{}, error) {
-			_, ok := token.Method.(*jwt.SigningMethodHMAC)
-			if !ok {
-				return nil, status.Error(codes.Internal, "Unexpected token signing method")
-			}
-
-			return []byte(manager.secretKey), nil
-		},
-	)
-
+func (s *Service) Login(ctx context.Context, request *api.LoginRequest) (*api.LoginResponse, error) {
+	account, err := s.business.AuthBusiness.ProcessLogin(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-
-	claims, ok := token.Claims.(*UserClaims)
-	if !ok {
-		return nil, status.Error(codes.Internal, "Invalid token claims")
+	token, err := s.jwtManager.Generate(account, "user")
+	if err != nil {
+		s.log.WithName("Login").WithValues("request", request).Error(err, "Cannot generate access token")
+		return nil, err
 	}
 
-	return claims, nil
+	return &api.LoginResponse{
+		Code:        int32(codes.OK),
+		Message:     "Login success",
+		AccessToken: token,
+		Account:     account,
+	}, nil
+}
+
+func (s *Service) SignUp(ctx context.Context, request *api.SignUpRequest) (*api.CommonResponse, error) {
+	return s.business.AuthBusiness.ProcessSignUp(ctx, request)
+}
+
+func (s *Service) GetAccountInfo(ctx context.Context, request *api.GetAccountInfoRequest) (*api.GetAccountInfoResponse, error) {
+	accountUuid, err := GetAccountUuidFromCtx(ctx)
+	if err != nil {
+		s.log.WithName("GetAccountInfo").
+			WithValues("Context", ctx).
+			Error(err, "Cannot get account_uuid from context")
+		return nil, err
+	}
+	account, err := s.business.AuthBusiness.ProcessGetAccountInfo(ctx, accountUuid)
+	if err != nil {
+		return nil, err
+	}
+	return &api.GetAccountInfoResponse{
+		Code:    int32(codes.OK),
+		Message: "Get account info success",
+		Account: account,
+	}, nil
+}
+
+/*
+COMMON AUTH FUNCTIONS
+*/
+
+func GetAccountUuidFromCtx(ctx context.Context) (string, error) {
+	return GetMetadata(ctx, constants.KeyAccountUuid)
 }

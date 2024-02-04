@@ -13,7 +13,6 @@ type DataActionRepository interface {
 	CreateDataAction(ctx context.Context, params *CreateDataAction) error
 	GetDataAction(ctx context.Context, id int64) (*model.DataAction, error)
 	UpdateDataAction(ctx context.Context, params *UpdateDataActionParams) error
-	DeleteDataAction(ctx context.Context, id int64) error
 }
 
 type dataActionRepo struct {
@@ -81,15 +80,6 @@ func (r *dataActionRepo) UpdateDataAction(ctx context.Context, params *UpdateDat
 	updateErr := r.WithContext(ctx).Table(r.TableName).Where("id = ?", params.ID).Updates(&dataAction).Error
 	if updateErr != nil {
 		return updateErr
-	}
-
-	return nil
-}
-
-func (r *dataActionRepo) DeleteDataAction(ctx context.Context, id int64) error {
-	deleteErr := r.WithContext(ctx).Table(r.TableName).Where("id = ?", id).Delete(&model.DataAction{}).Error
-	if deleteErr != nil {
-		return deleteErr
 	}
 
 	return nil
