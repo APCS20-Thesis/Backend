@@ -12,7 +12,7 @@ type Service struct {
 	log        logr.Logger
 	config     *config.Config
 	jwtManager *JWTManager
-
+	s3Manger   *S3Manager
 	//// more connector here
 	//store  store.StoreQuerier
 
@@ -26,10 +26,16 @@ type Service struct {
 func NewService(logger logr.Logger, config *config.Config, gormDb *gorm.DB, jwtManager *JWTManager) (*Service, error) {
 	business := business.NewBusiness(logger, gormDb)
 
+	s3Manager := NewS3Manager(
+		config.S3StorageConfig.Region,
+		config.S3StorageConfig.AccessKeyID,
+		config.S3StorageConfig.SecretAccessKey,
+	)
 	return &Service{
 		log:        logger,
 		config:     config,
 		jwtManager: jwtManager,
 		business:   business,
+		s3Manger:   s3Manager,
 	}, nil
 }
