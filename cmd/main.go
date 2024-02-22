@@ -38,8 +38,6 @@ const (
 )
 const versionTimeFormat = "20060102150405"
 
-var RootFolder string
-
 func main() {
 	if err := run(os.Args); err != nil {
 		log.Fatal(err)

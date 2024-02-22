@@ -106,7 +106,7 @@ message  ImportFileRequest {
   // file_size
   int64 file_size = 3;
   // mapping option
-  map<string, string> mapping_option = 4;
+  map<string, string> mapping_options = 4;
   // configuration
   map<string, string> configuration = 5;
   // file_content
@@ -116,7 +116,7 @@ message  ImportFileRequest {
   // name
   string name = 8 [(validate.rules).string.min_len = 1];
   // description
-  string description = 9 [(validate.rules).string.min_len = 1];
+  string description = 9;
 }
 
 // ImportFile Response

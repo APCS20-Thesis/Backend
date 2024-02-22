@@ -30,9 +30,9 @@ func request_CDPServiceFile_ImportFile_0(ctx context.Context, client CDPServiceF
 	if err != nil {
 		return nil, err
 	}
-	jsonMappingOption := req.Form.Get("mapping_option")
-	var mappingOption map[string]string
-	err = json.Unmarshal([]byte(jsonMappingOption), &mappingOption)
+	jsonMappingOptions := req.Form.Get("mapping_options")
+	var mappingOptions map[string]string
+	err = json.Unmarshal([]byte(jsonMappingOptions), &mappingOptions)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func request_CDPServiceFile_ImportFile_0(ctx context.Context, client CDPServiceF
 			FileName:       header.Filename,
 			FileSize:       header.Size,
 			FileType:       fileType,
-			MappingOption:  mappingOption,
+			MappingOptions: mappingOptions,
 			Name:           name,
 			Description:    description,
 			DeltaTableName: deltaTableName,

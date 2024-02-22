@@ -20,7 +20,10 @@ func (b business) CreateDataActionImportFile(ctx context.Context, accountUuid st
 		Status:      "Success",
 	})
 	if err != nil {
-		return dataAction, err
+		b.log.WithName("CreateDataActionImportFile").
+			WithValues("Context", ctx).
+			Error(err, "Cannot create data action import file")
+		return nil, err
 	}
 	return dataAction, nil
 
@@ -49,15 +52,16 @@ func (b business) ProcessImportFile(ctx context.Context, request *api.ImportFile
 	}
 
 	// Create Datasource
-	configuration, err := json.Marshal(repository.FileConfiguration{
+	configuration, _ := json.Marshal(model.FileConfiguration{
 		FileName: request.FileName,
 		FilePath: filePath,
 	})
+
+	mappingOptions, err := json.Marshal(request.MappingOptions)
 	if err != nil {
-		return err
-	}
-	mappingOption, err := json.Marshal(request.MappingOption)
-	if err != nil {
+		b.log.WithName("ProcessImportFile").
+			WithValues("Mapping Options", mappingOptions).
+			Error(err, "Cannot parse mappingOptions to JSON")
 		return err
 	}
 	err = b.CreateDataSource(ctx, &repository.CreateDataSourceParams{
@@ -65,7 +69,7 @@ func (b business) ProcessImportFile(ctx context.Context, request *api.ImportFile
 		Description:    request.Description,
 		Type:           model.DataSourceType_File,
 		Configuration:  pqtype.NullRawMessage{RawMessage: configuration, Valid: true},
-		MappingOptions: pqtype.NullRawMessage{RawMessage: mappingOption, Valid: true},
+		MappingOptions: pqtype.NullRawMessage{RawMessage: mappingOptions, Valid: true},
 		DeltaTableName: request.DeltaTableName,
 		AccountUuid:    uuid.MustParse(accountUuid),
 	})

@@ -31,11 +31,6 @@ type CreateDataSourceParams struct {
 	AccountUuid    uuid.UUID
 }
 
-type FileConfiguration struct {
-	FileName string `json:"file_name"`
-	FilePath string `json:"file_path"`
-}
-
 func (r *dataSourceRepo) CreateDataSource(ctx context.Context, params *CreateDataSourceParams) error {
 	dataSource := &model.DataSource{
 		Name:           params.Name,
