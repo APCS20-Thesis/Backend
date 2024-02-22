@@ -1,41 +1,45 @@
 package api
 
-type ImportFileRequest struct {
-	FileContent []byte
-	FileName    string
-	FileSize    int64
-	FileType    string
+import (
+	"context"
+	"google.golang.org/grpc"
+)
+
+const (
+	CDPService_ImportFile_FullMethodName = "/api.CDPServiceFile/ImportFile"
+)
+
+var CDPServiceFile_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "api.CDPServiceFile",
+	HandlerType: (*CDPServiceFileServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ImportFile",
+			Handler:    _CDPService_ImportFile_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "api.proto",
 }
 
-func (x *ImportFileRequest) GetFileContent() []byte {
-	if x != nil {
-		return x.FileContent
+func _CDPService_ImportFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ImportFileRequest)
+	if err := dec(in); err != nil {
+		return nil, err
 	}
-	return x.FileContent
-}
-
-func (x *ImportFileRequest) GetFileName() string {
-	if x != nil {
-		return x.FileName
+	if interceptor == nil {
+		return srv.(CDPServiceFileServer).ImportFile(ctx, in)
 	}
-	return x.FileName
-}
-
-func (x *ImportFileRequest) GetFileSize() int64 {
-	if x != nil {
-		return x.FileSize
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CDPService_ImportFile_FullMethodName,
 	}
-	return x.FileSize
-}
-
-func (x *ImportFileRequest) GetFileType() string {
-	if x != nil {
-		return x.FileType
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDPServiceFileServer).ImportFile(ctx, req.(*ImportFileRequest))
 	}
-	return x.FileType
+	return interceptor(ctx, in, info, handler)
 }
 
-type ImportFileResponse struct {
-	Message string `json:"message,omitempty"`
-	Code    int64  `json:"code,omitempty"`
+func RegisterCDPServiceFileServer(s grpc.ServiceRegistrar, srv CDPServiceServer) {
+	s.RegisterService(&CDPServiceFile_ServiceDesc, srv)
 }

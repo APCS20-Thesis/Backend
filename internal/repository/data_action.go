@@ -10,7 +10,7 @@ import (
 )
 
 type DataActionRepository interface {
-	CreateDataAction(ctx context.Context, params *CreateDataAction) error
+	CreateDataAction(ctx context.Context, params *CreateDataActionParams) (*model.DataAction, error)
 	GetDataAction(ctx context.Context, id int64) (*model.DataAction, error)
 	UpdateDataAction(ctx context.Context, params *UpdateDataActionParams) error
 }
@@ -24,27 +24,30 @@ func NewDataActionRepository(db *gorm.DB) DataActionRepository {
 	return &dataActionRepo{db, model.DataAction{}.TableName()}
 }
 
-type CreateDataAction struct {
+type CreateDataActionParams struct {
 	ActionType  model.ActionType
-	Payload     pqtype.NullRawMessage
 	Schedule    string
 	AccountUuid uuid.UUID
+	DagId       string
+	Status      string
 }
 
-func (r *dataActionRepo) CreateDataAction(ctx context.Context, params *CreateDataAction) error {
+func (r *dataActionRepo) CreateDataAction(ctx context.Context, params *CreateDataActionParams) (*model.DataAction, error) {
 	dataAction := &model.DataAction{
 		ActionType:  params.ActionType,
-		Payload:     params.Payload,
 		Schedule:    params.Schedule,
 		AccountUuid: params.AccountUuid,
+		DagId:       params.DagId,
+		RunCount:    0,
+		Status:      params.Status,
 	}
 
 	createErr := r.WithContext(ctx).Table(r.TableName).Create(&dataAction).Error
 	if createErr != nil {
-		return createErr
+		return nil, createErr
 	}
 
-	return nil
+	return dataAction, nil
 }
 
 func (r *dataActionRepo) GetDataAction(ctx context.Context, id int64) (*model.DataAction, error) {

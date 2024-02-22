@@ -4,17 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"io"
 	"net/http"
 )
 
-const (
-	CDPService_ImportFile_FullMethodName = "/api.CDPServiceImportFile/ImportFile"
-)
-
-type CDPServiceFile interface {
+type CDPServiceFileServer interface {
 	ImportFile(context.Context, *ImportFileRequest) (*ImportFileResponse, error)
 }
 type UnimplementedCDPServiceFile struct {
@@ -23,7 +20,7 @@ type UnimplementedCDPServiceFile struct {
 func (UnimplementedCDPServiceFile) ImportFile(context.Context, *ImportFileRequest) (*ImportFileResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckHealth not implemented")
 }
-func request_CDPServiceFile_ImportFile_0(ctx context.Context, service CDPServiceFile, req *http.Request, pathParams map[string]string) (*ImportFileResponse, error) {
+func request_CDPServiceFile_ImportFile_0(ctx context.Context, client CDPServiceFileClient, req *http.Request, pathParams map[string]string) (*ImportFileResponse, error) {
 	content, header, err := req.FormFile("file")
 	if err != nil {
 		return nil, err
@@ -33,15 +30,31 @@ func request_CDPServiceFile_ImportFile_0(ctx context.Context, service CDPService
 	if err != nil {
 		return nil, err
 	}
+	jsonMappingOption := req.Form.Get("mapping_option")
+	var mappingOption map[string]string
+	err = json.Unmarshal([]byte(jsonMappingOption), &mappingOption)
+	if err != nil {
+		return nil, err
+	}
 	form := req.Form
 	fileType := form.Get("file_type")
-	response, err := service.ImportFile(ctx,
+	name := form.Get("name")
+	description := form.Get("description")
+	deltaTableName := form.Get("delta_table_name")
+	var metadata runtime.ServerMetadata
+	response, err := client.ImportFile(ctx,
 		&ImportFileRequest{
-			FileContent: fileBytes,
-			FileName:    header.Filename,
-			FileSize:    header.Size,
-			FileType:    fileType,
+			FileContent:    fileBytes,
+			FileName:       header.Filename,
+			FileSize:       header.Size,
+			FileType:       fileType,
+			MappingOption:  mappingOption,
+			Name:           name,
+			Description:    description,
+			DeltaTableName: deltaTableName,
 		},
+		grpc.Header(&metadata.HeaderMD),
+		grpc.Trailer(&metadata.TrailerMD),
 	)
 	if err != nil {
 		return nil, err
@@ -49,29 +62,58 @@ func request_CDPServiceFile_ImportFile_0(ctx context.Context, service CDPService
 	return response, nil
 }
 
-func RegisterCDPServiceImportFile(ctx context.Context, mux *runtime.ServeMux, service CDPServiceFile) error {
+type CDPServiceFileClient interface {
+	ImportFile(ctx context.Context, in *ImportFileRequest, opts ...grpc.CallOption) (*ImportFileResponse, error)
+}
+
+type cDPServiceFileClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewCDPServiceFileClient(cc grpc.ClientConnInterface) CDPServiceFileClient {
+	return &cDPServiceFileClient{cc}
+}
+
+func (c *cDPServiceFileClient) ImportFile(ctx context.Context, in *ImportFileRequest, opts ...grpc.CallOption) (*ImportFileResponse, error) {
+	out := new(ImportFileResponse)
+	err := c.cc.Invoke(ctx, CDPService_ImportFile_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func RegisterCDPServiceFileClient(ctx context.Context, mux *runtime.ServeMux, client CDPServiceFileClient) error {
+
 	mux.Handle("POST", pattern_CDPServiceFile_ImportFile_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		err := req.ParseMultipartForm(32 << 20)
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		err = req.ParseMultipartForm(32 << 20)
 		w.Header().Set("Content-Type", "application/json")
 		if err != nil {
-			json.NewEncoder(w).Encode(err)
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, err := request_CDPServiceFile_ImportFile_0(ctx, service, req, pathParams)
+		resp, err := request_CDPServiceFile_ImportFile_0(rctx, client, req, pathParams)
 		if err != nil {
-			json.NewEncoder(w).Encode(err)
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		w.WriteHeader(http.StatusOK)
-		err = json.NewEncoder(w).Encode(resp)
-		if err != nil {
-			http.Error(w, "Failed to encode JSON", http.StatusInternalServerError)
-			return
-		}
+
+		forward_CDPServiceFile_ImportFile_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	return nil
 }
 
 var (
 	pattern_CDPServiceFile_ImportFile_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "data-source", "import-file"}, "", runtime.AssumeColonVerbOpt(true)))
+)
+var (
+	forward_CDPServiceFile_ImportFile_0 = runtime.ForwardResponseMessage
 )

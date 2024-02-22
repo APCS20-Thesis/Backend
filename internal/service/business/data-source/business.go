@@ -1,11 +1,19 @@
 package data_source
 
 import (
+	"context"
+	"github.com/APCS20-Thesis/Backend/api"
+	"github.com/APCS20-Thesis/Backend/internal/model"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
 	"github.com/go-logr/logr"
 )
 
 type Business interface {
+	CreateDataActionImportFile(ctx context.Context, accountUuid string, dateTime string) (*model.DataAction, error)
+	CreateDataActionRun(ctx context.Context, params *repository.CreateDataActionRunParams) error
+	CreateDataSource(ctx context.Context, params *repository.CreateDataSourceParams) error
+
+	ProcessImportFile(ctx context.Context, request *api.ImportFileRequest, accountUuid string, dateTime string, filePath string) error
 }
 
 type business struct {

@@ -115,7 +115,7 @@ func serverAction(cliCtx *cli.Context) error {
 		return err
 	}
 	pb.RegisterCDPServiceServer(s, cdpService)
-
+	pb.RegisterCDPServiceFileServer(s, cdpService)
 	// Serve gRPC server
 	log.Println("Serving gRPC on 0.0.0.0" + cfg.ServerConfig.GrpcServerAddress)
 	go func() {
@@ -144,7 +144,7 @@ func serverAction(cliCtx *cli.Context) error {
 		log.Fatalln("Failed to register gateway:", err)
 		return err
 	}
-	err = pb.RegisterCDPServiceImportFile(context.Background(), gwmux, cdpService)
+	err = pb.RegisterCDPServiceFileClient(context.Background(), gwmux, pb.NewCDPServiceFileClient(conn))
 	if err != nil {
 		log.Fatalln("Failed to register import file:", err)
 		return err
