@@ -15,9 +15,5 @@ import (
 // RegisterWithHandler implementing service server interface
 func (s *Service) RegisterWithHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
 	err := api.RegisterCDPServiceHandler(ctx, mux, conn)
-	//if err != nil {
-	//	s.log.Error(err, "Error register servers")
-	//}
-
 	return err
 }

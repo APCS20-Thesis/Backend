@@ -97,4 +97,32 @@ message CommonResponse {
   // message
   string message = 2;
 }
+// ImportFile Request
+message  ImportFileRequest {
+  // file_type
+  string file_type = 1 [(validate.rules).string.min_len = 1];
+  // file_name
+  string file_name = 2 [(validate.rules).string.min_len = 1];
+  // file_size
+  int64 file_size = 3;
+  // mapping option
+  map<string, string> mapping_options = 4;
+  // configuration
+  map<string, string> configuration = 5;
+  // file_content
+  bytes file_content = 6;
+  // delta_table_name
+  string delta_table_name = 7 [(validate.rules).string.min_len = 1];
+  // name
+  string name = 8 [(validate.rules).string.min_len = 1];
+  // description
+  string description = 9;
+}
 
+// ImportFile Response
+message ImportFileResponse {
+  // code
+  int32 code = 1;
+  //message
+  string message = 2;
+}

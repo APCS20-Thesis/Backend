@@ -26,6 +26,11 @@ type DataSource struct {
 	UpdatedAt      time.Time `gorm:"autoUpdateTime"`
 }
 
+type FileConfiguration struct {
+	FileName string `json:"file_name"`
+	FilePath string `json:"file_path"`
+}
+
 func (DataSource) TableName() string {
 	return "data_source"
 }

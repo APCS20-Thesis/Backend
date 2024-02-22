@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS data_action_run (
     id bigserial not null constraint data_action_run_pk primary key,
     action_id bigint not null,
     run_id int not null,
+    dag_run_id varchar(255) not null,
     status varchar(255) not null,
     error varchar(255),
     account_uuid uuid not null,

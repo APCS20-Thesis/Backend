@@ -18,6 +18,7 @@ type DataActionRun struct {
 	ID          int64 `gorm:"primaryKey"`
 	ActionId    int64
 	RunId       int64
+	DagRunId    string
 	Status      DataActionRunStatus
 	Error       string
 	AccountUuid uuid.UUID
