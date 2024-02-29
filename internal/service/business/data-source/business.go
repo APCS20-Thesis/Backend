@@ -3,6 +3,7 @@ package data_source
 import (
 	"context"
 	"github.com/APCS20-Thesis/Backend/api"
+	"github.com/APCS20-Thesis/Backend/internal/adapter/airflow"
 	"github.com/APCS20-Thesis/Backend/internal/model"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
 	"github.com/go-logr/logr"
@@ -17,13 +18,15 @@ type Business interface {
 }
 
 type business struct {
-	log        logr.Logger
-	repository *repository.Repository
+	log            logr.Logger
+	repository     *repository.Repository
+	airflowAdapter airflow.AirflowAdapter
 }
 
-func NewDataSourceBusiness(log logr.Logger, repository *repository.Repository) Business {
+func NewDataSourceBusiness(log logr.Logger, repository *repository.Repository, airflowAdapter airflow.AirflowAdapter) Business {
 	return &business{
-		log:        log.WithName("DataSourceBiz"),
-		repository: repository,
+		log:            log.WithName("DataSourceBiz"),
+		repository:     repository,
+		airflowAdapter: airflowAdapter,
 	}
 }

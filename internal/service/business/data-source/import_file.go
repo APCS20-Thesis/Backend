@@ -4,10 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/APCS20-Thesis/Backend/api"
+	"github.com/APCS20-Thesis/Backend/internal/adapter/airflow"
 	"github.com/APCS20-Thesis/Backend/internal/model"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
+	"strconv"
+	"time"
 )
 
 func (b business) CreateDataActionImportFile(ctx context.Context, accountUuid string, dateTime string) (*model.DataAction, error) {
@@ -27,6 +30,24 @@ func (b business) CreateDataActionImportFile(ctx context.Context, accountUuid st
 	}
 	return dataAction, nil
 
+}
+
+func (b business) TriggerAirflowImportFile(ctx context.Context, request *api.ImportFileRequest, accountUuid string, filePath string) error {
+	deltaTableName := strconv.FormatInt(time.Now().Unix(), 10) + "customer"
+
+	_, err := b.airflowAdapter.TriggerNewDagRunImportFile(ctx, &airflow.TriggerNewDagRunImportFileRequest{
+		Config: airflow.ImportFileRequestConfig{
+			AccountUuid:            accountUuid,
+			DeltaTableName:         deltaTableName,
+			CsvFilePath:            filePath,
+			WriteMode:              "overwrite",
+			CsvReadOptionHeader:    true,
+			CsvReadOptionMultiline: true,
+			CsvReadOptionDelimiter: ",",
+		},
+	}, "example_import_csv")
+
+	return err
 }
 
 func (b business) ProcessImportFile(ctx context.Context, request *api.ImportFileRequest, accountUuid string, dateTime string, filePath string) error {
@@ -76,5 +97,11 @@ func (b business) ProcessImportFile(ctx context.Context, request *api.ImportFile
 	if err != nil {
 		return err
 	}
+
+	err = b.TriggerAirflowImportFile(ctx, request, accountUuid, filePath)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

@@ -7,6 +7,8 @@ type Config struct {
 	PostgreSQL      PostgreSQLConfig `json:"postgresql" mapstructure:"postgresql"`
 	MigrationFolder string           `json:"migration_folder" mapstructure:"migration_folder"`
 	S3StorageConfig S3StorageConfig  `json:"s3_storage_config" mapstructure:"s3_storage_config"`
+
+	AirflowAdapterConfig AirflowConfig `json:"airflow_adapter_config" mapstructure:"airflow_adapter_config"`
 }
 
 type Base struct {
@@ -36,6 +38,11 @@ func loadDefaultConfig() *Config {
 			AccessKeyID:     "AKIASPHW355ITDXOYKO6",
 			SecretAccessKey: "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",
 			Region:          "ap-southeast-1",
+		},
+		AirflowAdapterConfig: AirflowConfig{
+			Address:  "http://localhost:8080",
+			Username: "airflow",
+			Password: "airflow",
 		},
 	}
 	return c
