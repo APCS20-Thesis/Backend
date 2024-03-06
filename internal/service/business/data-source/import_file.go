@@ -5,12 +5,11 @@ import (
 	"encoding/json"
 	"github.com/APCS20-Thesis/Backend/api"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/airflow"
+	"github.com/APCS20-Thesis/Backend/internal/constants"
 	"github.com/APCS20-Thesis/Backend/internal/model"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
-	"strconv"
-	"time"
 )
 
 func (b business) CreateDataActionImportFile(ctx context.Context, accountUuid string, dateTime string) (*model.DataAction, error) {
@@ -20,7 +19,7 @@ func (b business) CreateDataActionImportFile(ctx context.Context, accountUuid st
 		Schedule:    "",
 		AccountUuid: uuid.MustParse(accountUuid),
 		DagId:       dagId,
-		Status:      "Success",
+		Status:      model.DataActionStatus_Pending,
 	})
 	if err != nil {
 		b.log.WithName("CreateDataActionImportFile").
@@ -32,41 +31,45 @@ func (b business) CreateDataActionImportFile(ctx context.Context, accountUuid st
 
 }
 
-func (b business) TriggerAirflowImportFile(ctx context.Context, request *api.ImportFileRequest, accountUuid string, filePath string) error {
-	deltaTableName := strconv.FormatInt(time.Now().Unix(), 10) + "customer"
-
-	_, err := b.airflowAdapter.TriggerNewDagRunImportFile(ctx, &airflow.TriggerNewDagRunImportFileRequest{
+func (b business) TriggerAirflowGenerateImportFile(ctx context.Context, request *api.ImportFileRequest, accountUuid string, dateTime string) error {
+	_, err := b.airflowAdapter.TriggerGenerateDagImportFile(ctx, &airflow.TriggerGenerateDagImportFileRequest{
 		Config: airflow.ImportFileRequestConfig{
 			AccountUuid:            accountUuid,
-			DeltaTableName:         deltaTableName,
-			CsvFilePath:            filePath,
+			DeltaTableName:         request.DeltaTableName,
+			BucketName:             constants.S3BucketName,
+			Key:                    "data/" + accountUuid + "/" + dateTime + "_" + request.GetFileName(),
 			WriteMode:              "overwrite",
-			CsvReadOptionHeader:    true,
-			CsvReadOptionMultiline: true,
-			CsvReadOptionDelimiter: ",",
+			CsvReadOptionHeader:    request.Configuration.SkipRow > 0,
+			CsvReadOptionMultiline: request.Configuration.Multiline,
+			CsvReadOptionDelimiter: request.Configuration.Delimiter,
+			CsvReadOptionSkipRow:   request.Configuration.SkipRow,
+			DagId:                  accountUuid + "_" + dateTime,
 		},
-	}, "example_import_csv")
+	}, request.FileType)
 
 	return err
 }
 
-func (b business) ProcessImportFile(ctx context.Context, request *api.ImportFileRequest, accountUuid string, dateTime string, filePath string) error {
+func (b business) ProcessImportFile(ctx context.Context, request *api.ImportFileRequest, accountUuid string, dateTime string) error {
 	// Create DataAction
 	dataAction, err := b.CreateDataActionImportFile(ctx, accountUuid, dateTime)
 	if err != nil {
 		return err
 	}
 
-	// Create DataActionRun
-	// TODO: implement call trigger new dag run
-	dagRunId := "testDagRun"
+	// Generate DagRun
+	err = b.TriggerAirflowGenerateImportFile(ctx, request, accountUuid, dateTime)
+	if err != nil {
+		return err
+	}
 
+	// Create DataActionRun
 	err = b.CreateDataActionRun(ctx, &repository.CreateDataActionRunParams{
 		ActionId:    dataAction.ID,
 		RunId:       0,
 		AccountUuid: uuid.MustParse(accountUuid),
 		Status:      model.DataActionRunStatus_Processing,
-		DagRunId:    dagRunId,
+		DagRunId:    "",
 	})
 	if err != nil {
 		return err
@@ -74,8 +77,10 @@ func (b business) ProcessImportFile(ctx context.Context, request *api.ImportFile
 
 	// Create Datasource
 	configuration, _ := json.Marshal(model.FileConfiguration{
-		FileName: request.FileName,
-		FilePath: filePath,
+		FileName:      request.FileName,
+		BucketName:    constants.S3BucketName,
+		Key:           "data/" + accountUuid + "/" + dateTime + "_" + request.GetFileName(),
+		CsvReadOption: request.Configuration,
 	})
 
 	mappingOptions, err := json.Marshal(request.MappingOptions)
@@ -94,11 +99,6 @@ func (b business) ProcessImportFile(ctx context.Context, request *api.ImportFile
 		DeltaTableName: request.DeltaTableName,
 		AccountUuid:    uuid.MustParse(accountUuid),
 	})
-	if err != nil {
-		return err
-	}
-
-	err = b.TriggerAirflowImportFile(ctx, request, accountUuid, filePath)
 	if err != nil {
 		return err
 	}

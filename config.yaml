@@ -11,8 +11,8 @@ LOG:
 MIGRATION_FOLDER: file://sql/migrations
 
 POSTGRESQL:
-  HOST: postgres.backend.orb.local
-  PORT: 5432
+  HOST: localhost
+  PORT: 5433
   USERNAME: cdp_service
   PASSWORD: postgres
   DATABASE: cdp_service
