@@ -30,17 +30,28 @@ func request_CDPServiceFile_ImportFile_0(ctx context.Context, client CDPServiceF
 	if err != nil {
 		return nil, err
 	}
+
 	jsonMappingOptions := req.Form.Get("mapping_options")
 	var mappingOptions map[string]string
 	err = json.Unmarshal([]byte(jsonMappingOptions), &mappingOptions)
 	if err != nil {
 		return nil, err
 	}
+
+	jsonConfigurations := req.Form.Get("configurations")
+	var configurations *ImportCsvConfiguration
+	err = json.Unmarshal([]byte(jsonConfigurations), &configurations)
+	if err != nil {
+		return nil, err
+	}
+
 	form := req.Form
+
 	fileType := form.Get("file_type")
 	name := form.Get("name")
 	description := form.Get("description")
 	deltaTableName := form.Get("delta_table_name")
+
 	var metadata runtime.ServerMetadata
 	response, err := client.ImportFile(ctx,
 		&ImportFileRequest{
@@ -49,6 +60,7 @@ func request_CDPServiceFile_ImportFile_0(ctx context.Context, client CDPServiceF
 			FileSize:       header.Size,
 			FileType:       fileType,
 			MappingOptions: mappingOptions,
+			Configuration:  configurations,
 			Name:           name,
 			Description:    description,
 			DeltaTableName: deltaTableName,

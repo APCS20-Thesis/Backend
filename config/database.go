@@ -55,7 +55,7 @@ func (c PostgreSQLConfig) String() string {
 func PostgresSQLDefaultConfig() PostgreSQLConfig {
 	return PostgreSQLConfig{DBConfig{
 		Host:     "127.0.0.1",
-		Port:     5432,
+		Port:     5433,
 		Database: "sample",
 		Username: "default",
 		Password: "secret",

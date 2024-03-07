@@ -5,7 +5,7 @@ option go_package = "github.com/APCS20-Thesis/Backend/api";
 import "google/rpc/code.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/wrappers.proto";
-
+import "validate/validate.proto";
 
 //*****************************************//
 // Authentication
@@ -23,4 +23,14 @@ message Account {
   string last_name = 4;
   // email
   string email = 5;
+}
+
+
+message ImportCsvConfiguration {
+  // delimiter
+  string delimiter = 1 [(validate.rules).string.len = 1];
+  // skip_row
+  int64 skip_row =2 [(validate.rules).int64.gte = 0];
+  // multiline
+  bool multiline = 3;
 }

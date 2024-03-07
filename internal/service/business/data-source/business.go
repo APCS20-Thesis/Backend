@@ -10,11 +10,12 @@ import (
 )
 
 type Business interface {
+	ProcessImportFile(ctx context.Context, request *api.ImportFileRequest, accountUuid string, dateTime string) error
+
+	TriggerAirflowGenerateImportFile(ctx context.Context, request *api.ImportFileRequest, accountUuid string, dateTime string) error
 	CreateDataActionImportFile(ctx context.Context, accountUuid string, dateTime string) (*model.DataAction, error)
 	CreateDataActionRun(ctx context.Context, params *repository.CreateDataActionRunParams) error
 	CreateDataSource(ctx context.Context, params *repository.CreateDataSourceParams) error
-
-	ProcessImportFile(ctx context.Context, request *api.ImportFileRequest, accountUuid string, dateTime string, filePath string) error
 }
 
 type business struct {

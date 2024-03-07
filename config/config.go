@@ -26,7 +26,7 @@ func loadDefaultConfig() *Config {
 			DBConfig: DBConfig{
 				Host:     "127.0.0.1",
 				Database: "cdp_service",
-				Port:     5432,
+				Port:     5433,
 				Username: "cdp_service",
 				Password: "postgres",
 				Options:  "?sslmode=disable",

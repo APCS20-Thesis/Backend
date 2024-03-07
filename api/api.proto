@@ -108,7 +108,7 @@ message  ImportFileRequest {
   // mapping option
   map<string, string> mapping_options = 4;
   // configuration
-  map<string, string> configuration = 5;
+  ImportCsvConfiguration configuration = 5;
   // file_content
   bytes file_content = 6;
   // delta_table_name

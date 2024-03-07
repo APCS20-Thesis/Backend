@@ -1,6 +1,7 @@
 package model
 
 import (
+	"github.com/APCS20-Thesis/Backend/api"
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 	"time"
@@ -27,8 +28,11 @@ type DataSource struct {
 }
 
 type FileConfiguration struct {
-	FileName string `json:"file_name"`
-	FilePath string `json:"file_path"`
+	FileName      string                      `json:"file_name"`
+	FilePath      string                      `json:"file_path"`
+	BucketName    string                      `json:"bucket_name"`
+	Key           string                      `json:"key"`
+	CsvReadOption *api.ImportCsvConfiguration `json:"csv_read_option"`
 }
 
 func (DataSource) TableName() string {
