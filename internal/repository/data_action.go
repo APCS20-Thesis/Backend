@@ -13,6 +13,7 @@ type DataActionRepository interface {
 	CreateDataAction(ctx context.Context, params *CreateDataActionParams) (*model.DataAction, error)
 	GetDataAction(ctx context.Context, id int64) (*model.DataAction, error)
 	UpdateDataAction(ctx context.Context, params *UpdateDataActionParams) error
+	GetListDataActions(ctx context.Context, params *GetListDataActionsParams) ([]model.DataAction, error)
 }
 
 type dataActionRepo struct {
@@ -39,7 +40,7 @@ func (r *dataActionRepo) CreateDataAction(ctx context.Context, params *CreateDat
 		AccountUuid: params.AccountUuid,
 		DagId:       params.DagId,
 		RunCount:    0,
-		Status:      params.Status,
+		Status:      model.DataActionStatus(params.Status),
 	}
 
 	createErr := r.WithContext(ctx).Table(r.TableName).Create(&dataAction).Error
@@ -69,6 +70,7 @@ type UpdateDataActionParams struct {
 	Payload     pqtype.NullRawMessage
 	Schedule    string
 	AccountUuid uuid.UUID
+	Status      model.DataActionStatus
 }
 
 func (r *dataActionRepo) UpdateDataAction(ctx context.Context, params *UpdateDataActionParams) error {
@@ -78,6 +80,7 @@ func (r *dataActionRepo) UpdateDataAction(ctx context.Context, params *UpdateDat
 		Payload:     params.Payload,
 		Schedule:    params.Schedule,
 		AccountUuid: params.AccountUuid,
+		Status:      params.Status,
 	}
 
 	updateErr := r.WithContext(ctx).Table(r.TableName).Where("id = ?", params.ID).Updates(&dataAction).Error
@@ -86,4 +89,32 @@ func (r *dataActionRepo) UpdateDataAction(ctx context.Context, params *UpdateDat
 	}
 
 	return nil
+}
+
+type GetListDataActionsParams struct {
+	Ids         []int64
+	ActionTypes []string
+	Statuses    []model.DataActionStatus
+}
+
+func (r *dataActionRepo) GetListDataActions(ctx context.Context, params *GetListDataActionsParams) ([]model.DataAction, error) {
+	query := r.WithContext(ctx).Table(r.TableName)
+
+	if len(params.Ids) > 0 {
+		query.Where("id IN ?", params.Ids)
+	}
+	if len(params.ActionTypes) > 0 {
+		query.Where("action_type IN ?", params.ActionTypes)
+	}
+	if len(params.Statuses) > 0 {
+		query.Where("status IN ?", params.Statuses)
+	}
+
+	var dataActions []model.DataAction
+	err := query.Find(dataActions).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return dataActions, nil
 }

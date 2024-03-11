@@ -5,6 +5,7 @@ import (
 	"fmt"
 	pb "github.com/APCS20-Thesis/Backend/api"
 	"github.com/APCS20-Thesis/Backend/config"
+	"github.com/APCS20-Thesis/Backend/internal/job"
 	"github.com/APCS20-Thesis/Backend/internal/service"
 	"github.com/go-logr/logr"
 	migrateV4 "github.com/golang-migrate/migrate/v4"
@@ -119,6 +120,13 @@ func serverAction(cliCtx *cli.Context) error {
 	go func() {
 		log.Fatalln(s.Serve(lis))
 	}()
+
+	// job
+	job, err := job.NewJob(cfg, logger, gormDb)
+	if err != nil {
+		return err
+	}
+	job.StartCron()
 
 	// Create a client connection to the gRPC server we just started
 	// This is where the gRPC-Gateway proxies the requests

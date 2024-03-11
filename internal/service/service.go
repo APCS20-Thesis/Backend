@@ -37,7 +37,6 @@ func NewService(logger logr.Logger, config *config.Config, gormDb *gorm.DB, jwtM
 		config.S3StorageConfig.AccessKeyID,
 		config.S3StorageConfig.SecretAccessKey,
 	)
-
 	return &Service{
 		log:        logger,
 		config:     config,

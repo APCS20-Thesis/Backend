@@ -15,6 +15,7 @@ const (
 type AirflowAdapter interface {
 	TriggerGenerateDagImportFile(ctx context.Context, request *TriggerGenerateDagImportFileRequest, file_type string) (*TriggerNewDagRunResponse, error)
 	TriggerNewDagRun(ctx context.Context, dagId string) (*TriggerNewDagRunResponse, error)
+	ListDags(ctx context.Context)
 }
 
 type airflow struct {
@@ -93,3 +94,15 @@ func (c *airflow) TriggerGenerateDagImportFile(ctx context.Context, request *Tri
 
 	return response, err
 }
+
+type (
+	ListDagsRequest struct {
+		limit      int
+		offset     int
+		orderBy    string
+		tags       []string
+		onlyActive bool
+		paused     bool
+		dagIdPattern
+	}
+)
