@@ -126,6 +126,7 @@ func serverAction(cliCtx *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	job.RegisterCronJobs()
 	job.StartCron()
 
 	// Create a client connection to the gRPC server we just started

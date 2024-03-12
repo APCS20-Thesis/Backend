@@ -165,7 +165,7 @@ func (s *HttpClient) SendHttpRequestWithBasicAuth(ctx context.Context, basicAuth
 		return status.Errorf(codes.Aborted, "Http Status=%v: %s", resp.StatusCode, responseBodyStr)
 	default:
 		s.log.Error(err, "[HTTP-Client] Error processing http request", "code", resp.StatusCode, "response", responseBodyStr)
-		return status.Errorf(codes.Aborted, "Http Status=%v: %s", resp.StatusCode, responseBodyStr)
+		return status.Errorf(codes.Internal, "Http Status=%v: %s", resp.StatusCode, responseBodyStr)
 	}
 }
 
@@ -183,4 +183,14 @@ func (s *HttpClient) InitForTest(clientName string, log logr.Logger, host string
 		s.httpClient = &http.Client{}
 	}
 	s.log = log.WithName("http_client/" + clientName)
+}
+
+// Converts a struct to a map while maintaining the json alias as keys
+func ConvertStructRequestToParams(request interface{}) (newMap map[string]string, err error) {
+	data, err := json.Marshal(request)
+	if err != nil {
+		return
+	}
+	err = json.Unmarshal(data, &newMap)
+	return
 }

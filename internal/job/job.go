@@ -11,9 +11,11 @@ import (
 )
 
 type Job interface {
+	RegisterCronJobs()
 	StartCron()
-	// TriggerDagRun
-	LogHello(ctx context.Context) error
+
+	// jobs
+	TriggerDagRuns(ctx context.Context)
 }
 
 type job struct {
@@ -38,10 +40,6 @@ func NewJob(config *config.Config, logger logr.Logger, db *gorm.DB) (Job, error)
 
 	// cron
 	cronJob := cron.New(cron.WithLogger(logger))
-	_, err = cronJob.AddFunc("* * * * *", func() { logger.Info("Every 1 minute") })
-	if err != nil {
-		return nil, err
-	}
 
 	return &job{
 		cronJob:        cronJob,
@@ -55,4 +53,11 @@ func NewJob(config *config.Config, logger logr.Logger, db *gorm.DB) (Job, error)
 
 func (j *job) StartCron() {
 	j.cronJob.Start()
+}
+
+func (j *job) RegisterCronJobs() {
+	_, err := j.cronJob.AddFunc("* * * * *", func() { j.TriggerDagRuns(context.Background()) })
+	if err != nil {
+		j.logger.Error(err, "error add cronjob TriggerDagRuns")
+	}
 }

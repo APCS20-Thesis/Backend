@@ -111,7 +111,7 @@ func (r *dataActionRepo) GetListDataActions(ctx context.Context, params *GetList
 	}
 
 	var dataActions []model.DataAction
-	err := query.Find(dataActions).Error
+	err := query.Find(&dataActions).Error
 	if err != nil {
 		return nil, err
 	}
