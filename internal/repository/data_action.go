@@ -30,7 +30,7 @@ type CreateDataActionParams struct {
 	Schedule    string
 	AccountUuid uuid.UUID
 	DagId       string
-	Status      string
+	Status      model.DataActionStatus
 }
 
 func (r *dataActionRepo) CreateDataAction(ctx context.Context, params *CreateDataActionParams) (*model.DataAction, error) {
@@ -40,7 +40,7 @@ func (r *dataActionRepo) CreateDataAction(ctx context.Context, params *CreateDat
 		AccountUuid: params.AccountUuid,
 		DagId:       params.DagId,
 		RunCount:    0,
-		Status:      model.DataActionStatus(params.Status),
+		Status:      params.Status,
 	}
 
 	createErr := r.WithContext(ctx).Table(r.TableName).Create(&dataAction).Error
