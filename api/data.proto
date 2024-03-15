@@ -25,12 +25,46 @@ message Account {
   string email = 5;
 }
 
+//*****************************************//
+// DataSource
+//*****************************************//
 
-message ImportCsvConfiguration {
+message ImportCsvConfigurations {
   // delimiter
   string delimiter = 1 [(validate.rules).string.len = 1];
   // skip_row
-  int64 skip_row =2 [(validate.rules).int64.gte = 0];
+  int64 skip_row = 2 [(validate.rules).int64.gte = 0];
   // multiline
   bool multiline = 3;
+}
+
+message DataSourceBase {
+  // id
+  int64 id = 1;
+  // name
+  string name = 2;
+  // data_source type
+  string type = 3;
+  // updated_at
+  string updated_at = 4;
+}
+
+message DataTableBase {
+  // id
+  int64 id = 1;
+  // name
+  string name = 2;
+  // created_at
+  string created_at = 3;
+  // updated_at
+  string updated_at = 4;
+}
+
+message SourceConnectionBase {
+  // id
+  int64 id = 1;
+  // name
+  string name = 2;
+  // updated_at
+  string updated_at = 4;
 }

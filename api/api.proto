@@ -34,6 +34,47 @@ service CDPService {
       get : "/api/v1/auth/me"
     };
   }
+
+  rpc GetListDataSources(GetListDataSourcesRequest) returns (GetListDataSourcesResponse){
+    option (google.api.http) = {
+      get: "/api/v1/data-source/data-sources"
+    };
+  }
+
+  rpc GetDataSource(GetDataSourceRequest) returns (GetDataSourceResponse){
+    option (google.api.http) = {
+      get: "/api/v1/data-source/data-source/{id}"
+    };
+  }
+
+  rpc GetListDataTables(GetListDataTablesRequest) returns (GetListDataTablesResponse){
+    option (google.api.http) = {
+      get: "/api/v1/data-source/data-tables"
+    };
+  }
+
+  rpc GetDataTable(GetDataTableRequest) returns (GetDataTableResponse){
+    option (google.api.http) = {
+      get: "/api/v1/data-source/data-table/{id}"
+    };
+  }
+
+  rpc GetSourceConnection(GetSourceConnectionRequest) returns (GetSourceConnectionResponse){
+    option (google.api.http) = {
+      get: "/api/v1/data-source/source-connection/{id}"
+    };
+  }
+  rpc GetListSourceConnections(GetListSourceConnectionsRequest) returns (GetListSourceConnectionsResponse){
+    option (google.api.http) = {
+      get: "/api/v1/data-source/source-connections"
+    };
+  }
+  rpc CreateSourceConnection(CreateSourceConnectionRequest) returns (CreateSourceConnectionResponse){
+    option (google.api.http) = {
+      post: "/api/v1/data-source/source-connection"
+      body: "*"
+    };
+  }
 }
 
 // CheckHealthRequest
@@ -97,6 +138,7 @@ message CommonResponse {
   // message
   string message = 2;
 }
+
 // ImportFile Request
 message  ImportFileRequest {
   // file_type
@@ -108,7 +150,7 @@ message  ImportFileRequest {
   // mapping option
   map<string, string> mapping_options = 4;
   // configuration
-  ImportCsvConfiguration configuration = 5;
+  ImportCsvConfigurations configurations = 5;
   // file_content
   bytes file_content = 6;
   // delta_table_name
@@ -125,4 +167,147 @@ message ImportFileResponse {
   int32 code = 1;
   //message
   string message = 2;
+}
+
+// GetListDataSources Request
+message GetListDataSourcesRequest {
+  // data_source type
+  string type = 1;
+  // name
+  string name = 2;
+}
+
+// GetListDataSources Response
+message GetListDataSourcesResponse {
+  // code
+  int32 code = 1;
+  // count
+  int64 count = 2;
+  // results list
+  repeated DataSourceBase results = 3;
+}
+
+// GetDataSource Request
+message GetDataSourceRequest {
+  // id
+  int64 id = 1 [(validate.rules).int64.gte = 1];
+}
+
+// GetDataSource Response
+message GetDataSourceResponse {
+  // code
+  int32 code = 1;
+  // id
+  int64 id = 2;
+  // name
+  string name = 3;
+  // data_source type
+  string type = 4;
+  // description
+  string description = 6;
+  // created_at
+  string created_at = 7;
+  // updated_at
+  string updated_at = 8;
+  // configurations
+  map<string, string>configurations = 9;
+  // mapping_options
+  map<string, string> mapping_options = 10;
+}
+
+// GetListDataTables Request
+message GetListDataTablesRequest {
+  // name
+  string name = 1;
+}
+
+// GetListDataSource Response
+message GetListDataTablesResponse {
+  // code
+  int32 code = 1;
+  // count
+  int64 count = 2;
+  // results list
+  repeated DataTableBase results = 3;
+}
+
+// GetDataTable Request
+message GetDataTableRequest {
+  // id
+  int64 id = 1 [(validate.rules).int64.gte = 1];
+}
+
+// GetDataTable Response
+message GetDataTableResponse {
+  // code
+  int32 code = 1;
+  // id
+  int64 id = 2;
+  // name
+  string name = 3;
+  // created_at
+  string created_at = 4;
+  // updated_at
+  string updated_at = 5;
+  // schema
+  map<string, string> schema = 6;
+}
+
+
+// CreateSourceConnection Request
+message CreateSourceConnectionRequest {
+  // name
+  string name = 1 [(validate.rules).string.min_len = 1];
+  // type
+  string type = 2 [(validate.rules).string.min_len = 1];
+  // configurations
+  map<string,string> configurations = 3;
+}
+
+// CreateSourceConnection Response
+message CreateSourceConnectionResponse {
+  // code
+  int32 code = 1;
+  // message
+  string message = 2;
+}
+
+// GetListSourceConnections Request
+message GetListSourceConnectionsRequest {
+  // type
+  string type = 1 [(validate.rules).string.min_len = 1];
+  // name
+  string name = 2 [(validate.rules).string.min_len = 1];
+}
+
+// GetListSourceConnections Response
+message GetListSourceConnectionsResponse {
+  // code
+  int32 code = 1;
+  // count
+  int64 count = 2;
+  // results list
+  repeated SourceConnectionBase results = 3;
+}
+
+// GetSourceConnection Request
+message GetSourceConnectionRequest {
+  // id
+  int64 id = 1 [(validate.rules).int64.gte = 1];
+}
+
+// GetSourceConnection Response
+message GetSourceConnectionResponse {
+  // code
+  int32 code = 1;
+  // id
+  int64 id = 2;
+  // name
+  string name = 3;
+  // created_at
+  string created_at = 4;
+  // updated_at
+  string updated_at = 5;
+  // schema
+  map<string, string> configurations = 6;
 }

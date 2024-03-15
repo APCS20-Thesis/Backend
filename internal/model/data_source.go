@@ -19,20 +19,19 @@ type DataSource struct {
 	Name           string
 	Description    string
 	Type           DataSourceType
-	Configuration  pqtype.NullRawMessage
+	Configurations pqtype.NullRawMessage
 	MappingOptions pqtype.NullRawMessage
-	DeltaTableName string
 	AccountUuid    uuid.UUID
 	CreatedAt      time.Time `gorm:"autoCreateTime"`
 	UpdatedAt      time.Time `gorm:"autoUpdateTime"`
 }
 
-type FileConfiguration struct {
-	FileName      string                      `json:"file_name"`
-	FilePath      string                      `json:"file_path"`
-	BucketName    string                      `json:"bucket_name"`
-	Key           string                      `json:"key"`
-	CsvReadOption *api.ImportCsvConfiguration `json:"csv_read_option"`
+type FileConfigurations struct {
+	FileName      string                       `json:"file_name"`
+	FilePath      string                       `json:"file_path"`
+	BucketName    string                       `json:"bucket_name"`
+	Key           string                       `json:"key"`
+	CsvReadOption *api.ImportCsvConfigurations `json:"csv_read_option"`
 }
 
 func (DataSource) TableName() string {

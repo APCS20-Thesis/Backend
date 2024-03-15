@@ -19,10 +19,17 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	CDPService_CheckHealth_FullMethodName    = "/api.CDPService/CheckHealth"
-	CDPService_Login_FullMethodName          = "/api.CDPService/Login"
-	CDPService_SignUp_FullMethodName         = "/api.CDPService/SignUp"
-	CDPService_GetAccountInfo_FullMethodName = "/api.CDPService/GetAccountInfo"
+	CDPService_CheckHealth_FullMethodName              = "/api.CDPService/CheckHealth"
+	CDPService_Login_FullMethodName                    = "/api.CDPService/Login"
+	CDPService_SignUp_FullMethodName                   = "/api.CDPService/SignUp"
+	CDPService_GetAccountInfo_FullMethodName           = "/api.CDPService/GetAccountInfo"
+	CDPService_GetListDataSources_FullMethodName       = "/api.CDPService/GetListDataSources"
+	CDPService_GetDataSource_FullMethodName            = "/api.CDPService/GetDataSource"
+	CDPService_GetListDataTables_FullMethodName        = "/api.CDPService/GetListDataTables"
+	CDPService_GetDataTable_FullMethodName             = "/api.CDPService/GetDataTable"
+	CDPService_GetSourceConnection_FullMethodName      = "/api.CDPService/GetSourceConnection"
+	CDPService_GetListSourceConnections_FullMethodName = "/api.CDPService/GetListSourceConnections"
+	CDPService_CreateSourceConnection_FullMethodName   = "/api.CDPService/CreateSourceConnection"
 )
 
 // CDPServiceClient is the client API for CDPService service.
@@ -33,6 +40,13 @@ type CDPServiceClient interface {
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	SignUp(ctx context.Context, in *SignUpRequest, opts ...grpc.CallOption) (*CommonResponse, error)
 	GetAccountInfo(ctx context.Context, in *GetAccountInfoRequest, opts ...grpc.CallOption) (*GetAccountInfoResponse, error)
+	GetListDataSources(ctx context.Context, in *GetListDataSourcesRequest, opts ...grpc.CallOption) (*GetListDataSourcesResponse, error)
+	GetDataSource(ctx context.Context, in *GetDataSourceRequest, opts ...grpc.CallOption) (*GetDataSourceResponse, error)
+	GetListDataTables(ctx context.Context, in *GetListDataTablesRequest, opts ...grpc.CallOption) (*GetListDataTablesResponse, error)
+	GetDataTable(ctx context.Context, in *GetDataTableRequest, opts ...grpc.CallOption) (*GetDataTableResponse, error)
+	GetSourceConnection(ctx context.Context, in *GetSourceConnectionRequest, opts ...grpc.CallOption) (*GetSourceConnectionResponse, error)
+	GetListSourceConnections(ctx context.Context, in *GetListSourceConnectionsRequest, opts ...grpc.CallOption) (*GetListSourceConnectionsResponse, error)
+	CreateSourceConnection(ctx context.Context, in *CreateSourceConnectionRequest, opts ...grpc.CallOption) (*CreateSourceConnectionResponse, error)
 }
 
 type cDPServiceClient struct {
@@ -79,6 +93,69 @@ func (c *cDPServiceClient) GetAccountInfo(ctx context.Context, in *GetAccountInf
 	return out, nil
 }
 
+func (c *cDPServiceClient) GetListDataSources(ctx context.Context, in *GetListDataSourcesRequest, opts ...grpc.CallOption) (*GetListDataSourcesResponse, error) {
+	out := new(GetListDataSourcesResponse)
+	err := c.cc.Invoke(ctx, CDPService_GetListDataSources_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cDPServiceClient) GetDataSource(ctx context.Context, in *GetDataSourceRequest, opts ...grpc.CallOption) (*GetDataSourceResponse, error) {
+	out := new(GetDataSourceResponse)
+	err := c.cc.Invoke(ctx, CDPService_GetDataSource_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cDPServiceClient) GetListDataTables(ctx context.Context, in *GetListDataTablesRequest, opts ...grpc.CallOption) (*GetListDataTablesResponse, error) {
+	out := new(GetListDataTablesResponse)
+	err := c.cc.Invoke(ctx, CDPService_GetListDataTables_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cDPServiceClient) GetDataTable(ctx context.Context, in *GetDataTableRequest, opts ...grpc.CallOption) (*GetDataTableResponse, error) {
+	out := new(GetDataTableResponse)
+	err := c.cc.Invoke(ctx, CDPService_GetDataTable_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cDPServiceClient) GetSourceConnection(ctx context.Context, in *GetSourceConnectionRequest, opts ...grpc.CallOption) (*GetSourceConnectionResponse, error) {
+	out := new(GetSourceConnectionResponse)
+	err := c.cc.Invoke(ctx, CDPService_GetSourceConnection_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cDPServiceClient) GetListSourceConnections(ctx context.Context, in *GetListSourceConnectionsRequest, opts ...grpc.CallOption) (*GetListSourceConnectionsResponse, error) {
+	out := new(GetListSourceConnectionsResponse)
+	err := c.cc.Invoke(ctx, CDPService_GetListSourceConnections_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cDPServiceClient) CreateSourceConnection(ctx context.Context, in *CreateSourceConnectionRequest, opts ...grpc.CallOption) (*CreateSourceConnectionResponse, error) {
+	out := new(CreateSourceConnectionResponse)
+	err := c.cc.Invoke(ctx, CDPService_CreateSourceConnection_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CDPServiceServer is the server API for CDPService service.
 // All implementations must embed UnimplementedCDPServiceServer
 // for forward compatibility
@@ -87,6 +164,13 @@ type CDPServiceServer interface {
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 	SignUp(context.Context, *SignUpRequest) (*CommonResponse, error)
 	GetAccountInfo(context.Context, *GetAccountInfoRequest) (*GetAccountInfoResponse, error)
+	GetListDataSources(context.Context, *GetListDataSourcesRequest) (*GetListDataSourcesResponse, error)
+	GetDataSource(context.Context, *GetDataSourceRequest) (*GetDataSourceResponse, error)
+	GetListDataTables(context.Context, *GetListDataTablesRequest) (*GetListDataTablesResponse, error)
+	GetDataTable(context.Context, *GetDataTableRequest) (*GetDataTableResponse, error)
+	GetSourceConnection(context.Context, *GetSourceConnectionRequest) (*GetSourceConnectionResponse, error)
+	GetListSourceConnections(context.Context, *GetListSourceConnectionsRequest) (*GetListSourceConnectionsResponse, error)
+	CreateSourceConnection(context.Context, *CreateSourceConnectionRequest) (*CreateSourceConnectionResponse, error)
 	mustEmbedUnimplementedCDPServiceServer()
 }
 
@@ -105,6 +189,27 @@ func (UnimplementedCDPServiceServer) SignUp(context.Context, *SignUpRequest) (*C
 }
 func (UnimplementedCDPServiceServer) GetAccountInfo(context.Context, *GetAccountInfoRequest) (*GetAccountInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAccountInfo not implemented")
+}
+func (UnimplementedCDPServiceServer) GetListDataSources(context.Context, *GetListDataSourcesRequest) (*GetListDataSourcesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetListDataSources not implemented")
+}
+func (UnimplementedCDPServiceServer) GetDataSource(context.Context, *GetDataSourceRequest) (*GetDataSourceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetDataSource not implemented")
+}
+func (UnimplementedCDPServiceServer) GetListDataTables(context.Context, *GetListDataTablesRequest) (*GetListDataTablesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetListDataTables not implemented")
+}
+func (UnimplementedCDPServiceServer) GetDataTable(context.Context, *GetDataTableRequest) (*GetDataTableResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetDataTable not implemented")
+}
+func (UnimplementedCDPServiceServer) GetSourceConnection(context.Context, *GetSourceConnectionRequest) (*GetSourceConnectionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSourceConnection not implemented")
+}
+func (UnimplementedCDPServiceServer) GetListSourceConnections(context.Context, *GetListSourceConnectionsRequest) (*GetListSourceConnectionsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetListSourceConnections not implemented")
+}
+func (UnimplementedCDPServiceServer) CreateSourceConnection(context.Context, *CreateSourceConnectionRequest) (*CreateSourceConnectionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateSourceConnection not implemented")
 }
 func (UnimplementedCDPServiceServer) mustEmbedUnimplementedCDPServiceServer() {}
 
@@ -191,6 +296,132 @@ func _CDPService_GetAccountInfo_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CDPService_GetListDataSources_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetListDataSourcesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDPServiceServer).GetListDataSources(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CDPService_GetListDataSources_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDPServiceServer).GetListDataSources(ctx, req.(*GetListDataSourcesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CDPService_GetDataSource_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDataSourceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDPServiceServer).GetDataSource(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CDPService_GetDataSource_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDPServiceServer).GetDataSource(ctx, req.(*GetDataSourceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CDPService_GetListDataTables_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetListDataTablesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDPServiceServer).GetListDataTables(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CDPService_GetListDataTables_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDPServiceServer).GetListDataTables(ctx, req.(*GetListDataTablesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CDPService_GetDataTable_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDataTableRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDPServiceServer).GetDataTable(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CDPService_GetDataTable_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDPServiceServer).GetDataTable(ctx, req.(*GetDataTableRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CDPService_GetSourceConnection_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSourceConnectionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDPServiceServer).GetSourceConnection(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CDPService_GetSourceConnection_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDPServiceServer).GetSourceConnection(ctx, req.(*GetSourceConnectionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CDPService_GetListSourceConnections_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetListSourceConnectionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDPServiceServer).GetListSourceConnections(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CDPService_GetListSourceConnections_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDPServiceServer).GetListSourceConnections(ctx, req.(*GetListSourceConnectionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CDPService_CreateSourceConnection_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateSourceConnectionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDPServiceServer).CreateSourceConnection(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CDPService_CreateSourceConnection_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDPServiceServer).CreateSourceConnection(ctx, req.(*CreateSourceConnectionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CDPService_ServiceDesc is the grpc.ServiceDesc for CDPService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -213,6 +444,34 @@ var CDPService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAccountInfo",
 			Handler:    _CDPService_GetAccountInfo_Handler,
+		},
+		{
+			MethodName: "GetListDataSources",
+			Handler:    _CDPService_GetListDataSources_Handler,
+		},
+		{
+			MethodName: "GetDataSource",
+			Handler:    _CDPService_GetDataSource_Handler,
+		},
+		{
+			MethodName: "GetListDataTables",
+			Handler:    _CDPService_GetListDataTables_Handler,
+		},
+		{
+			MethodName: "GetDataTable",
+			Handler:    _CDPService_GetDataTable_Handler,
+		},
+		{
+			MethodName: "GetSourceConnection",
+			Handler:    _CDPService_GetSourceConnection_Handler,
+		},
+		{
+			MethodName: "GetListSourceConnections",
+			Handler:    _CDPService_GetListSourceConnections_Handler,
+		},
+		{
+			MethodName: "CreateSourceConnection",
+			Handler:    _CDPService_CreateSourceConnection_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 	"gorm.io/gorm"
@@ -13,6 +14,7 @@ type DataActionRepository interface {
 	CreateDataAction(ctx context.Context, params *CreateDataActionParams) (*model.DataAction, error)
 	GetDataAction(ctx context.Context, id int64) (*model.DataAction, error)
 	UpdateDataAction(ctx context.Context, params *UpdateDataActionParams) error
+	ListDataAction(ctx context.Context, filter *FilterDataAction) ([]model.DataAction, error)
 }
 
 type dataActionRepo struct {
@@ -29,7 +31,7 @@ type CreateDataActionParams struct {
 	Schedule    string
 	AccountUuid uuid.UUID
 	DagId       string
-	Status      string
+	Status      model.DataActionStatus
 }
 
 func (r *dataActionRepo) CreateDataAction(ctx context.Context, params *CreateDataActionParams) (*model.DataAction, error) {
@@ -54,7 +56,7 @@ func (r *dataActionRepo) GetDataAction(ctx context.Context, id int64) (*model.Da
 	var dataAction model.DataAction
 	err := r.WithContext(ctx).Table(r.TableName).Where("id = ?", id).First(&dataAction).Error
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
 		return nil, err
@@ -86,4 +88,37 @@ func (r *dataActionRepo) UpdateDataAction(ctx context.Context, params *UpdateDat
 	}
 
 	return nil
+}
+
+type FilterDataAction struct {
+	ActionType  model.ActionType
+	AccountUuid uuid.UUID
+	Status      model.DataActionStatus
+	DagId       string
+}
+
+func (r *dataActionRepo) ListDataAction(ctx context.Context, filter *FilterDataAction) ([]model.DataAction, error) {
+	var dataActions []model.DataAction
+	query := r.WithContext(ctx).Table(r.TableName)
+	if filter.DagId != "" {
+		query = query.Where("dag_id = ?", filter.DagId)
+	}
+	if filter.ActionType != "" {
+		query = query.Where("action_type = ?", filter.ActionType)
+	}
+	if filter.Status != "" {
+		query = query.Where("status = ?", filter.Status)
+	}
+	if filter.AccountUuid.String() != "" {
+		query = query.Where("account_uuid = ?", filter.AccountUuid)
+	}
+	err := query.Find(&dataActions).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return dataActions, nil
 }

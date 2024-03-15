@@ -8,7 +8,7 @@ import (
 )
 
 type DataActionRunRepository interface {
-	CreateDataActionRun(ctx context.Context, params *CreateDataActionRunParams) error
+	CreateDataActionRun(ctx context.Context, params *CreateDataActionRunParams) (*model.DataActionRun, error)
 	UpdateDataActionRunStatus(ctx context.Context, id int64, status model.DataActionRunStatus) error
 }
 
@@ -29,17 +29,18 @@ type CreateDataActionRunParams struct {
 	AccountUuid uuid.UUID
 }
 
-func (r *dataActionRunRepo) CreateDataActionRun(ctx context.Context, params *CreateDataActionRunParams) error {
-	if err := r.WithContext(ctx).Table(r.TableName).Create(&model.DataActionRun{
+func (r *dataActionRunRepo) CreateDataActionRun(ctx context.Context, params *CreateDataActionRunParams) (*model.DataActionRun, error) {
+	dataActionRun := &model.DataActionRun{
 		ActionId:    params.ActionId,
 		RunId:       params.RunId,
 		Status:      params.Status,
 		AccountUuid: params.AccountUuid,
 		DagRunId:    params.DagRunId,
-	}).Error; err != nil {
-		return err
 	}
-	return nil
+	if err := r.WithContext(ctx).Table(r.TableName).Create(&dataActionRun).Error; err != nil {
+		return nil, err
+	}
+	return dataActionRun, nil
 }
 
 func (r *dataActionRunRepo) UpdateDataActionRunStatus(ctx context.Context, id int64, status model.DataActionRunStatus) error {

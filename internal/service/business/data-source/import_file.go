@@ -39,10 +39,10 @@ func (b business) TriggerAirflowGenerateImportFile(ctx context.Context, request 
 			BucketName:             constants.S3BucketName,
 			Key:                    "data/" + accountUuid + "/" + dateTime + "_" + request.GetFileName(),
 			WriteMode:              "overwrite",
-			CsvReadOptionHeader:    request.Configuration.SkipRow > 0,
-			CsvReadOptionMultiline: request.Configuration.Multiline,
-			CsvReadOptionDelimiter: request.Configuration.Delimiter,
-			CsvReadOptionSkipRow:   request.Configuration.SkipRow,
+			CsvReadOptionHeader:    request.Configurations.SkipRow > 0,
+			CsvReadOptionMultiline: request.Configurations.Multiline,
+			CsvReadOptionDelimiter: request.Configurations.Delimiter,
+			CsvReadOptionSkipRow:   request.Configurations.SkipRow,
 			DagId:                  accountUuid + "_" + dateTime,
 		},
 	}, request.FileType)
@@ -64,7 +64,7 @@ func (b business) ProcessImportFile(ctx context.Context, request *api.ImportFile
 	}
 
 	// Create DataActionRun
-	err = b.CreateDataActionRun(ctx, &repository.CreateDataActionRunParams{
+	_, err = b.CreateDataActionRun(ctx, &repository.CreateDataActionRunParams{
 		ActionId:    dataAction.ID,
 		RunId:       0,
 		AccountUuid: uuid.MustParse(accountUuid),
@@ -76,11 +76,11 @@ func (b business) ProcessImportFile(ctx context.Context, request *api.ImportFile
 	}
 
 	// Create Datasource
-	configuration, _ := json.Marshal(model.FileConfiguration{
+	configurations, _ := json.Marshal(model.FileConfigurations{
 		FileName:      request.FileName,
 		BucketName:    constants.S3BucketName,
 		Key:           "data/" + accountUuid + "/" + dateTime + "_" + request.GetFileName(),
-		CsvReadOption: request.Configuration,
+		CsvReadOption: request.Configurations,
 	})
 
 	mappingOptions, err := json.Marshal(request.MappingOptions)
@@ -90,13 +90,12 @@ func (b business) ProcessImportFile(ctx context.Context, request *api.ImportFile
 			Error(err, "Cannot parse mappingOptions to JSON")
 		return err
 	}
-	err = b.CreateDataSource(ctx, &repository.CreateDataSourceParams{
+	_, err = b.CreateDataSource(ctx, &repository.CreateDataSourceParams{
 		Name:           request.Name,
 		Description:    request.Description,
 		Type:           model.DataSourceType_File,
-		Configuration:  pqtype.NullRawMessage{RawMessage: configuration, Valid: true},
+		Configurations: pqtype.NullRawMessage{RawMessage: configurations, Valid: true},
 		MappingOptions: pqtype.NullRawMessage{RawMessage: mappingOptions, Valid: true},
-		DeltaTableName: request.DeltaTableName,
 		AccountUuid:    uuid.MustParse(accountUuid),
 	})
 	if err != nil {
