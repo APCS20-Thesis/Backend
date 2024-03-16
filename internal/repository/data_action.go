@@ -14,7 +14,7 @@ type DataActionRepository interface {
 	CreateDataAction(ctx context.Context, params *CreateDataActionParams) (*model.DataAction, error)
 	GetDataAction(ctx context.Context, id int64) (*model.DataAction, error)
 	UpdateDataAction(ctx context.Context, params *UpdateDataActionParams) error
-	ListDataAction(ctx context.Context, filter *FilterDataAction) ([]model.DataAction, error)
+	GetListDataActions(ctx context.Context, params *GetListDataActionsParams) ([]model.DataAction, error)
 }
 
 type dataActionRepo struct {
@@ -71,6 +71,7 @@ type UpdateDataActionParams struct {
 	Payload     pqtype.NullRawMessage
 	Schedule    string
 	AccountUuid uuid.UUID
+	Status      model.DataActionStatus
 }
 
 func (r *dataActionRepo) UpdateDataAction(ctx context.Context, params *UpdateDataActionParams) error {
@@ -80,6 +81,7 @@ func (r *dataActionRepo) UpdateDataAction(ctx context.Context, params *UpdateDat
 		Payload:     params.Payload,
 		Schedule:    params.Schedule,
 		AccountUuid: params.AccountUuid,
+		Status:      params.Status,
 	}
 
 	updateErr := r.WithContext(ctx).Table(r.TableName).Where("id = ?", params.ID).Updates(&dataAction).Error
@@ -90,33 +92,35 @@ func (r *dataActionRepo) UpdateDataAction(ctx context.Context, params *UpdateDat
 	return nil
 }
 
-type FilterDataAction struct {
-	ActionType  model.ActionType
+type GetListDataActionsParams struct {
+	Ids         []int64
+	ActionTypes []string
+	Statuses    []model.DataActionStatus
 	AccountUuid uuid.UUID
-	Status      model.DataActionStatus
 	DagId       string
 }
 
-func (r *dataActionRepo) ListDataAction(ctx context.Context, filter *FilterDataAction) ([]model.DataAction, error) {
-	var dataActions []model.DataAction
+func (r *dataActionRepo) GetListDataActions(ctx context.Context, params *GetListDataActionsParams) ([]model.DataAction, error) {
 	query := r.WithContext(ctx).Table(r.TableName)
-	if filter.DagId != "" {
-		query = query.Where("dag_id = ?", filter.DagId)
+	if params.DagId != "" {
+		query = query.Where("dag_id = ?", params.DagId)
 	}
-	if filter.ActionType != "" {
-		query = query.Where("action_type = ?", filter.ActionType)
+	if len(params.Ids) > 0 {
+		query.Where("id IN ?", params.Ids)
 	}
-	if filter.Status != "" {
-		query = query.Where("status = ?", filter.Status)
+	if len(params.ActionTypes) > 0 {
+		query.Where("action_type IN ?", params.ActionTypes)
 	}
-	if filter.AccountUuid.String() != "" {
-		query = query.Where("account_uuid = ?", filter.AccountUuid)
+	if len(params.Statuses) > 0 {
+		query.Where("status IN ?", params.Statuses)
 	}
+	if params.AccountUuid.String() != "" {
+		query = query.Where("account_uuid = ?", params.AccountUuid)
+	}
+
+	var dataActions []model.DataAction
 	err := query.Find(&dataActions).Error
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
 		return nil, err
 	}
 
