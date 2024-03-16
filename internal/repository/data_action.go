@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 	"gorm.io/gorm"
@@ -55,7 +56,7 @@ func (r *dataActionRepo) GetDataAction(ctx context.Context, id int64) (*model.Da
 	var dataAction model.DataAction
 	err := r.WithContext(ctx).Table(r.TableName).Where("id = ?", id).First(&dataAction).Error
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
 		return nil, err
@@ -95,11 +96,15 @@ type GetListDataActionsParams struct {
 	Ids         []int64
 	ActionTypes []string
 	Statuses    []model.DataActionStatus
+	AccountUuid uuid.UUID
+	DagId       string
 }
 
 func (r *dataActionRepo) GetListDataActions(ctx context.Context, params *GetListDataActionsParams) ([]model.DataAction, error) {
 	query := r.WithContext(ctx).Table(r.TableName)
-
+	if params.DagId != "" {
+		query = query.Where("dag_id = ?", params.DagId)
+	}
 	if len(params.Ids) > 0 {
 		query.Where("id IN ?", params.Ids)
 	}
@@ -108,6 +113,9 @@ func (r *dataActionRepo) GetListDataActions(ctx context.Context, params *GetList
 	}
 	if len(params.Statuses) > 0 {
 		query.Where("status IN ?", params.Statuses)
+	}
+	if params.AccountUuid.String() != "" {
+		query = query.Where("account_uuid = ?", params.AccountUuid)
 	}
 
 	var dataActions []model.DataAction

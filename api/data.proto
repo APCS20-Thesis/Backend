@@ -25,12 +25,15 @@ message Account {
   string email = 5;
 }
 
+//*****************************************//
+// DataSource
+//*****************************************//
 
-message ImportCsvConfiguration {
+message ImportCsvConfigurations {
   // delimiter
   string delimiter = 1 [(validate.rules).string.len = 1];
   // skip_row
-  int64 skip_row =2 [(validate.rules).int64.gte = 0];
+  int64 skip_row = 2 [(validate.rules).int64.gte = 0];
   // multiline
   bool multiline = 3;
 }

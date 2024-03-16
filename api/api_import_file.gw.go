@@ -39,7 +39,7 @@ func request_CDPServiceFile_ImportFile_0(ctx context.Context, client CDPServiceF
 	}
 
 	jsonConfigurations := req.Form.Get("configurations")
-	var configurations *ImportCsvConfiguration
+	var configurations *ImportCsvConfigurations
 	err = json.Unmarshal([]byte(jsonConfigurations), &configurations)
 	if err != nil {
 		return nil, err
@@ -60,7 +60,7 @@ func request_CDPServiceFile_ImportFile_0(ctx context.Context, client CDPServiceF
 			FileSize:       header.Size,
 			FileType:       fileType,
 			MappingOptions: mappingOptions,
-			Configuration:  configurations,
+			Configurations: configurations,
 			Name:           name,
 			Description:    description,
 			DeltaTableName: deltaTableName,
