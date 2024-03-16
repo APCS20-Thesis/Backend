@@ -59,19 +59,19 @@ service CDPService {
     };
   }
 
-  rpc GetSourceConnection(GetSourceConnectionRequest) returns (GetSourceConnectionResponse){
+  rpc GetConnection(GetConnectionRequest) returns (GetConnectionResponse){
     option (google.api.http) = {
-      get: "/api/v1/data-source/source-connection/{id}"
+      get: "/api/v1/data-source/connection/{id}"
     };
   }
-  rpc GetListSourceConnections(GetListSourceConnectionsRequest) returns (GetListSourceConnectionsResponse){
+  rpc GetListConnections(GetListConnectionsRequest) returns (GetListConnectionsResponse){
     option (google.api.http) = {
-      get: "/api/v1/data-source/source-connections"
+      get: "/api/v1/data-source/connections"
     };
   }
-  rpc CreateSourceConnection(CreateSourceConnectionRequest) returns (CreateSourceConnectionResponse){
+  rpc CreateConnection(CreateConnectionRequest) returns (CreateConnectionResponse){
     option (google.api.http) = {
-      post: "/api/v1/data-source/source-connection"
+      post: "/api/v1/data-source/connection"
       body: "*"
     };
   }
@@ -184,7 +184,19 @@ message GetListDataSourcesResponse {
   // count
   int64 count = 2;
   // results list
-  repeated DataSourceBase results = 3;
+  repeated DataSource results = 3;
+
+  message DataSource {
+    // id
+    int64 id = 1;
+    // name
+    string name = 2;
+    // data_source type
+    string type = 3;
+    // updated_at
+    string updated_at = 4;
+  }
+
 }
 
 // GetDataSource Request
@@ -228,7 +240,18 @@ message GetListDataTablesResponse {
   // count
   int64 count = 2;
   // results list
-  repeated DataTableBase results = 3;
+  repeated DataTable results = 3;
+
+  message DataTable {
+    // id
+    int64 id = 1;
+    // name
+    string name = 2;
+    // created_at
+    string created_at = 3;
+    // updated_at
+    string updated_at = 4;
+  }
 }
 
 // GetDataTable Request
@@ -254,8 +277,8 @@ message GetDataTableResponse {
 }
 
 
-// CreateSourceConnection Request
-message CreateSourceConnectionRequest {
+// CreateConnection Request
+message CreateConnectionRequest {
   // name
   string name = 1 [(validate.rules).string.min_len = 1];
   // type
@@ -264,40 +287,49 @@ message CreateSourceConnectionRequest {
   map<string,string> configurations = 3;
 }
 
-// CreateSourceConnection Response
-message CreateSourceConnectionResponse {
+// CreateConnection Response
+message CreateConnectionResponse {
   // code
   int32 code = 1;
   // message
   string message = 2;
 }
 
-// GetListSourceConnections Request
-message GetListSourceConnectionsRequest {
+// GetListConnections Request
+message GetListConnectionsRequest {
   // type
   string type = 1 [(validate.rules).string.min_len = 1];
   // name
   string name = 2 [(validate.rules).string.min_len = 1];
 }
 
-// GetListSourceConnections Response
-message GetListSourceConnectionsResponse {
+// GetListConnections Response
+message GetListConnectionsResponse {
   // code
   int32 code = 1;
   // count
   int64 count = 2;
   // results list
-  repeated SourceConnectionBase results = 3;
+  repeated Connection results = 3;
+
+  message Connection {
+    // id
+    int64 id = 1;
+    // name
+    string name = 2;
+    // updated_at
+    string updated_at = 3;
+  }
 }
 
-// GetSourceConnection Request
-message GetSourceConnectionRequest {
+// GetConnection Request
+message GetConnectionRequest {
   // id
   int64 id = 1 [(validate.rules).int64.gte = 1];
 }
 
-// GetSourceConnection Response
-message GetSourceConnectionResponse {
+// GetConnection Response
+message GetConnectionResponse {
   // code
   int32 code = 1;
   // id

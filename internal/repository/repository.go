@@ -10,16 +10,16 @@ type Repository struct {
 	DataActionRepository
 	DataActionRunRepository
 	DataTableRepository
-	SourceConnectionRepository
+	ConnectionRepository
 }
 
 func NewRepository(db *gorm.DB) *Repository {
 	return &Repository{
-		AccountRepository:          NewAccountRepository(db),
-		DataSourceRepository:       NewDataSourceRepository(db),
-		DataActionRepository:       NewDataActionRepository(db),
-		DataActionRunRepository:    NewDataActionRunRepository(db),
-		DataTableRepository:        NewDataTableRepository(db),
-		SourceConnectionRepository: NewSourceConnectionRepository(db),
+		AccountRepository:       NewAccountRepository(db),
+		DataSourceRepository:    NewDataSourceRepository(db),
+		DataActionRepository:    NewDataActionRepository(db),
+		DataActionRunRepository: NewDataActionRunRepository(db),
+		DataTableRepository:     NewDataTableRepository(db),
+		ConnectionRepository:    NewConnectionRepository(db),
 	}
 }

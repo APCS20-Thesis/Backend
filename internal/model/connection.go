@@ -13,7 +13,7 @@ const (
 	ConnectionType_MySQL DataSourceType = "MYSQL"
 )
 
-type SourceConnection struct {
+type Connection struct {
 	ID             int64 `gorm:"primaryKey"`
 	Name           string
 	Type           ConnectionType
@@ -23,6 +23,6 @@ type SourceConnection struct {
 	UpdatedAt      time.Time `gorm:"autoUpdateTime"`
 }
 
-func (SourceConnection) TableName() string {
-	return "source_connection"
+func (Connection) TableName() string {
+	return "connection"
 }

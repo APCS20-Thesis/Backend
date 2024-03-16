@@ -93,46 +93,46 @@ func (s *Service) GetDataSource(ctx context.Context, request *api.GetDataSourceR
 //	return currentTime.Format("02012006150405")
 //}
 
-func (s *Service) GetListSourceConnections(ctx context.Context, request *api.GetListSourceConnectionsRequest) (*api.GetListSourceConnectionsResponse, error) {
+func (s *Service) GetListConnections(ctx context.Context, request *api.GetListConnectionsRequest) (*api.GetListConnectionsResponse, error) {
 	accountUuid, err := GetAccountUuidFromCtx(ctx)
 	if err != nil {
-		s.log.WithName("GetListSourceConnections").
+		s.log.WithName("GetListConnections").
 			WithValues("Context", ctx).
 			Error(err, "Cannot get account_uuid from context")
 		return nil, err
 	}
-	sourceConnections, err := s.business.DataSourceBusiness.GetListSourceConnections(ctx, request, accountUuid)
+	connections, err := s.business.DataSourceBusiness.GetListConnections(ctx, request, accountUuid)
 	if err != nil {
-		s.log.WithName("GetListSourceConnections").
+		s.log.WithName("GetListConnections").
 			WithValues("Context", ctx).
-			Error(err, "Failed to process list source connections")
+			Error(err, "Failed to process list connections")
 		return nil, err
 	}
-	return &api.GetListSourceConnectionsResponse{Code: int32(codes.OK), Count: int64(len(sourceConnections)), Results: sourceConnections}, nil
+	return &api.GetListConnectionsResponse{Code: int32(codes.OK), Count: int64(len(connections)), Results: connections}, nil
 }
 
-func (s *Service) GetSourceConnection(ctx context.Context, request *api.GetSourceConnectionRequest) (*api.GetSourceConnectionResponse, error) {
+func (s *Service) GetConnection(ctx context.Context, request *api.GetConnectionRequest) (*api.GetConnectionResponse, error) {
 	accountUuid, err := GetAccountUuidFromCtx(ctx)
 	if err != nil {
-		s.log.WithName("GetSourceConnection").
+		s.log.WithName("GetConnection").
 			WithValues("Context", ctx).
 			Error(err, "Cannot get account_uuid from context")
 		return nil, err
 	}
-	response, err := s.business.DataSourceBusiness.GetSourceConnection(ctx, request, accountUuid)
+	response, err := s.business.DataSourceBusiness.GetConnection(ctx, request, accountUuid)
 	if err != nil {
-		s.log.WithName("GetSourceConnection").
+		s.log.WithName("GetConnection").
 			WithValues("Context", ctx).
-			Error(err, "Failed to process get source connection")
+			Error(err, "Failed to process get connection")
 		return nil, err
 	}
 	return response, nil
 }
 
-func (s *Service) CreateSourceConnection(ctx context.Context, request *api.CreateSourceConnectionRequest) (*api.CreateSourceConnectionResponse, error) {
+func (s *Service) CreateConnection(ctx context.Context, request *api.CreateConnectionRequest) (*api.CreateConnectionResponse, error) {
 	accountUuid, err := GetAccountUuidFromCtx(ctx)
 	if err != nil {
-		s.log.WithName("CreateSourceConnection").
+		s.log.WithName("CreateConnection").
 			WithValues("Context", ctx).
 			Error(err, "Cannot get account_uuid from context")
 		return nil, err
@@ -144,17 +144,17 @@ func (s *Service) CreateSourceConnection(ctx context.Context, request *api.Creat
 			Error(err, "Cannot parse mappingOptions to JSON")
 		return nil, err
 	}
-	_, err = s.business.DataSourceBusiness.CreateSourceConnection(ctx, &repository.CreateSourceConnectionParams{
+	_, err = s.business.DataSourceBusiness.CreateConnection(ctx, &repository.CreateConnectionParams{
 		Name:           request.Name,
 		Type:           model.ConnectionType(request.Type),
 		Configurations: pqtype.NullRawMessage{RawMessage: configurations, Valid: true},
 		AccountUuid:    uuid.MustParse(accountUuid),
 	})
 	if err != nil {
-		s.log.WithName("CreateSourceConnection").
+		s.log.WithName("CreateConnection").
 			WithValues("Context", ctx).
-			Error(err, "Failed to process create source connection")
+			Error(err, "Failed to process create connection")
 		return nil, err
 	}
-	return &api.CreateSourceConnectionResponse{Message: "Create Success", Code: 0}, nil
+	return &api.CreateConnectionResponse{Message: "Create Success", Code: 0}, nil
 }

@@ -12,7 +12,7 @@ type Business interface {
 	CreateDataTable(ctx context.Context, params *repository.CreateDataTableParams) (*model.DataTable, error)
 	UpdateDataTable(ctx context.Context, params *repository.UpdateDataTableParams) error
 	GetDataTable(ctx context.Context, request *api.GetDataTableRequest, accountUuid string) (*api.GetDataTableResponse, error)
-	GetListDataTables(ctx context.Context, request *api.GetListDataTablesRequest, accountUuid string) ([]*api.DataTableBase, error)
+	GetListDataTables(ctx context.Context, request *api.GetListDataTablesRequest, accountUuid string) ([]*api.GetListDataTablesResponse_DataTable, error)
 }
 
 type business struct {

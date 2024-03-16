@@ -37,34 +37,3 @@ message ImportCsvConfigurations {
   // multiline
   bool multiline = 3;
 }
-
-message DataSourceBase {
-  // id
-  int64 id = 1;
-  // name
-  string name = 2;
-  // data_source type
-  string type = 3;
-  // updated_at
-  string updated_at = 4;
-}
-
-message DataTableBase {
-  // id
-  int64 id = 1;
-  // name
-  string name = 2;
-  // created_at
-  string created_at = 3;
-  // updated_at
-  string updated_at = 4;
-}
-
-message SourceConnectionBase {
-  // id
-  int64 id = 1;
-  // name
-  string name = 2;
-  // updated_at
-  string updated_at = 4;
-}

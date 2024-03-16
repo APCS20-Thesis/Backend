@@ -19,12 +19,12 @@ type Business interface {
 
 	CreateDataSource(ctx context.Context, params *repository.CreateDataSourceParams) (*model.DataSource, error)
 	GetDataSource(ctx context.Context, request *api.GetDataSourceRequest, accountUuid string) (*api.GetDataSourceResponse, error)
-	GetListDataSources(ctx context.Context, request *api.GetListDataSourcesRequest, accountUuid string) ([]*api.DataSourceBase, error)
+	GetListDataSources(ctx context.Context, request *api.GetListDataSourcesRequest, accountUuid string) ([]*api.GetListDataSourcesResponse_DataSource, error)
 
-	CreateSourceConnection(ctx context.Context, params *repository.CreateSourceConnectionParams) (*model.SourceConnection, error)
-	UpdateSourceConnection(ctx context.Context, params *repository.UpdateSourceConnectionParams) error
-	GetSourceConnection(ctx context.Context, request *api.GetSourceConnectionRequest, accountUuid string) (*api.GetSourceConnectionResponse, error)
-	GetListSourceConnections(ctx context.Context, request *api.GetListSourceConnectionsRequest, accountUuid string) ([]*api.SourceConnectionBase, error)
+	CreateConnection(ctx context.Context, params *repository.CreateConnectionParams) (*model.Connection, error)
+	UpdateConnection(ctx context.Context, params *repository.UpdateConnectionParams) error
+	GetConnection(ctx context.Context, request *api.GetConnectionRequest, accountUuid string) (*api.GetConnectionResponse, error)
+	GetListConnections(ctx context.Context, request *api.GetListConnectionsRequest, accountUuid string) ([]*api.GetListConnectionsResponse_Connection, error)
 }
 
 type business struct {

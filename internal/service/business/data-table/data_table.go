@@ -34,9 +34,9 @@ func (b business) UpdateDataTable(ctx context.Context, params *repository.Update
 	return nil
 }
 
-func (b business) GetListDataTables(ctx context.Context, request *api.GetListDataTablesRequest, accountUuid string) ([]*api.DataTableBase, error) {
+func (b business) GetListDataTables(ctx context.Context, request *api.GetListDataTablesRequest, accountUuid string) ([]*api.GetListDataTablesResponse_DataTable, error) {
 	dataTables, err := b.repository.DataTableRepository.ListDataTables(ctx,
-		&repository.FilterDataTable{
+		&repository.ListDataTablesFilters{
 			Name:        request.Name,
 			AccountUuid: uuid.MustParse(accountUuid),
 		})
@@ -46,9 +46,9 @@ func (b business) GetListDataTables(ctx context.Context, request *api.GetListDat
 			Error(err, "Cannot get list data_Tables")
 		return nil, err
 	}
-	var response []*api.DataTableBase
+	var response []*api.GetListDataTablesResponse_DataTable
 	for _, dataTable := range dataTables {
-		response = append(response, &api.DataTableBase{
+		response = append(response, &api.GetListDataTablesResponse_DataTable{
 			Id:        dataTable.ID,
 			Name:      dataTable.Name,
 			CreatedAt: dataTable.CreatedAt.String(),

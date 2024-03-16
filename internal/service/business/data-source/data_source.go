@@ -23,9 +23,9 @@ func (b business) CreateDataSource(ctx context.Context, params *repository.Creat
 	return dataSource, nil
 }
 
-func (b business) GetListDataSources(ctx context.Context, request *api.GetListDataSourcesRequest, accountUuid string) ([]*api.DataSourceBase, error) {
+func (b business) GetListDataSources(ctx context.Context, request *api.GetListDataSourcesRequest, accountUuid string) ([]*api.GetListDataSourcesResponse_DataSource, error) {
 	dataSources, err := b.repository.DataSourceRepository.ListDataSources(ctx,
-		&repository.FilterDataSource{
+		&repository.ListDataSourcesFilters{
 			Name:        request.Name,
 			AccountUuid: uuid.MustParse(accountUuid),
 			Type:        model.DataSourceType(request.Type),
@@ -36,9 +36,9 @@ func (b business) GetListDataSources(ctx context.Context, request *api.GetListDa
 			Error(err, "Cannot get list data_sources")
 		return nil, err
 	}
-	var response []*api.DataSourceBase
+	var response []*api.GetListDataSourcesResponse_DataSource
 	for _, dataSource := range dataSources {
-		response = append(response, &api.DataSourceBase{Id: dataSource.ID, Name: dataSource.Name, Type: string(dataSource.Type), UpdatedAt: dataSource.UpdatedAt.String()})
+		response = append(response, &api.GetListDataSourcesResponse_DataSource{Id: dataSource.ID, Name: dataSource.Name, Type: string(dataSource.Type), UpdatedAt: dataSource.UpdatedAt.String()})
 	}
 	return response, nil
 }

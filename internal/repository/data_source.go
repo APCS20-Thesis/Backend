@@ -13,7 +13,7 @@ type DataSourceRepository interface {
 	CreateDataSource(ctx context.Context, params *CreateDataSourceParams) (*model.DataSource, error)
 	GetDataSource(ctx context.Context, id int64) (*model.DataSource, error)
 	UpdateDataSource(ctx context.Context, params *UpdateDataSourceParams) error
-	ListDataSources(ctx context.Context, filter *FilterDataSource) ([]model.DataSource, error)
+	ListDataSources(ctx context.Context, filter *ListDataSourcesFilters) ([]model.DataSource, error)
 }
 
 type dataSourceRepo struct {
@@ -91,13 +91,13 @@ func (r *dataSourceRepo) UpdateDataSource(ctx context.Context, params *UpdateDat
 	return nil
 }
 
-type FilterDataSource struct {
+type ListDataSourcesFilters struct {
 	Type        model.DataSourceType
 	AccountUuid uuid.UUID
 	Name        string
 }
 
-func (r *dataSourceRepo) ListDataSources(ctx context.Context, filter *FilterDataSource) ([]model.DataSource, error) {
+func (r *dataSourceRepo) ListDataSources(ctx context.Context, filter *ListDataSourcesFilters) ([]model.DataSource, error) {
 	var dataSources []model.DataSource
 	query := r.WithContext(ctx).Table(r.TableName)
 	if filter.Type != "" {

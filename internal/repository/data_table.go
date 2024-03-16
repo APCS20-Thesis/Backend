@@ -13,7 +13,7 @@ type DataTableRepository interface {
 	CreateDataTable(ctx context.Context, params *CreateDataTableParams) (*model.DataTable, error)
 	GetDataTable(ctx context.Context, id int64) (*model.DataTable, error)
 	UpdateDataTable(ctx context.Context, params *UpdateDataTableParams) error
-	ListDataTables(ctx context.Context, filter *FilterDataTable) ([]model.DataTable, error)
+	ListDataTables(ctx context.Context, filter *ListDataTablesFilters) ([]model.DataTable, error)
 }
 
 type dataTableRepo struct {
@@ -80,12 +80,12 @@ func (r *dataTableRepo) UpdateDataTable(ctx context.Context, params *UpdateDataT
 	return nil
 }
 
-type FilterDataTable struct {
+type ListDataTablesFilters struct {
 	Name        string
 	AccountUuid uuid.UUID
 }
 
-func (r *dataTableRepo) ListDataTables(ctx context.Context, filter *FilterDataTable) ([]model.DataTable, error) {
+func (r *dataTableRepo) ListDataTables(ctx context.Context, filter *ListDataTablesFilters) ([]model.DataTable, error) {
 	var dataTables []model.DataTable
 	query := r.WithContext(ctx).Table(r.TableName)
 	if filter.Name != "" {
