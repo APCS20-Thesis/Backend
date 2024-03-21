@@ -42,7 +42,7 @@ func (b business) UpdateConnection(ctx context.Context, params *repository.Updat
 		b.log.WithName("UpdateConnection").
 			WithValues("ConnectionID", params.ID).
 			Info("Only owner can get connection")
-		return status.Error(codes.Code(code.Code_PERMISSION_DENIED), "Only owner can update connection")
+		return status.Error(codes.PermissionDenied, "Only owner can update connection")
 	}
 	err = b.repository.ConnectionRepository.UpdateConnection(ctx, params)
 	if err != nil {
@@ -89,7 +89,7 @@ func (b business) GetConnection(ctx context.Context, request *api.GetConnectionR
 		b.log.WithName("GetConnection").
 			WithValues("Context", ctx).
 			Info("Only owner can get connection")
-		return nil, status.Error(codes.Code(code.Code_PERMISSION_DENIED), "Only owner can get connection")
+		return nil, status.Error(codes.PermissionDenied, "Only owner can get connection")
 	}
 	var configurations map[string]string
 	err = json.Unmarshal(connection.Configurations.RawMessage, &configurations)
@@ -124,7 +124,7 @@ func (b business) DeleteConnection(ctx context.Context, request *api.DeleteConne
 		b.log.WithName("DeleteConnection").
 			WithValues("ConnectionID", request.Id).
 			Info("Only owner can get connection")
-		return status.Error(codes.Code(code.Code_PERMISSION_DENIED), "Only owner can delte connection")
+		return status.Error(codes.PermissionDenied, "Only owner can delte connection")
 	}
 	err = b.repository.ConnectionRepository.DeleteConnection(ctx, request.Id)
 	if err != nil {
