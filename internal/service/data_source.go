@@ -140,7 +140,7 @@ func (s *Service) CreateConnection(ctx context.Context, request *api.CreateConne
 	configurations, err := json.Marshal(request.Configurations)
 	if err != nil {
 		s.log.WithName("CreateConnection").
-			WithValues("Configuration", configurations).
+			WithValues("Configuration", request.Configurations).
 			Error(err, "Cannot parse configuration to JSON")
 		return nil, err
 	}
@@ -170,7 +170,7 @@ func (s *Service) UpdateConnection(ctx context.Context, request *api.UpdateConne
 	configurations, err := json.Marshal(request.Configurations)
 	if err != nil {
 		s.log.WithName("UpdateConnection").
-			WithValues("Configuration", configurations).
+			WithValues("Configuration", request.Configurations).
 			Error(err, "Cannot parse configuration to JSON")
 		return nil, err
 	}

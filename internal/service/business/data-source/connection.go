@@ -10,6 +10,7 @@ import (
 	"google.golang.org/genproto/googleapis/rpc/code"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"gorm.io/gorm"
 )
 
 func (b business) CreateConnection(ctx context.Context, params *repository.CreateConnectionParams) (*model.Connection, error) {
@@ -28,14 +29,19 @@ func (b business) UpdateConnection(ctx context.Context, params *repository.Updat
 	if err != nil {
 		b.log.WithName("UpdateConnection").
 			WithValues("ConnectionID", params.ID).
-			Error(err, "No record with id "+string(params.ID))
+			Error(err, "Can not get record with id "+string(params.ID))
 		return err
+	}
+	if connection == nil {
+		b.log.WithName("UpdateConnection").
+			WithValues("ConnectionID", params.ID).
+			Error(err, "No record with id "+string(params.ID))
+		return gorm.ErrRecordNotFound
 	}
 	if connection.AccountUuid != params.AccountUuid {
 		b.log.WithName("UpdateConnection").
 			WithValues("ConnectionID", params.ID).
-			Error(status.Error(codes.Code(code.Code_PERMISSION_DENIED), "Only owner can update connection"),
-				"Only owner can get connection")
+			Info("Only owner can get connection")
 		return status.Error(codes.Code(code.Code_PERMISSION_DENIED), "Only owner can update connection")
 	}
 	err = b.repository.ConnectionRepository.UpdateConnection(ctx, params)
@@ -82,8 +88,7 @@ func (b business) GetConnection(ctx context.Context, request *api.GetConnectionR
 	if connection.AccountUuid != uuid.MustParse(accountUuid) {
 		b.log.WithName("GetConnection").
 			WithValues("Context", ctx).
-			Error(status.Error(codes.Code(code.Code_PERMISSION_DENIED), "Only owner can get connection"),
-				"Only owner can get connection")
+			Info("Only owner can get connection")
 		return nil, status.Error(codes.Code(code.Code_PERMISSION_DENIED), "Only owner can get connection")
 	}
 	var configurations map[string]string
@@ -106,14 +111,19 @@ func (b business) DeleteConnection(ctx context.Context, request *api.DeleteConne
 	if err != nil {
 		b.log.WithName("DeleteConnection").
 			WithValues("ConnectionID", request.Id).
-			Error(err, "No record with id "+string(request.Id))
+			Error(err, "Can not get record with id "+string(request.Id))
 		return err
+	}
+	if connection == nil {
+		b.log.WithName("DeleteConnection").
+			WithValues("ConnectionID", request.Id).
+			Error(err, "No record with id "+string(request.Id))
+		return gorm.ErrRecordNotFound
 	}
 	if connection.AccountUuid != uuid.MustParse(accountUuid) {
 		b.log.WithName("DeleteConnection").
 			WithValues("ConnectionID", request.Id).
-			Error(status.Error(codes.Code(code.Code_PERMISSION_DENIED), "Only owner can delete connection"),
-				"Only owner can get connection")
+			Info("Only owner can get connection")
 		return status.Error(codes.Code(code.Code_PERMISSION_DENIED), "Only owner can delte connection")
 	}
 	err = b.repository.ConnectionRepository.DeleteConnection(ctx, request.Id)
