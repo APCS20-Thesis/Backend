@@ -43,7 +43,7 @@ func (s *Service) ImportFile(ctx context.Context, request *api.ImportFileRequest
 			Error(err, "Failed to process import file")
 		return nil, err
 	}
-	return &api.ImportFileResponse{Message: "Import Success", Code: 0}, nil
+	return &api.ImportFileResponse{Message: "Import Success", Code: int32(codes.OK)}, nil
 }
 
 func (s *Service) GetListDataSources(ctx context.Context, request *api.GetListDataSourcesRequest) (*api.GetListDataSourcesResponse, error) {
@@ -139,9 +139,9 @@ func (s *Service) CreateConnection(ctx context.Context, request *api.CreateConne
 	}
 	configurations, err := json.Marshal(request.Configurations)
 	if err != nil {
-		s.log.WithName("ProcessImportFile").
+		s.log.WithName("CreateConnection").
 			WithValues("Configuration", configurations).
-			Error(err, "Cannot parse mappingOptions to JSON")
+			Error(err, "Cannot parse configuration to JSON")
 		return nil, err
 	}
 	_, err = s.business.DataSourceBusiness.CreateConnection(ctx, &repository.CreateConnectionParams{
@@ -156,5 +156,53 @@ func (s *Service) CreateConnection(ctx context.Context, request *api.CreateConne
 			Error(err, "Failed to process create connection")
 		return nil, err
 	}
-	return &api.CreateConnectionResponse{Message: "Create Success", Code: 0}, nil
+	return &api.CreateConnectionResponse{Message: "Create Success", Code: int32(codes.OK)}, nil
+}
+
+func (s *Service) UpdateConnection(ctx context.Context, request *api.UpdateConnectionRequest) (*api.UpdateConnectionResponse, error) {
+	accountUuid, err := GetAccountUuidFromCtx(ctx)
+	if err != nil {
+		s.log.WithName("UpdateConnection").
+			WithValues("Context", ctx).
+			Error(err, "Cannot get account_uuid from context")
+		return nil, err
+	}
+	configurations, err := json.Marshal(request.Configurations)
+	if err != nil {
+		s.log.WithName("UpdateConnection").
+			WithValues("Configuration", configurations).
+			Error(err, "Cannot parse configuration to JSON")
+		return nil, err
+	}
+	err = s.business.DataSourceBusiness.UpdateConnection(ctx, &repository.UpdateConnectionParams{
+		ID:             request.Id,
+		Name:           request.Name,
+		Configurations: pqtype.NullRawMessage{RawMessage: configurations, Valid: true},
+		AccountUuid:    uuid.MustParse(accountUuid),
+	})
+	if err != nil {
+		s.log.WithName("UpdateConnection").
+			WithValues("Context", ctx).
+			Error(err, "Failed to process update connection")
+		return nil, err
+	}
+	return &api.UpdateConnectionResponse{Message: "Update Success", Code: int32(codes.OK)}, nil
+}
+
+func (s *Service) DeleteConnection(ctx context.Context, request *api.DeleteConnectionRequest) (*api.DeleteConnectionResponse, error) {
+	accountUuid, err := GetAccountUuidFromCtx(ctx)
+	if err != nil {
+		s.log.WithName("GetConnection").
+			WithValues("Context", ctx).
+			Error(err, "Cannot get account_uuid from context")
+		return nil, err
+	}
+	err = s.business.DataSourceBusiness.DeleteConnection(ctx, request, accountUuid)
+	if err != nil {
+		s.log.WithName("GetConnection").
+			WithValues("Context", ctx).
+			Error(err, "Failed to process get connection")
+		return nil, err
+	}
+	return &api.DeleteConnectionResponse{Message: "Delete Success", Code: int32(codes.OK)}, nil
 }
