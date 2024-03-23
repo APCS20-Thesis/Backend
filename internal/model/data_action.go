@@ -17,6 +17,8 @@ type DataActionStatus string
 const (
 	DataActionStatus_Triggered = "TRIGGERED"
 	DataActionStatus_Pending   = "PENDING"
+	DataActionStatus_Success   = "SUCCESS"
+	DataActionStatus_Failed    = "FAILED"
 )
 
 type DataAction struct {

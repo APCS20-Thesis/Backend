@@ -13,6 +13,7 @@ const (
 	Endpoint_TRIGGER_GENERATE_DAG_IMPORT_FILE string = "/api/v1/dags/generate_import_file_type/dagRuns"
 	Endpoint_LIST_DAGS                        string = "/api/v1/dags"
 	Endpoint_UPDATE_DAG                       string = "/api/v1/dags/dag_id"
+	Endpoint_GET_DAG_RUN                      string = "/api/v1/dags/dag_id/dagRuns/dag_run_id"
 )
 
 type AirflowAdapter interface {
@@ -20,6 +21,7 @@ type AirflowAdapter interface {
 	TriggerNewDagRun(ctx context.Context, dagId string, request *TriggerNewDagRunRequest) (*TriggerNewDagRunResponse, error)
 	ListDags(ctx context.Context, request *ListDagsParams) (*ListDagsResponse, error)
 	UpdateDag(ctx context.Context, dagId string, request *UpdateDagRequest) (*UpdateDagResponse, error)
+	GetDagRun(ctx context.Context, dagId string, dagRunId string) (*GetDagRunResponse, error)
 }
 
 type airflow struct {
@@ -208,4 +210,39 @@ func (c *airflow) UpdateDag(ctx context.Context, dagId string, request *UpdateDa
 
 	c.log.WithName("Airflow-UpdateDag").Info("Done calling", "response", response, "error", err)
 	return &response, err
+}
+
+type (
+	GetDagRunResponse struct {
+		DagRunId          string    `json:"dag_run_id"`
+		DagId             string    `json:"dag_id"`
+		LogicalDate       time.Time `json:"logical_date"`
+		ExecutionDate     time.Time `json:"execution_date"`
+		StartDate         time.Time `json:"start_date"`
+		EndDate           time.Time `json:"end_date"`
+		DataIntervalStart time.Time `json:"data_interval_start"`
+		DataIntervalEnd   time.Time `json:"data_interval_end"`
+		State             string    `json:"state"`
+		ExternalTrigger   bool      `json:"external_trigger"`
+		Note              string    `json:"note"`
+	}
+)
+
+func (c *airflow) GetDagRun(ctx context.Context, dagId string, dagRunId string) (*GetDagRunResponse, error) {
+	endpoint := strings.Replace(Endpoint_GET_DAG_RUN, "dag_id", dagId, 1)
+	endpoint = strings.Replace(endpoint, "dag_run_id", dagRunId, 1)
+	c.log.Info("endpoint", "endpoint", endpoint)
+	var response GetDagRunResponse
+	err := c.client.SendHttpRequestWithBasicAuth(ctx, utils.BasicAuth{
+		Username: c.username,
+		Password: c.password,
+	}, utils.Request{
+		Endpoint: endpoint,
+		Method:   utils.Method_GET,
+		Headers:  map[string]string{utils.Header_CONTENT_TYPE: "application/json"},
+	}, &response)
+	if err != nil {
+		return nil, err
+	}
+	return &response, nil
 }

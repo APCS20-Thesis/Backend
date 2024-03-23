@@ -16,6 +16,7 @@ type Job interface {
 
 	// jobs
 	TriggerDagRuns(ctx context.Context)
+	SyncDagRunStatus(ctx context.Context)
 }
 
 type job struct {
@@ -59,5 +60,9 @@ func (j *job) RegisterCronJobs() {
 	_, err := j.cronJob.AddFunc("* * * * *", func() { j.TriggerDagRuns(context.Background()) })
 	if err != nil {
 		j.logger.Error(err, "error add cronjob TriggerDagRuns")
+	}
+	_, err = j.cronJob.AddFunc("* * * * *", func() { j.SyncDagRunStatus(context.Background()) })
+	if err != nil {
+		j.logger.Error(err, "error add cronjob SyncDagRunStatus")
 	}
 }
