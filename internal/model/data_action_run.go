@@ -8,7 +8,7 @@ import (
 type DataActionRunStatus string
 
 const (
-	DataActionRunStatus_Success    = "DONE"
+	DataActionRunStatus_Success    = "SUCCESS"
 	DataActionRunStatus_Processing = "PROCESSING"
 	DataActionRunStatus_Failed     = "FAILED"
 	DataActionRunStatus_Canceled   = "CANCELED"
