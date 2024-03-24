@@ -54,9 +54,8 @@ func (b business) GetDataSource(ctx context.Context, request *api.GetDataSourceR
 	if dataSource.AccountUuid != uuid.MustParse(accountUuid) {
 		b.log.WithName("GetDataSource").
 			WithValues("Context", ctx).
-			Error(status.Error(codes.Code(code.Code_PERMISSION_DENIED), "Only owner can get data_source"),
-				"Only owner can get data_source")
-		return nil, status.Error(codes.Code(code.Code_PERMISSION_DENIED), "Only owner can get data_source")
+			Info("Only owner can get data_source")
+		return nil, status.Error(codes.PermissionDenied, "Only owner can get data_source")
 	}
 	var configurations map[string]string
 	if dataSource.Configurations.RawMessage != nil {

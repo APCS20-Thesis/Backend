@@ -30,6 +30,8 @@ const (
 	CDPService_GetConnection_FullMethodName      = "/api.CDPService/GetConnection"
 	CDPService_GetListConnections_FullMethodName = "/api.CDPService/GetListConnections"
 	CDPService_CreateConnection_FullMethodName   = "/api.CDPService/CreateConnection"
+	CDPService_UpdateConnection_FullMethodName   = "/api.CDPService/UpdateConnection"
+	CDPService_DeleteConnection_FullMethodName   = "/api.CDPService/DeleteConnection"
 )
 
 // CDPServiceClient is the client API for CDPService service.
@@ -47,6 +49,8 @@ type CDPServiceClient interface {
 	GetConnection(ctx context.Context, in *GetConnectionRequest, opts ...grpc.CallOption) (*GetConnectionResponse, error)
 	GetListConnections(ctx context.Context, in *GetListConnectionsRequest, opts ...grpc.CallOption) (*GetListConnectionsResponse, error)
 	CreateConnection(ctx context.Context, in *CreateConnectionRequest, opts ...grpc.CallOption) (*CreateConnectionResponse, error)
+	UpdateConnection(ctx context.Context, in *UpdateConnectionRequest, opts ...grpc.CallOption) (*UpdateConnectionResponse, error)
+	DeleteConnection(ctx context.Context, in *DeleteConnectionRequest, opts ...grpc.CallOption) (*DeleteConnectionResponse, error)
 }
 
 type cDPServiceClient struct {
@@ -156,6 +160,24 @@ func (c *cDPServiceClient) CreateConnection(ctx context.Context, in *CreateConne
 	return out, nil
 }
 
+func (c *cDPServiceClient) UpdateConnection(ctx context.Context, in *UpdateConnectionRequest, opts ...grpc.CallOption) (*UpdateConnectionResponse, error) {
+	out := new(UpdateConnectionResponse)
+	err := c.cc.Invoke(ctx, CDPService_UpdateConnection_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cDPServiceClient) DeleteConnection(ctx context.Context, in *DeleteConnectionRequest, opts ...grpc.CallOption) (*DeleteConnectionResponse, error) {
+	out := new(DeleteConnectionResponse)
+	err := c.cc.Invoke(ctx, CDPService_DeleteConnection_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CDPServiceServer is the server API for CDPService service.
 // All implementations must embed UnimplementedCDPServiceServer
 // for forward compatibility
@@ -171,6 +193,8 @@ type CDPServiceServer interface {
 	GetConnection(context.Context, *GetConnectionRequest) (*GetConnectionResponse, error)
 	GetListConnections(context.Context, *GetListConnectionsRequest) (*GetListConnectionsResponse, error)
 	CreateConnection(context.Context, *CreateConnectionRequest) (*CreateConnectionResponse, error)
+	UpdateConnection(context.Context, *UpdateConnectionRequest) (*UpdateConnectionResponse, error)
+	DeleteConnection(context.Context, *DeleteConnectionRequest) (*DeleteConnectionResponse, error)
 	mustEmbedUnimplementedCDPServiceServer()
 }
 
@@ -210,6 +234,12 @@ func (UnimplementedCDPServiceServer) GetListConnections(context.Context, *GetLis
 }
 func (UnimplementedCDPServiceServer) CreateConnection(context.Context, *CreateConnectionRequest) (*CreateConnectionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateConnection not implemented")
+}
+func (UnimplementedCDPServiceServer) UpdateConnection(context.Context, *UpdateConnectionRequest) (*UpdateConnectionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateConnection not implemented")
+}
+func (UnimplementedCDPServiceServer) DeleteConnection(context.Context, *DeleteConnectionRequest) (*DeleteConnectionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteConnection not implemented")
 }
 func (UnimplementedCDPServiceServer) mustEmbedUnimplementedCDPServiceServer() {}
 
@@ -422,6 +452,42 @@ func _CDPService_CreateConnection_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CDPService_UpdateConnection_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateConnectionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDPServiceServer).UpdateConnection(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CDPService_UpdateConnection_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDPServiceServer).UpdateConnection(ctx, req.(*UpdateConnectionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CDPService_DeleteConnection_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteConnectionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDPServiceServer).DeleteConnection(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CDPService_DeleteConnection_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDPServiceServer).DeleteConnection(ctx, req.(*DeleteConnectionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CDPService_ServiceDesc is the grpc.ServiceDesc for CDPService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -472,6 +538,14 @@ var CDPService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateConnection",
 			Handler:    _CDPService_CreateConnection_Handler,
+		},
+		{
+			MethodName: "UpdateConnection",
+			Handler:    _CDPService_UpdateConnection_Handler,
+		},
+		{
+			MethodName: "DeleteConnection",
+			Handler:    _CDPService_DeleteConnection_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -6,6 +6,8 @@ import (
 	"github.com/APCS20-Thesis/Backend/internal/model"
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 )
 
@@ -14,6 +16,7 @@ type ConnectionRepository interface {
 	GetConnection(ctx context.Context, id int64) (*model.Connection, error)
 	UpdateConnection(ctx context.Context, params *UpdateConnectionParams) error
 	ListConnections(ctx context.Context, filter *FilterConnection) ([]model.Connection, error)
+	DeleteConnection(ctx context.Context, id int64) error
 }
 
 type ConnectionRepo struct {
@@ -33,6 +36,14 @@ type CreateConnectionParams struct {
 }
 
 func (r *ConnectionRepo) CreateConnection(ctx context.Context, params *CreateConnectionParams) (*model.Connection, error) {
+	var existConnectionName int64
+	err := r.WithContext(ctx).Table(r.TableName).Where("name = ? AND account_uuid = ?", params.Name, params.AccountUuid).Count(&existConnectionName).Error
+	if err != nil {
+		return nil, err
+	}
+	if existConnectionName > 0 {
+		return nil, status.Error(codes.AlreadyExists, "This name already exists")
+	}
 	connection := &model.Connection{
 		Name:           params.Name,
 		AccountUuid:    params.AccountUuid,
@@ -65,20 +76,29 @@ type UpdateConnectionParams struct {
 	ID             int64
 	Name           string
 	Configurations pqtype.NullRawMessage
+	AccountUuid    uuid.UUID
 }
 
 func (r *ConnectionRepo) UpdateConnection(ctx context.Context, params *UpdateConnectionParams) error {
-	connection := &model.Connection{
-		ID:             params.ID,
-		Name:           params.Name,
-		Configurations: params.Configurations,
+	var existConnectionName int64
+	err := r.WithContext(ctx).Table(r.TableName).
+		Where("name = ? AND account_uuid = ? AND id <> ?", params.Name, params.AccountUuid, params.ID).
+		Count(&existConnectionName).Error
+	if err != nil {
+		return err
 	}
-
-	updateErr := r.WithContext(ctx).Table(r.TableName).Where("id = ?", params.ID).Updates(&connection).Error
+	if existConnectionName > 0 {
+		return status.Error(codes.AlreadyExists, "This name already exists")
+	}
+	updateErr := r.WithContext(ctx).Table(r.TableName).Where("id = ?", params.ID).
+		Updates(model.Connection{
+			Name:           params.Name,
+			Configurations: params.Configurations,
+		}).
+		Error
 	if updateErr != nil {
 		return updateErr
 	}
-
 	return nil
 }
 
@@ -108,4 +128,12 @@ func (r *ConnectionRepo) ListConnections(ctx context.Context, filter *FilterConn
 		return nil, err
 	}
 	return connections, nil
+}
+
+func (r *ConnectionRepo) DeleteConnection(ctx context.Context, id int64) error {
+	deleteErr := r.WithContext(ctx).Table(r.TableName).Where("id = ?", id).Delete(&model.Connection{}).Error
+	if deleteErr != nil {
+		return deleteErr
+	}
+	return nil
 }

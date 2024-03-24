@@ -75,6 +75,17 @@ service CDPService {
       body: "*"
     };
   }
+  rpc UpdateConnection(UpdateConnectionRequest) returns (UpdateConnectionResponse){
+    option (google.api.http) = {
+      post: "/api/v1/data-source/connection/{id}"
+      body: "*"
+    };
+  }
+  rpc DeleteConnection(DeleteConnectionRequest) returns (DeleteConnectionResponse){
+    option (google.api.http) = {
+      delete: "/api/v1/data-source/connection/{id}"
+    };
+  }
 }
 
 // CheckHealthRequest
@@ -342,4 +353,37 @@ message GetConnectionResponse {
   string updated_at = 5;
   // schema
   map<string, string> configurations = 6;
+}
+
+message UpdateConnectionRequest {
+  // id
+  int64 id = 1;
+  // name
+  string name = 2;
+  // type
+  string type = 3;
+  // configurations
+  map<string,string> configurations = 4;
+}
+
+// CreateConnection Response
+message UpdateConnectionResponse {
+  // code
+  int32 code = 1;
+  // message
+  string message = 2;
+}
+
+// DeleteConnection Request
+message DeleteConnectionRequest {
+  // id
+  int64 id = 1 [(validate.rules).int64.gte = 1];
+}
+
+// DeleteConnection Response
+message DeleteConnectionResponse {
+  // code
+  int32 code = 1;
+  // message
+  string message = 2;
 }

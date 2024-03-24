@@ -69,9 +69,8 @@ func (b business) GetDataTable(ctx context.Context, request *api.GetDataTableReq
 	if dataTable.AccountUuid != uuid.MustParse(accountUuid) {
 		b.log.WithName("GetDataTable").
 			WithValues("Context", ctx).
-			Error(status.Error(codes.Code(code.Code_PERMISSION_DENIED), "Only owner can get data_table"),
-				"Only owner can get data_table")
-		return nil, status.Error(codes.Code(code.Code_PERMISSION_DENIED), "Only owner can get data_table")
+			Info("Only owner can get data_table")
+		return nil, status.Error(codes.PermissionDenied, "Only owner can get data_table")
 	}
 	var schema map[string]string
 	err = json.Unmarshal(dataTable.Schema.RawMessage, &schema)

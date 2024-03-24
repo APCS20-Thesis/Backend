@@ -25,6 +25,7 @@ type Business interface {
 	UpdateConnection(ctx context.Context, params *repository.UpdateConnectionParams) error
 	GetConnection(ctx context.Context, request *api.GetConnectionRequest, accountUuid string) (*api.GetConnectionResponse, error)
 	GetListConnections(ctx context.Context, request *api.GetListConnectionsRequest, accountUuid string) ([]*api.GetListConnectionsResponse_Connection, error)
+	DeleteConnection(ctx context.Context, request *api.DeleteConnectionRequest, accountUuid string) error
 }
 
 type business struct {
