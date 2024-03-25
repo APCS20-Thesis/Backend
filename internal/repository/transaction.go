@@ -49,6 +49,7 @@ func (r transactionRepo) ImportCsvTransaction(ctx context.Context, params *Impor
 		Type:           params.DataSourceType,
 		Configurations: params.DataSourceConfigurations,
 		AccountUuid:    params.AccountUuid,
+		Status:         model.DataSourceStatus_Processing,
 	}
 	var dataTable model.DataTable
 

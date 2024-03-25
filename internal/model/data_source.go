@@ -22,7 +22,7 @@ type DataSource struct {
 	Name           string
 	Description    string
 	Type           DataSourceType
-	Status         DataActionStatus
+	Status         DataSourceStatus
 	Configurations pqtype.NullRawMessage
 	AccountUuid    uuid.UUID
 	CreatedAt      time.Time `gorm:"autoCreateTime"`
