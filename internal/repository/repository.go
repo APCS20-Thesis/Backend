@@ -11,6 +11,7 @@ type Repository struct {
 	DataActionRunRepository
 	DataTableRepository
 	ConnectionRepository
+	TransactionRepository
 }
 
 func NewRepository(db *gorm.DB) *Repository {
@@ -21,5 +22,6 @@ func NewRepository(db *gorm.DB) *Repository {
 		DataActionRunRepository: NewDataActionRunRepository(db),
 		DataTableRepository:     NewDataTableRepository(db),
 		ConnectionRepository:    NewConnectionRepository(db),
+		TransactionRepository:   NewTransactionRepository(db),
 	}
 }

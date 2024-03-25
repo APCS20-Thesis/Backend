@@ -10,26 +10,28 @@ type ActionType string
 
 const (
 	ActionType_UploadDataFromFile ActionType = "IMPORT_DATA_FROM_FILE"
+	ActionType_UploadDataFromS3   ActionType = "IMPORT_DATA_FROM_S3"
 )
 
 type DataActionStatus string
 
 const (
-	DataActionStatus_Triggered = "TRIGGERED"
-	DataActionStatus_Pending   = "PENDING"
+	DataActionStatus_Triggered DataActionStatus = "TRIGGERED"
+	DataActionStatus_Pending   DataActionStatus = "PENDING"
 )
 
 type DataAction struct {
-	ID          int64 `gorm:"primaryKey"`
-	ActionType  ActionType
-	Payload     pqtype.NullRawMessage
-	Status      DataActionStatus
-	RunCount    int
-	Schedule    string
-	DagId       string
-	AccountUuid uuid.UUID
-	CreatedAt   time.Time `gorm:"autoCreateTime"`
-	UpdatedAt   time.Time `gorm:"autoUpdateTime"`
+	ID               int64 `gorm:"primaryKey"`
+	ActionType       ActionType
+	Payload          pqtype.NullRawMessage
+	Status           DataActionStatus
+	RunCount         int
+	Schedule         string
+	DagId            string
+	SourceTableMapId int64
+	AccountUuid      uuid.UUID
+	CreatedAt        time.Time `gorm:"autoCreateTime"`
+	UpdatedAt        time.Time `gorm:"autoUpdateTime"`
 }
 
 func (DataAction) TableName() string {

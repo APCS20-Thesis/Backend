@@ -7,13 +7,13 @@ import (
 )
 
 func (j *job) SyncDagRunStatus(ctx context.Context) {
-	jobLog := j.logger.WithName("TriggerDagRun")
-	// get data action that are in status PENDING
+	jobLog := j.logger.WithName("SyncDagRunStatus")
+	// get data action run that are in status PROCESSING
 	dataActionRuns, err := j.repository.DataActionRunRepository.GetListDataActionRunsWithExtraInfo(ctx, &repository.GetListDataActionRunsWithExtraInfoParams{
-		Statuses: []model.DataActionRunStatus{model.DataActionStatus_Pending},
+		Statuses: []model.DataActionRunStatus{model.DataActionRunStatus_Processing},
 	})
 	if err != nil {
-		jobLog.Error(err, "fail to get list data actions")
+		jobLog.Error(err, "fail to get list data action_runs")
 		return
 	}
 	jobLog.Info("dataActionRuns", "data", dataActionRuns)

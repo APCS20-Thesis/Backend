@@ -10,95 +10,91 @@ import (
 	"github.com/APCS20-Thesis/Backend/internal/repository"
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
-func (b business) CreateDataActionImportFile(ctx context.Context, accountUuid string, dateTime string) (*model.DataAction, error) {
-	dagId := accountUuid + "_" + dateTime
-	dataAction, err := b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
-		ActionType:  model.ActionType_UploadDataFromFile,
-		Schedule:    "",
-		AccountUuid: uuid.MustParse(accountUuid),
-		DagId:       dagId,
-		Status:      model.DataActionStatus_Pending,
-	})
-	if err != nil {
-		b.log.WithName("CreateDataActionImportFile").
-			WithValues("Context", ctx).
-			Error(err, "Cannot create data action import file")
-		return nil, err
+func (b business) ProcessImportCsv(ctx context.Context, request *api.ImportCsvRequest, accountUuid string, dateTime string) error {
+	var s3Configurations *airflow.S3Configurations
+	var actionType model.ActionType
+	if request.ConnectionId == 0 {
+		s3Configurations = &airflow.S3Configurations{
+			AccessKeyId:     b.config.S3StorageConfig.AccessKeyID,
+			SecretAccessKey: b.config.S3StorageConfig.SecretAccessKey,
+			BucketName:      constants.S3BucketName,
+			Region:          b.config.S3StorageConfig.Region,
+			Key:             "data/" + accountUuid + "/" + dateTime + "_" + request.GetFileName(),
+		}
+		actionType = model.ActionType_UploadDataFromFile
+	} else {
+		connection, err := b.repository.ConnectionRepository.GetConnection(ctx, request.ConnectionId)
+		if err != nil {
+			return err
+		}
+		if connection.AccountUuid != uuid.MustParse(accountUuid) {
+			return status.Error(codes.PermissionDenied, "No have permission with connection")
+		}
+		if connection.Type != model.ConnectionType_S3 {
+			return status.Error(codes.InvalidArgument, "Invalid connection")
+		}
+		actionType = model.ActionType_UploadDataFromS3
+		var configuration model.S3Configurations
+		err = json.Unmarshal(connection.Configurations.RawMessage, &configuration)
+
+		s3Configurations = &airflow.S3Configurations{
+			AccessKeyId:     configuration.AccessKeyId,
+			SecretAccessKey: configuration.SecretAccessKey,
+			BucketName:      configuration.BucketName,
+			Region:          configuration.Region,
+			Key:             request.Key,
+		}
 	}
-	return dataAction, nil
-
-}
-
-func (b business) TriggerAirflowGenerateImportFile(ctx context.Context, request *api.ImportFileRequest, accountUuid string, dateTime string) error {
-	_, err := b.airflowAdapter.TriggerGenerateDagImportFile(ctx, &airflow.TriggerGenerateDagImportFileRequest{
-		Config: airflow.ImportFileRequestConfig{
-			AccountUuid:            accountUuid,
-			DeltaTableName:         request.DeltaTableName,
-			BucketName:             constants.S3BucketName,
-			Key:                    "data/" + accountUuid + "/" + dateTime + "_" + request.GetFileName(),
-			WriteMode:              "overwrite",
-			CsvReadOptionHeader:    request.Configurations.SkipRow > 0,
-			CsvReadOptionMultiline: request.Configurations.Multiline,
-			CsvReadOptionDelimiter: request.Configurations.Delimiter,
-			CsvReadOptionSkipRow:   request.Configurations.SkipRow,
-			DagId:                  accountUuid + "_" + dateTime,
-		},
-	}, request.FileType)
-
-	return err
-}
-
-func (b business) ProcessImportFile(ctx context.Context, request *api.ImportFileRequest, accountUuid string, dateTime string) error {
-	// Create DataAction
-	dataAction, err := b.CreateDataActionImportFile(ctx, accountUuid, dateTime)
-	if err != nil {
-		return err
+	var headers []string
+	for _, mapping := range request.MappingOptions {
+		headers = append(headers, mapping.Header)
 	}
 
-	// Generate DagRun
-	err = b.TriggerAirflowGenerateImportFile(ctx, request, accountUuid, dateTime)
-	if err != nil {
-		return err
-	}
-
-	// Create DataActionRun
-	_, err = b.CreateDataActionRun(ctx, &repository.CreateDataActionRunParams{
-		ActionId:    dataAction.ID,
-		RunId:       0,
-		AccountUuid: uuid.MustParse(accountUuid),
-		Status:      model.DataActionRunStatus_Processing,
-		DagRunId:    "",
-	})
-	if err != nil {
-		return err
-	}
-
-	// Create Datasource
-	configurations, _ := json.Marshal(model.FileConfigurations{
+	configurations, err := json.Marshal(model.CsvConfigurations{
 		FileName:      request.FileName,
-		BucketName:    constants.S3BucketName,
-		Key:           "data/" + accountUuid + "/" + dateTime + "_" + request.GetFileName(),
+		ConnectionId:  request.ConnectionId,
+		Key:           s3Configurations.Key,
 		CsvReadOption: request.Configurations,
 	})
+	if err != nil {
+		b.log.WithName("ProcessImportCsv").
+			Error(err, "Cannot parse configurations to JSON")
+		return err
+	}
 
 	mappingOptions, err := json.Marshal(request.MappingOptions)
 	if err != nil {
-		b.log.WithName("ProcessImportFile").
-			WithValues("Mapping Options", mappingOptions).
+		b.log.WithName("ProcessImportCsv").
 			Error(err, "Cannot parse mappingOptions to JSON")
 		return err
 	}
-	_, err = b.CreateDataSource(ctx, &repository.CreateDataSourceParams{
-		Name:           request.Name,
-		Description:    request.Description,
-		Type:           model.DataSourceType_File,
-		Configurations: pqtype.NullRawMessage{RawMessage: configurations, Valid: true},
-		MappingOptions: pqtype.NullRawMessage{RawMessage: mappingOptions, Valid: true},
-		AccountUuid:    uuid.MustParse(accountUuid),
-	})
+
+	err = b.repository.TransactionRepository.ImportCsvTransaction(ctx, &repository.ImportCsvTransactionParams{
+		DataSourceName:           request.Name,
+		DatSourceDescription:     request.Description,
+		DataSourceType:           model.DataSourceType_FileCsv,
+		DataSourceConfigurations: pqtype.NullRawMessage{RawMessage: configurations, Valid: true},
+		AccountUuid:              uuid.MustParse(accountUuid),
+		TableId:                  request.TableId,
+		NewTableName:             request.NewTableName,
+		MappingOptions:           pqtype.NullRawMessage{RawMessage: mappingOptions, Valid: true},
+		DataActionType:           actionType,
+		Schedule:                 "",
+		DagId:                    "import_csv_" + accountUuid + "_" + dateTime,
+		S3Configurations:         s3Configurations,
+		WriteMode:                airflow.DeltaWriteMode(request.WriteMode),
+		CsvReadOptions:           request.Configurations,
+		Headers:                  headers,
+	}, b.airflowAdapter)
+
 	if err != nil {
+		b.log.WithName("ProcessImportCsv").
+			WithValues("Request", request).
+			Error(err, "Transaction failed")
 		return err
 	}
 

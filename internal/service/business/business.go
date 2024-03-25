@@ -1,6 +1,7 @@
 package business
 
 import (
+	"github.com/APCS20-Thesis/Backend/config"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/airflow"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
 	"github.com/APCS20-Thesis/Backend/internal/service/business/auth"
@@ -22,13 +23,14 @@ func NewBusiness(
 	log logr.Logger,
 	db *gorm.DB,
 	airflowAdapter airflow.AirflowAdapter,
+	config *config.Config,
 ) *Business {
 	repo := repository.NewRepository(db)
 	return &Business{
 		db:                 db,
 		repository:         repo,
 		AuthBusiness:       auth.NewAuthBusiness(log, repo),
-		DataSourceBusiness: data_source.NewDataSourceBusiness(log, repo, airflowAdapter),
+		DataSourceBusiness: data_source.NewDataSourceBusiness(log, repo, airflowAdapter, config),
 		DataTableBusiness:  data_table.NewDataTableBusiness(log, repo),
 	}
 }

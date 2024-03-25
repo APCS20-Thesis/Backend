@@ -30,7 +30,7 @@ func NewService(logger logr.Logger, config *config.Config, gormDb *gorm.DB, jwtM
 		return nil, err
 	}
 
-	business := business.NewBusiness(logger, gormDb, airflowAdapter)
+	business := business.NewBusiness(logger, gormDb, airflowAdapter, config)
 
 	s3Manager := NewS3Manager(
 		config.S3StorageConfig.Region,

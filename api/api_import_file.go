@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	CDPService_ImportFile_FullMethodName = "/api.CDPServiceFile/ImportFile"
+	CDPService_ImportCsv_FullMethodName = "/api.CDPServiceFile/ImportCsv"
 )
 
 var CDPServiceFile_ServiceDesc = grpc.ServiceDesc{
@@ -14,28 +14,28 @@ var CDPServiceFile_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*CDPServiceFileServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ImportFile",
-			Handler:    _CDPService_ImportFile_Handler,
+			MethodName: "ImportCsv",
+			Handler:    _CDPService_ImportCsv_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "api.proto",
 }
 
-func _CDPService_ImportFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ImportFileRequest)
+func _CDPService_ImportCsv_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ImportCsvRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CDPServiceFileServer).ImportFile(ctx, in)
+		return srv.(CDPServiceFileServer).ImportCsv(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: CDPService_ImportFile_FullMethodName,
+		FullMethod: CDPService_ImportCsv_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CDPServiceFileServer).ImportFile(ctx, req.(*ImportFileRequest))
+		return srv.(CDPServiceFileServer).ImportCsv(ctx, req.(*ImportCsvRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
