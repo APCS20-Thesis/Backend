@@ -159,13 +159,13 @@ message  ImportCsvRequest {
   // mapping option
   repeated MappingOptionItem mapping_options = 3;
   // connection id
-  int64 connection_id = 4 [(validate.rules).int64.ignore_empty = true, (validate.rules).int64.gte = 0];
+  int64 connection_id = 4 [(validate.rules).int64.gt = -1];
   // configuration
   ImportCsvConfigurations configurations = 5;
   // file_content
   bytes file_content = 6;
   // table_id
-  int64 table_id = 7 [(validate.rules).int64.ignore_empty = true, (validate.rules).int64.gte = 0];
+  int64 table_id = 7 [(validate.rules).int64.gt = -1];
   // new_table_name
   string new_table_name = 8;
   // name
@@ -179,18 +179,18 @@ message  ImportCsvRequest {
 
   message MappingOptionItem {
     // header
-    string Header = 1;
+    string header = 1;
     // column name
-    string Mapping = 2;
+    string happing = 2;
   }
 
   message ImportCsvConfigurations {
     // delimiter
     string delimiter = 1 [(validate.rules).string.len = 1];
     // skip_rows
-    int64 skip_rows = 2 [(validate.rules).int64.gte = 0];
-    // multiline
-    bool multiline = 3;
+    int64 skip_rows = 2 [(validate.rules).int64.gt = -1];
+    // multi_line
+    bool multi_line = 3;
   }
 }
 
@@ -235,7 +235,7 @@ message GetListDataSourcesResponse {
 // GetDataSource Request
 message GetDataSourceRequest {
   // id
-  int64 id = 1 [(validate.rules).int64.ignore_empty = true, (validate.rules).int64.gte = 1];
+  int64 id = 1 [(validate.rules).int64.gt = 0];
 }
 
 // GetDataSource Response
@@ -290,7 +290,7 @@ message GetListDataTablesResponse {
 // GetDataTable Request
 message GetDataTableRequest {
   // id
-  int64 id = 1 [(validate.rules).int64.ignore_empty = true, (validate.rules).int64.gte = 1];
+  int64 id = 1 [(validate.rules).int64.gt = 0];
 }
 
 // GetDataTable Response
@@ -365,7 +365,7 @@ message GetListConnectionsResponse {
 // GetConnection Request
 message GetConnectionRequest {
   // id
-  int64 id = 1 [(validate.rules).int64.ignore_empty = true, (validate.rules).int64.gte = 1];
+  int64 id = 1 [(validate.rules).int64.gt = 0];
 }
 
 // GetConnection Response
@@ -386,7 +386,7 @@ message GetConnectionResponse {
 
 message UpdateConnectionRequest {
   // id
-  int64 id = 1 [(validate.rules).int64.ignore_empty = true, (validate.rules).int64.gte = 1];
+  int64 id = 1 [(validate.rules).int64.gt = 0];
   // name
   string name = 2;
   // type
@@ -406,7 +406,7 @@ message UpdateConnectionResponse {
 // DeleteConnection Request
 message DeleteConnectionRequest {
   // id
-  int64 id = 1 [(validate.rules).int64.ignore_empty = true, (validate.rules).int64.gte = 1];
+  int64 id = 1 [(validate.rules).int64.gt = 0];
 }
 
 // DeleteConnection Response

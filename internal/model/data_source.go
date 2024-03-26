@@ -12,9 +12,9 @@ const (
 	DataSourceType_FileExcel DataSourceType = "EXCEL"
 	DataSourceType_MySQL     DataSourceType = "MYSQL"
 
-	DataSourceStatus_Processing DataSourceStatus = "Processing"
-	DataSourceStatus_Success    DataSourceStatus = "Success"
-	DataSourceStatus_Failed     DataActionStatus = "Failed"
+	DataSourceStatus_Processing DataSourceStatus = "PROCESSING"
+	DataSourceStatus_Success    DataSourceStatus = "SUCCESS"
+	DataSourceStatus_Failed     DataActionStatus = "FAILED"
 )
 
 type DataSource struct {

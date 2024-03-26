@@ -52,15 +52,26 @@ func request_CDPServiceFile_ImportCsv_0(ctx context.Context, client CDPServiceFi
 	newTableName := form.Get("new_table_name")
 	writeMode := form.Get("write_mode")
 	key := form.Get("key")
-	tableId, err := strconv.ParseInt(form.Get("table_id"), 10, 64)
-	if err != nil {
-		return nil, err
-	}
-	connectionId, err := strconv.ParseInt(form.Get("connection_id"), 10, 64)
-	if err != nil {
-		return nil, err
+
+	var tableId int64
+	if len(form.Get("table_id")) > 0 {
+		tableId, err = strconv.ParseInt(form.Get("table_id"), 10, 64)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		tableId = 0
 	}
 
+	var connectionId int64
+	if len(form.Get("connection_id")) > 0 {
+		connectionId, err = strconv.ParseInt(form.Get("connection_id"), 10, 64)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		connectionId = 0
+	}
 	var metadata runtime.ServerMetadata
 	response, err := client.ImportCsv(ctx,
 		&ImportCsvRequest{

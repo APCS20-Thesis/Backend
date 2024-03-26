@@ -60,10 +60,11 @@ func (r transactionRepo) ImportCsvTransaction(ctx context.Context, params *Impor
 		return err
 	}
 	if params.TableId > 0 {
-		dataTable = model.DataTable{Status: model.TableStatus_UPDATING}
+		dataTable = model.DataTable{ID: params.TableId, Status: model.TableStatus_UPDATING}
 		err = tx.WithContext(ctx).Table("data_table").
 			Where("id = ?", params.TableId).
-			Updates(&dataTable).Error
+			Updates(&dataTable).
+			First(&dataTable).Error
 		if err != nil {
 			tx.Rollback()
 			return err
@@ -96,21 +97,21 @@ func (r transactionRepo) ImportCsvTransaction(ctx context.Context, params *Impor
 		tx.Rollback()
 		return err
 	}
-	_, err = airflowAdapter.TriggerGenerateDagImportCsv(ctx, &airflow.TriggerGenerateDagImportCsvRequest{
-		Config: airflow.ImportCsvRequestConfig{
-			DagId:            params.DagId,
-			AccountUuid:      params.AccountUuid.String(),
-			DeltaTableName:   dataTable.Name,
-			S3Configurations: params.S3Configurations,
-			WriteMode:        params.WriteMode,
-			CsvReadOptions:   params.CsvReadOptions,
-			Headers:          params.Headers,
-		},
-	})
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
+	//_, err = airflowAdapter.TriggerGenerateDagImportCsv(ctx, &airflow.TriggerGenerateDagImportCsvRequest{
+	//	Config: airflow.ImportCsvRequestConfig{
+	//		DagId:            params.DagId,
+	//		AccountUuid:      params.AccountUuid.String(),
+	//		DeltaTableName:   dataTable.Name,
+	//		S3Configurations: params.S3Configurations,
+	//		WriteMode:        params.WriteMode,
+	//		CsvReadOptions:   params.CsvReadOptions,
+	//		Headers:          params.Headers,
+	//	},
+	//})
+	//if err != nil {
+	//	tx.Rollback()
+	//	return err
+	//}
 	dataAction := &model.DataAction{
 		ActionType:       params.DataActionType,
 		Status:           model.DataActionStatus_Pending,
