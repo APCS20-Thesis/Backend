@@ -64,13 +64,6 @@ func (b business) GetDataSource(ctx context.Context, request *api.GetDataSourceR
 			return nil, err
 		}
 	}
-	var mappingOptions map[string]string
-	if dataSource.MappingOptions.RawMessage != nil {
-		err = json.Unmarshal(dataSource.MappingOptions.RawMessage, &mappingOptions)
-		if err != nil {
-			return nil, err
-		}
-	}
 	return &api.GetDataSourceResponse{
 		Code:           int32(code.Code_OK),
 		Id:             dataSource.ID,
@@ -80,6 +73,5 @@ func (b business) GetDataSource(ctx context.Context, request *api.GetDataSourceR
 		CreatedAt:      dataSource.CreatedAt.String(),
 		UpdatedAt:      dataSource.UpdatedAt.String(),
 		Configurations: configurations,
-		MappingOptions: mappingOptions,
 	}, nil
 }

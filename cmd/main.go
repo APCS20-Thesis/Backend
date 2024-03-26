@@ -35,7 +35,7 @@ var logger logr.Logger
 
 const (
 	secretKey     = "secret"
-	tokenDuration = 15 * time.Minute
+	tokenDuration = 360 * time.Minute
 )
 const versionTimeFormat = "20060102150405"
 
@@ -153,7 +153,7 @@ func serverAction(cliCtx *cli.Context) error {
 	}
 	err = pb.RegisterCDPServiceFileClient(context.Background(), gwmux, pb.NewCDPServiceFileClient(conn))
 	if err != nil {
-		log.Fatalln("Failed to register import file:", err)
+		log.Fatalln("Failed to register import csv:", err)
 		return err
 	}
 	gwServer := &http.Server{

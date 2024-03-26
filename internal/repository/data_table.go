@@ -36,6 +36,7 @@ func (r *dataTableRepo) CreateDataTable(ctx context.Context, params *CreateDataT
 		Name:        params.Name,
 		AccountUuid: params.AccountUuid,
 		Schema:      params.Schema,
+		Status:      model.TableStatus_DRAFT,
 	}
 
 	createErr := r.WithContext(ctx).Table(r.TableName).Create(&dataTable).Error
@@ -63,6 +64,7 @@ type UpdateDataTableParams struct {
 	ID     int64
 	Name   string
 	Schema pqtype.NullRawMessage
+	Status model.TableStatus
 }
 
 func (r *dataTableRepo) UpdateDataTable(ctx context.Context, params *UpdateDataTableParams) error {
@@ -70,6 +72,7 @@ func (r *dataTableRepo) UpdateDataTable(ctx context.Context, params *UpdateDataT
 		ID:     params.ID,
 		Name:   params.Name,
 		Schema: params.Schema,
+		Status: params.Status,
 	}
 
 	updateErr := r.WithContext(ctx).Table(r.TableName).Where("id = ?", params.ID).Updates(&dataTable).Error

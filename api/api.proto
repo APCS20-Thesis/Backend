@@ -150,30 +150,52 @@ message CommonResponse {
   string message = 2;
 }
 
-// ImportFile Request
-message  ImportFileRequest {
-  // file_type
-  string file_type = 1 [(validate.rules).string.min_len = 1];
+// ImportCsv Request
+message  ImportCsvRequest {
   // file_name
-  string file_name = 2 [(validate.rules).string.min_len = 1];
+  string file_name = 1 [(validate.rules).string.min_len = 1];
   // file_size
-  int64 file_size = 3;
+  int64 file_size = 2;
   // mapping option
-  map<string, string> mapping_options = 4;
+  repeated MappingOptionItem mapping_options = 3;
+  // connection id
+  int64 connection_id = 4 [(validate.rules).int64.gt = -1];
   // configuration
   ImportCsvConfigurations configurations = 5;
   // file_content
   bytes file_content = 6;
-  // delta_table_name
-  string delta_table_name = 7 [(validate.rules).string.min_len = 1];
+  // table_id
+  int64 table_id = 7 [(validate.rules).int64.gt = -1];
+  // new_table_name
+  string new_table_name = 8;
   // name
-  string name = 8 [(validate.rules).string.min_len = 1];
+  string name = 9 [(validate.rules).string.min_len = 1];
   // description
-  string description = 9;
+  string description = 10;
+  // key s3
+  string key = 11;
+  // write mode
+  string write_mode = 12;
+
+  message MappingOptionItem {
+    // header
+    string header = 1;
+    // column name
+    string happing = 2;
+  }
+
+  message ImportCsvConfigurations {
+    // delimiter
+    string delimiter = 1 [(validate.rules).string.len = 1];
+    // skip_rows
+    int64 skip_rows = 2 [(validate.rules).int64.gt = -1];
+    // multi_line
+    bool multi_line = 3;
+  }
 }
 
-// ImportFile Response
-message ImportFileResponse {
+// ImportCsv Response
+message ImportCsvResponse {
   // code
   int32 code = 1;
   //message
@@ -213,7 +235,7 @@ message GetListDataSourcesResponse {
 // GetDataSource Request
 message GetDataSourceRequest {
   // id
-  int64 id = 1 [(validate.rules).int64.gte = 1];
+  int64 id = 1 [(validate.rules).int64.gt = 0];
 }
 
 // GetDataSource Response
@@ -268,7 +290,7 @@ message GetListDataTablesResponse {
 // GetDataTable Request
 message GetDataTableRequest {
   // id
-  int64 id = 1 [(validate.rules).int64.gte = 1];
+  int64 id = 1 [(validate.rules).int64.gt = 0];
 }
 
 // GetDataTable Response
@@ -284,7 +306,14 @@ message GetDataTableResponse {
   // updated_at
   string updated_at = 5;
   // schema
-  map<string, string> schema = 6;
+  repeated Field schema = 6;
+
+  message Field {
+    // column
+    string column_name = 1;
+    // data_type
+    string data_type = 2;
+  }
 }
 
 
@@ -336,7 +365,7 @@ message GetListConnectionsResponse {
 // GetConnection Request
 message GetConnectionRequest {
   // id
-  int64 id = 1 [(validate.rules).int64.gte = 1];
+  int64 id = 1 [(validate.rules).int64.gt = 0];
 }
 
 // GetConnection Response
@@ -357,7 +386,7 @@ message GetConnectionResponse {
 
 message UpdateConnectionRequest {
   // id
-  int64 id = 1;
+  int64 id = 1 [(validate.rules).int64.gt = 0];
   // name
   string name = 2;
   // type
@@ -377,7 +406,7 @@ message UpdateConnectionResponse {
 // DeleteConnection Request
 message DeleteConnectionRequest {
   // id
-  int64 id = 1 [(validate.rules).int64.gte = 1];
+  int64 id = 1 [(validate.rules).int64.gt = 0];
 }
 
 // DeleteConnection Response

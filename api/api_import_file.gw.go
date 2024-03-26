@@ -9,18 +9,19 @@ import (
 	"google.golang.org/grpc/status"
 	"io"
 	"net/http"
+	"strconv"
 )
 
 type CDPServiceFileServer interface {
-	ImportFile(context.Context, *ImportFileRequest) (*ImportFileResponse, error)
+	ImportCsv(context.Context, *ImportCsvRequest) (*ImportCsvResponse, error)
 }
 type UnimplementedCDPServiceFile struct {
 }
 
-func (UnimplementedCDPServiceFile) ImportFile(context.Context, *ImportFileRequest) (*ImportFileResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CheckHealth not implemented")
+func (UnimplementedCDPServiceFile) ImportCsv(context.Context, *ImportCsvRequest) (*ImportCsvResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ImportCsv not implemented")
 }
-func request_CDPServiceFile_ImportFile_0(ctx context.Context, client CDPServiceFileClient, req *http.Request, pathParams map[string]string) (*ImportFileResponse, error) {
+func request_CDPServiceFile_ImportCsv_0(ctx context.Context, client CDPServiceFileClient, req *http.Request, pathParams map[string]string) (*ImportCsvResponse, error) {
 	content, header, err := req.FormFile("file")
 	if err != nil {
 		return nil, err
@@ -32,38 +33,60 @@ func request_CDPServiceFile_ImportFile_0(ctx context.Context, client CDPServiceF
 	}
 
 	jsonMappingOptions := req.Form.Get("mapping_options")
-	var mappingOptions map[string]string
+	var mappingOptions []*ImportCsvRequest_MappingOptionItem
 	err = json.Unmarshal([]byte(jsonMappingOptions), &mappingOptions)
 	if err != nil {
 		return nil, err
 	}
 
 	jsonConfigurations := req.Form.Get("configurations")
-	var configurations *ImportCsvConfigurations
+	var configurations *ImportCsvRequest_ImportCsvConfigurations
 	err = json.Unmarshal([]byte(jsonConfigurations), &configurations)
 	if err != nil {
 		return nil, err
 	}
 
 	form := req.Form
-
-	fileType := form.Get("file_type")
 	name := form.Get("name")
 	description := form.Get("description")
-	deltaTableName := form.Get("delta_table_name")
+	newTableName := form.Get("new_table_name")
+	writeMode := form.Get("write_mode")
+	key := form.Get("key")
 
+	var tableId int64
+	if len(form.Get("table_id")) > 0 {
+		tableId, err = strconv.ParseInt(form.Get("table_id"), 10, 64)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		tableId = 0
+	}
+
+	var connectionId int64
+	if len(form.Get("connection_id")) > 0 {
+		connectionId, err = strconv.ParseInt(form.Get("connection_id"), 10, 64)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		connectionId = 0
+	}
 	var metadata runtime.ServerMetadata
-	response, err := client.ImportFile(ctx,
-		&ImportFileRequest{
+	response, err := client.ImportCsv(ctx,
+		&ImportCsvRequest{
 			FileContent:    fileBytes,
 			FileName:       header.Filename,
 			FileSize:       header.Size,
-			FileType:       fileType,
 			MappingOptions: mappingOptions,
 			Configurations: configurations,
 			Name:           name,
 			Description:    description,
-			DeltaTableName: deltaTableName,
+			TableId:        tableId,
+			ConnectionId:   connectionId,
+			NewTableName:   newTableName,
+			Key:            key,
+			WriteMode:      writeMode,
 		},
 		grpc.Header(&metadata.HeaderMD),
 		grpc.Trailer(&metadata.TrailerMD),
@@ -75,7 +98,7 @@ func request_CDPServiceFile_ImportFile_0(ctx context.Context, client CDPServiceF
 }
 
 type CDPServiceFileClient interface {
-	ImportFile(ctx context.Context, in *ImportFileRequest, opts ...grpc.CallOption) (*ImportFileResponse, error)
+	ImportCsv(ctx context.Context, in *ImportCsvRequest, opts ...grpc.CallOption) (*ImportCsvResponse, error)
 }
 
 type cDPServiceFileClient struct {
@@ -86,9 +109,9 @@ func NewCDPServiceFileClient(cc grpc.ClientConnInterface) CDPServiceFileClient {
 	return &cDPServiceFileClient{cc}
 }
 
-func (c *cDPServiceFileClient) ImportFile(ctx context.Context, in *ImportFileRequest, opts ...grpc.CallOption) (*ImportFileResponse, error) {
-	out := new(ImportFileResponse)
-	err := c.cc.Invoke(ctx, CDPService_ImportFile_FullMethodName, in, out, opts...)
+func (c *cDPServiceFileClient) ImportCsv(ctx context.Context, in *ImportCsvRequest, opts ...grpc.CallOption) (*ImportCsvResponse, error) {
+	out := new(ImportCsvResponse)
+	err := c.cc.Invoke(ctx, CDPService_ImportCsv_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +120,7 @@ func (c *cDPServiceFileClient) ImportFile(ctx context.Context, in *ImportFileReq
 
 func RegisterCDPServiceFileClient(ctx context.Context, mux *runtime.ServeMux, client CDPServiceFileClient) error {
 
-	mux.Handle("POST", pattern_CDPServiceFile_ImportFile_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_CDPServiceFile_ImportCsv_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -112,20 +135,20 @@ func RegisterCDPServiceFileClient(ctx context.Context, mux *runtime.ServeMux, cl
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, err := request_CDPServiceFile_ImportFile_0(rctx, client, req, pathParams)
+		resp, err := request_CDPServiceFile_ImportCsv_0(rctx, client, req, pathParams)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_CDPServiceFile_ImportFile_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_CDPServiceFile_ImportCsv_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	return nil
 }
 
 var (
-	pattern_CDPServiceFile_ImportFile_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "data-source", "import-file"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_CDPServiceFile_ImportCsv_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "data-source", "import-csv"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 var (
-	forward_CDPServiceFile_ImportFile_0 = runtime.ForwardResponseMessage
+	forward_CDPServiceFile_ImportCsv_0 = runtime.ForwardResponseMessage
 )

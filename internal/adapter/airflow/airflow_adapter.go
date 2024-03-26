@@ -2,6 +2,7 @@ package airflow
 
 import (
 	"context"
+	"github.com/APCS20-Thesis/Backend/api"
 	"github.com/APCS20-Thesis/Backend/utils"
 	"github.com/go-logr/logr"
 	"strings"
@@ -9,15 +10,18 @@ import (
 )
 
 const (
-	Endpoint_TRIGGER_NEW_DAG_RUN              string = "/api/v1/dags/dag_id/dagRuns"
-	Endpoint_TRIGGER_GENERATE_DAG_IMPORT_FILE string = "/api/v1/dags/generate_import_file_type/dagRuns"
-	Endpoint_LIST_DAGS                        string = "/api/v1/dags"
-	Endpoint_UPDATE_DAG                       string = "/api/v1/dags/dag_id"
-	Endpoint_GET_DAG_RUN                      string = "/api/v1/dags/dag_id/dagRuns/dag_run_id"
+	Endpoint_TRIGGER_NEW_DAG_RUN             string = "/api/v1/dags/dag_id/dagRuns"
+	Endpoint_LIST_DAGS                       string = "/api/v1/dags"
+	Endpoint_UPDATE_DAG                      string = "/api/v1/dags/dag_id"
+	Endpoint_GET_DAG_RUN                     string = "/api/v1/dags/dag_id/dagRuns/dag_run_id"
+	Endpoint_TRIGGER_GENERATE_DAG_IMPORT_CSV string = "/api/v1/dags/generate_import_csv/dagRuns"
+
+	WriteMode_Append    DeltaWriteMode = "append"
+	WriteMode_Overwrite DeltaWriteMode = "overwrite"
 )
 
 type AirflowAdapter interface {
-	TriggerGenerateDagImportFile(ctx context.Context, request *TriggerGenerateDagImportFileRequest, file_type string) (*TriggerNewDagRunResponse, error)
+	TriggerGenerateDagImportCsv(ctx context.Context, request *TriggerGenerateDagImportCsvRequest) (*TriggerNewDagRunResponse, error)
 	TriggerNewDagRun(ctx context.Context, dagId string, request *TriggerNewDagRunRequest) (*TriggerNewDagRunResponse, error)
 	ListDags(ctx context.Context, request *ListDagsParams) (*ListDagsResponse, error)
 	UpdateDag(ctx context.Context, dagId string, request *UpdateDagRequest) (*UpdateDagResponse, error)
@@ -43,24 +47,31 @@ func NewAirflowAdapter(log logr.Logger, host string, username string, password s
 }
 
 type (
-	TriggerGenerateDagImportFileRequest struct {
-		Config ImportFileRequestConfig `json:"conf"`
+	TriggerGenerateDagImportCsvRequest struct {
+		Config ImportCsvRequestConfig `json:"conf"`
 	}
 
 	TriggerNewDagRunRequest struct{}
 
-	ImportFileRequestConfig struct {
-		DagId                  string `json:"dag_id"`
-		AccountUuid            string `json:"account_uuid"`
-		DeltaTableName         string `json:"delta_table_name"`
-		BucketName             string `json:"bucket_name"`
-		Key                    string `json:"key"`
-		WriteMode              string `json:"write_mode"`
-		CsvReadOptionHeader    bool   `json:"csv_read_option_header"`
-		CsvReadOptionMultiline bool   `json:"csv_read_option_multiline"`
-		CsvReadOptionDelimiter string `json:"csv_read_option_delimiter"`
-		CsvReadOptionSkipRow   int64  `json:"csv_read_option_skip_row"`
+	ImportCsvRequestConfig struct {
+		DagId            string                                        `json:"dag_id"`
+		AccountUuid      string                                        `json:"account_uuid"`
+		DeltaTableName   string                                        `json:"delta_table_name"`
+		S3Configurations *S3Configurations                             `json:"s3_configurations"`
+		WriteMode        DeltaWriteMode                                `json:"write_mode"`
+		CsvReadOptions   *api.ImportCsvRequest_ImportCsvConfigurations `json:"csv_read_options"`
+		Headers          []string                                      `json:"headers"`
 	}
+
+	S3Configurations struct {
+		AccessKeyId     string `json:"access_key_id"`
+		SecretAccessKey string `json:"secret_access_key"`
+		BucketName      string `json:"bucket_name"`
+		Region          string `json:"region"`
+		Key             string `json:"key"`
+	}
+
+	DeltaWriteMode string
 
 	TriggerNewDagRunResponse struct {
 		DagId    string `json:"dag_id"`
@@ -97,16 +108,15 @@ func (c *airflow) TriggerNewDagRun(ctx context.Context, dagId string, request *T
 	return response, err
 }
 
-func (c *airflow) TriggerGenerateDagImportFile(ctx context.Context, request *TriggerGenerateDagImportFileRequest, fileType string) (*TriggerNewDagRunResponse, error) {
-	endpoint := strings.Replace(Endpoint_TRIGGER_GENERATE_DAG_IMPORT_FILE, "file_type", fileType, 1)
-	c.log.Info("Endpoint", "endpoint", endpoint)
+func (c *airflow) TriggerGenerateDagImportCsv(ctx context.Context, request *TriggerGenerateDagImportCsvRequest) (*TriggerNewDagRunResponse, error) {
+	c.log.Info("Endpoint", "endpoint", Endpoint_TRIGGER_GENERATE_DAG_IMPORT_CSV)
 	response := &TriggerNewDagRunResponse{}
 
 	err := c.client.SendHttpRequestWithBasicAuth(ctx, utils.BasicAuth{
 		Username: c.username,
 		Password: c.password,
 	}, utils.Request{
-		Endpoint: endpoint,
+		Endpoint: Endpoint_TRIGGER_GENERATE_DAG_IMPORT_CSV,
 		Method:   utils.Method_POST,
 		Body:     request,
 		Headers:  map[string]string{utils.Header_CONTENT_TYPE: "application/json"},

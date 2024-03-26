@@ -30,7 +30,6 @@ type CreateDataSourceParams struct {
 	Description    string
 	Type           model.DataSourceType
 	Configurations pqtype.NullRawMessage
-	MappingOptions pqtype.NullRawMessage
 	AccountUuid    uuid.UUID
 }
 
@@ -41,7 +40,6 @@ func (r *dataSourceRepo) CreateDataSource(ctx context.Context, params *CreateDat
 		Type:           params.Type,
 		Configurations: params.Configurations,
 		AccountUuid:    params.AccountUuid,
-		MappingOptions: params.MappingOptions,
 	}
 
 	createErr := r.WithContext(ctx).Table(r.TableName).Create(&dataSource).Error
@@ -80,7 +78,6 @@ func (r *dataSourceRepo) UpdateDataSource(ctx context.Context, params *UpdateDat
 		Name:           params.Name,
 		Type:           params.Type,
 		Configurations: params.Configurations,
-		MappingOptions: params.MappingOptions,
 		AccountUuid:    params.AccountUuid,
 	}
 

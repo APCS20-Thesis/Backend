@@ -8,10 +8,10 @@ import (
 type DataActionRunStatus string
 
 const (
-	DataActionRunStatus_Success    = "SUCCESS"
-	DataActionRunStatus_Processing = "PROCESSING"
-	DataActionRunStatus_Failed     = "FAILED"
-	DataActionRunStatus_Canceled   = "CANCELED"
+	DataActionRunStatus_Success    DataActionRunStatus = "SUCCESS"
+	DataActionRunStatus_Processing DataActionRunStatus = "PROCESSING"
+	DataActionRunStatus_Failed     DataActionRunStatus = "FAILED"
+	DataActionRunStatus_Canceled   DataActionRunStatus = "CANCELED"
 )
 
 type DataActionRun struct {

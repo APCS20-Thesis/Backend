@@ -6,7 +6,7 @@ func AccessibleRoles() map[string][]string {
 	return map[string][]string{
 		rootServicePath + "Admin":              {"admin"},
 		rootServicePath + "GetAccountInfo":     {"admin", "user"},
-		rootServiceFilePath + "ImportFile":     {"admin", "user"},
+		rootServiceFilePath + "ImportCsv":      {"admin", "user"},
 		rootServicePath + "GetListDataSources": {"admin", "user"},
 		rootServicePath + "GetDataSource":      {"admin", "user"},
 		rootServicePath + "GetListDataTables":  {"admin", "user"},

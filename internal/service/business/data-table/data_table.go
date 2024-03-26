@@ -72,10 +72,12 @@ func (b business) GetDataTable(ctx context.Context, request *api.GetDataTableReq
 			Info("Only owner can get data_table")
 		return nil, status.Error(codes.PermissionDenied, "Only owner can get data_table")
 	}
-	var schema map[string]string
-	err = json.Unmarshal(dataTable.Schema.RawMessage, &schema)
-	if err != nil {
-		return nil, err
+	var schema []*api.GetDataTableResponse_Field
+	if dataTable.Schema.RawMessage != nil {
+		err = json.Unmarshal(dataTable.Schema.RawMessage, &schema)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &api.GetDataTableResponse{
