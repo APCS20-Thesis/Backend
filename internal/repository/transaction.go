@@ -2,12 +2,14 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"github.com/APCS20-Thesis/Backend/api"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/airflow"
 	"github.com/APCS20-Thesis/Backend/internal/model"
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 	"gorm.io/gorm"
+	"time"
 )
 
 type TransactionRepository interface {
@@ -143,3 +145,51 @@ func (r transactionRepo) ImportCsvTransaction(ctx context.Context, params *Impor
 
 	return nil
 }
+
+type ExportDataToCSVTransactionParams struct {
+	AccountUuid uuid.UUID
+	TableId     int64
+	S3Key       string
+}
+
+func (r transactionRepo) ExportDataToCSVTransaction(ctx context.Context, params *ExportDataToCSVTransactionParams, airflowAdapter airflow.AirflowAdapter) error {
+
+	tx := r.DB.Begin()
+
+	var dataAction model.DataAction
+	err := tx.WithContext(ctx).Table("data_action").Where("table_id = ?").First(&existDataAction).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		dagId :=
+
+			airflowAdapter.TriggerGenerateDagExportFile(ctx, &airflow.TriggerGenerateDagExportFileRequest{
+				Config: airflow.ExportFileRequestConfig{
+					DagId:          "",
+					AccountUuid:    "",
+					DeltaTableName: "",
+					SavedS3Path:    "",
+				}})
+
+		dataAction := model.DataAction{
+			ActionType:       model.ActionType_ExportDataToCSV,
+			Payload:          pqtype.NullRawMessage{},
+			Status:           model.Da,
+			RunCount:         0,
+			Schedule:         "",
+			DagId:            "",
+			SourceTableMapId: 0,
+			AccountUuid:      uuid.UUID{},
+			CreatedAt:        time.Time{},
+			UpdatedAt:        time.Time{},
+		}
+		err = tx.WithContext(ctx).Table("data_action").Where("table_id = ?").First(&existDataAction).Error
+	}
+	if err != nil {
+		return err
+	}
+
+	tx.Commit()
+
+	return nil
+}
+
+//

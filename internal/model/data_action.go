@@ -11,6 +11,7 @@ type ActionType string
 const (
 	ActionType_UploadDataFromFile ActionType = "IMPORT_DATA_FROM_FILE"
 	ActionType_UploadDataFromS3   ActionType = "IMPORT_DATA_FROM_S3"
+	ActionType_ExportDataToCSV    ActionType = "EXPORT_DATA_TO_CSV"
 )
 
 type DataActionStatus string

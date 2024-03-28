@@ -88,7 +88,7 @@ service CDPService {
     };
   }
 
-  rpc ExportDataTable(ExportDataTableRequest) returns (ExportDataTableResponse) {
+  rpc ExportDataTableToFile(ExportDataTableToFileRequest) returns (ExportDataTableToFileResponse) {
     option (google.api.http) = {
       post: "/api/v1/data-table/{id}/export"
       body: "*"
@@ -426,14 +426,14 @@ message DeleteConnectionResponse {
 }
 
 // ExportDataTableRequest
-message ExportDataTableRequest {
+message ExportDataTableToFileRequest {
   // id - Table Id
   int64 id = 1;
   // file_type - Enum: CSV
   string file_type = 2;
 }
 
-message ExportDataTableResponse {
+message ExportDataTableToFileResponse {
   // code
   int32 code = 1;
   // message
