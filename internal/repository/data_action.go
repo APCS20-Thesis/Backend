@@ -101,6 +101,7 @@ type GetListDataActionsParams struct {
 }
 
 func (r *dataActionRepo) GetListDataActions(ctx context.Context, params *GetListDataActionsParams) ([]model.DataAction, error) {
+	r.Logger.Info(ctx, "GetListDataActions", params)
 	query := r.WithContext(ctx).Table(r.TableName)
 	if params.DagId != "" {
 		query = query.Where("dag_id = ?", params.DagId)
@@ -114,7 +115,8 @@ func (r *dataActionRepo) GetListDataActions(ctx context.Context, params *GetList
 	if len(params.Statuses) > 0 {
 		query.Where("status IN ?", params.Statuses)
 	}
-	if params.AccountUuid.String() != "" {
+	emptyUuid, _ := uuid.Parse("")
+	if params.AccountUuid != emptyUuid {
 		query = query.Where("account_uuid = ?", params.AccountUuid)
 	}
 

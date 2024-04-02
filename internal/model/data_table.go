@@ -6,13 +6,13 @@ import (
 	"time"
 )
 
-type TableStatus string
+type DataTableStatus string
 
 const (
-	TableStatus_DRAFT        TableStatus = "DRAFT"
-	TableStatus_UPDATING     TableStatus = "UPDATING"
-	TableStatus_NEED_TO_SYNC TableStatus = "NEED_TO_SYNC"
-	TableStatus_UP_TO_DATE   TableStatus = "UP_TO_DATE"
+	DataTableStatus_DRAFT        DataTableStatus = "DRAFT"
+	DataTableStatus_UPDATING     DataTableStatus = "UPDATING"
+	DataTableStatus_NEED_TO_SYNC DataTableStatus = "NEED_TO_SYNC"
+	DataTableStatus_UP_TO_DATE   DataTableStatus = "UP_TO_DATE"
 )
 
 type DataTable struct {
@@ -20,7 +20,7 @@ type DataTable struct {
 	Schema      pqtype.NullRawMessage
 	Name        string
 	AccountUuid uuid.UUID
-	Status      TableStatus
+	Status      DataTableStatus
 	CreatedAt   time.Time `gorm:"autoCreateTime"`
 	UpdatedAt   time.Time `gorm:"autoUpdateTime"`
 }

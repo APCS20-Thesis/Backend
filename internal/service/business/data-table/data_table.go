@@ -6,6 +6,7 @@ import (
 	"github.com/APCS20-Thesis/Backend/api"
 	"github.com/APCS20-Thesis/Backend/internal/model"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
+	"github.com/APCS20-Thesis/Backend/utils"
 	"github.com/google/uuid"
 	"google.golang.org/genproto/googleapis/rpc/code"
 	"google.golang.org/grpc/codes"
@@ -87,5 +88,29 @@ func (b business) GetDataTable(ctx context.Context, request *api.GetDataTableReq
 		CreatedAt: dataTable.CreatedAt.String(),
 		UpdatedAt: dataTable.UpdatedAt.String(),
 		Schema:    schema,
+	}, nil
+}
+
+func (b business) ExportDataTableToFile(ctx context.Context, request *api.ExportDataTableToFileRequest, accountUuid string) (*api.ExportDataTableToFileResponse, error) {
+	dataTable, err := b.repository.DataTableRepository.GetDataTable(ctx, request.GetId())
+	if err != nil {
+		b.log.WithName("ExportDataTableToFile").Error(err, "cannot get data table info", "id", request.Id)
+		return nil, err
+	}
+
+	if request.FileType == "CSV" {
+		err = b.repository.TransactionRepository.ExportDataToCSVTransaction(ctx, &repository.ExportDataToCSVTransactionParams{
+			AccountUuid: uuid.MustParse(accountUuid),
+			TableId:     request.Id,
+			S3Key:       utils.GenerateExportDataFileLocation(accountUuid, dataTable.Name, "csv"),
+		}, b.airflowAdapter)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &api.ExportDataTableToFileResponse{
+		Code:    int32(code.Code_OK),
+		Message: "Success",
 	}, nil
 }

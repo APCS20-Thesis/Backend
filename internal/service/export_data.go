@@ -3,10 +3,23 @@ package service
 import (
 	"context"
 	"github.com/APCS20-Thesis/Backend/api"
+	"github.com/APCS20-Thesis/Backend/internal/model"
+	"golang.org/x/exp/slices"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 func (s *Service) ExportDataTableToFile(ctx context.Context, request *api.ExportDataTableToFileRequest) (*api.ExportDataTableToFileResponse, error) {
-	//logger := s.log.WithName("ExportDataTableToFile")
+	availableFileTypes := []string{string(model.FileType_CSV), string(model.FileType_PARQUET)}
+	if !slices.Contains(availableFileTypes, request.GetFileType()) {
+		return nil, status.Error(codes.InvalidArgument, "Invalid file type, file type can only be csv or parquet")
+	}
 
-	return nil, nil
+	accountUuid, err := GetAccountUuidFromCtx(ctx)
+	if err != nil {
+		s.log.WithName("ExportDataTableToFile").Error(err, "cannot get account uuid from context")
+		return nil, err
+	}
+
+	return s.business.DataTableBusiness.ExportDataTableToFile(ctx, request, accountUuid)
 }

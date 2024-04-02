@@ -27,6 +27,7 @@ func (j *job) TriggerDagRuns(ctx context.Context) {
 		// - Gọi airflow update dag active
 		_, err = j.airflowAdapter.UpdateDag(ctx, dataAction.DagId, &airflow.UpdateDagRequest{IsPaused: false})
 		if err != nil && status.Code(err) == codes.Aborted && strings.Contains(err.Error(), "not found") {
+			j.logger.WithName("TriggerDagRuns").Info("dag not created", "dataAction", dataAction.ID, "dagId", dataAction.DagId)
 			continue
 		}
 		if err != nil {
@@ -59,7 +60,10 @@ func (j *job) TriggerDagRuns(ctx context.Context) {
 
 		tx.WithContext(ctx).Table("data_action").Where("id = ?", dataAction.ID).Update("run_count", 1)
 
-		tx.Commit()
+		err = tx.Commit().Error
+		if err != nil {
+			j.logger.Error(err, "trigger dag run transaction err")
+		}
 	}
 
 	return

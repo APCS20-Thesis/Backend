@@ -3,6 +3,7 @@ package airflow
 import (
 	"context"
 	"github.com/APCS20-Thesis/Backend/utils"
+	"strings"
 )
 
 type (
@@ -20,12 +21,13 @@ type (
 
 func (c *airflow) TriggerGenerateDagExportFile(ctx context.Context, request *TriggerGenerateDagExportFileRequest) (*TriggerNewDagRunResponse, error) {
 	response := &TriggerNewDagRunResponse{}
+	endpoint := strings.Replace(Endpoint_TRIGGER_GENERATE_DAG_EXPORT_CSV, "dag_id", request.Config.DagId, 1)
 
 	err := c.client.SendHttpRequestWithBasicAuth(ctx, utils.BasicAuth{
 		Username: c.username,
 		Password: c.password,
 	}, utils.Request{
-		Endpoint: Endpoint_TRIGGER_GENERATE_DAG_IMPORT_CSV,
+		Endpoint: endpoint,
 		Method:   utils.Method_POST,
 		Body:     request,
 		Headers:  map[string]string{utils.Header_CONTENT_TYPE: "application/json"},

@@ -15,13 +15,14 @@ const (
 type FileExportRecord struct {
 	ID              int64 `gorm:"primaryKey"`
 	DataTableId     int64
-	Type            FileType
+	Format          FileType
 	AccountUuid     uuid.UUID
 	DataActionId    int64
 	DataActionRunId int64
+	Status          string
 	DownloadUrl     string
-	S3Key           string
-	ExpireTime      time.Time
+	S3Key           string `gorm:"column:s3_key"`
+	ExpirationTime  time.Time
 	CreatedAt       time.Time `gorm:"autoCreateTime"`
 	UpdatedAt       time.Time `gorm:"autoUpdateTime"`
 }

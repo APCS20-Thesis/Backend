@@ -115,7 +115,7 @@ func (r *dataActionRunRepo) GetListDataActionRunsWithExtraInfo(ctx context.Conte
 	}
 
 	query = query.Joins("LEFT JOIN data_action ON data_action.id = data_action_run.action_id").Select(
-		"data_action.id AS id, " +
+		"data_action_run.id AS id, " +
 			"data_action_run.action_id AS action_id, " +
 			"data_action_run.run_id AS run_id, " +
 			"data_action_run.dag_run_id AS dag_run_id, " +

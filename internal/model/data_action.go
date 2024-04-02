@@ -9,8 +9,8 @@ import (
 type ActionType string
 
 const (
-	ActionType_UploadDataFromFile ActionType = "IMPORT_DATA_FROM_FILE"
-	ActionType_UploadDataFromS3   ActionType = "IMPORT_DATA_FROM_S3"
+	ActionType_ImportDataFromFile ActionType = "IMPORT_DATA_FROM_FILE"
+	ActionType_ImportDataFromS3   ActionType = "IMPORT_DATA_FROM_S3"
 	ActionType_ExportDataToCSV    ActionType = "EXPORT_DATA_TO_CSV"
 )
 
@@ -26,7 +26,7 @@ type DataAction struct {
 	ActionType       ActionType
 	Payload          pqtype.NullRawMessage
 	Status           DataActionStatus
-	RunCount         int
+	RunCount         int64
 	Schedule         string
 	DagId            string
 	SourceTableMapId int64

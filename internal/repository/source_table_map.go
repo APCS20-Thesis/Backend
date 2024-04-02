@@ -8,15 +8,16 @@ import (
 
 type SourceTableMapRepository interface {
 	CreateSourceTableMap(ctx context.Context, params *CreateSourceTableMapParams) error
+	GetSourceTableMapById(ctx context.Context, id int64) (*model.SourceTableMap, error)
 }
 
-type SourceTableMapRepo struct {
+type sourceTableMapRepo struct {
 	*gorm.DB
 	TableName string
 }
 
 func NewSourceTableMapRepository(db *gorm.DB) SourceTableMapRepository {
-	return &SourceTableMapRepo{db, model.SourceTableMap{}.TableName()}
+	return &sourceTableMapRepo{db, model.SourceTableMap{}.TableName()}
 }
 
 type CreateSourceTableMapParams struct {
@@ -24,7 +25,7 @@ type CreateSourceTableMapParams struct {
 	SourceId int64
 }
 
-func (r *SourceTableMapRepo) CreateSourceTableMap(ctx context.Context, params *CreateSourceTableMapParams) error {
+func (r *sourceTableMapRepo) CreateSourceTableMap(ctx context.Context, params *CreateSourceTableMapParams) error {
 	SourceTableMap := &model.SourceTableMap{
 		TableId:  params.TableId,
 		SourceId: params.SourceId,
@@ -36,4 +37,15 @@ func (r *SourceTableMapRepo) CreateSourceTableMap(ctx context.Context, params *C
 	}
 
 	return nil
+}
+
+func (r *sourceTableMapRepo) GetSourceTableMapById(ctx context.Context, id int64) (*model.SourceTableMap, error) {
+	var sourceTableMap model.SourceTableMap
+
+	err := r.WithContext(ctx).Table(r.TableName).First(&sourceTableMap, "id = ?", id).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &sourceTableMap, nil
 }

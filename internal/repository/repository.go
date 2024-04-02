@@ -13,6 +13,7 @@ type Repository struct {
 	ConnectionRepository
 	TransactionRepository
 	FileExportRecordRepository
+	SourceTableMapRepository
 }
 
 func NewRepository(db *gorm.DB) *Repository {
@@ -25,5 +26,6 @@ func NewRepository(db *gorm.DB) *Repository {
 		ConnectionRepository:       NewConnectionRepository(db),
 		TransactionRepository:      NewTransactionRepository(db),
 		FileExportRecordRepository: NewFileExportRecordRepository(db),
+		SourceTableMapRepository:   NewSourceTableMapRepository(db),
 	}
 }

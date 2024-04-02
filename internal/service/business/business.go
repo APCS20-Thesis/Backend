@@ -31,6 +31,6 @@ func NewBusiness(
 		repository:         repo,
 		AuthBusiness:       auth.NewAuthBusiness(log, repo),
 		DataSourceBusiness: data_source.NewDataSourceBusiness(log, repo, airflowAdapter, config),
-		DataTableBusiness:  data_table.NewDataTableBusiness(log, repo),
+		DataTableBusiness:  data_table.NewDataTableBusiness(log, repo, airflowAdapter),
 	}
 }

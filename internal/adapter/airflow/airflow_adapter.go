@@ -14,6 +14,7 @@ const (
 	Endpoint_UPDATE_DAG                      string = "/api/v1/dags/dag_id"
 	Endpoint_GET_DAG_RUN                     string = "/api/v1/dags/dag_id/dagRuns/dag_run_id"
 	Endpoint_TRIGGER_GENERATE_DAG_IMPORT_CSV string = "/api/v1/dags/generate_import_csv/dagRuns"
+	Endpoint_TRIGGER_GENERATE_DAG_EXPORT_CSV string = "/api/v1/dags/generate_export_csv/dagRuns"
 
 	WriteMode_Append    DeltaWriteMode = "append"
 	WriteMode_Overwrite DeltaWriteMode = "overwrite"

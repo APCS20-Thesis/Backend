@@ -14,6 +14,7 @@ type DataTableRepository interface {
 	GetDataTable(ctx context.Context, id int64) (*model.DataTable, error)
 	UpdateDataTable(ctx context.Context, params *UpdateDataTableParams) error
 	ListDataTables(ctx context.Context, filter *ListDataTablesFilters) ([]model.DataTable, error)
+	UpdateStatusDataTable(ctx context.Context, id int64, status model.DataTableStatus) error
 }
 
 type dataTableRepo struct {
@@ -36,7 +37,7 @@ func (r *dataTableRepo) CreateDataTable(ctx context.Context, params *CreateDataT
 		Name:        params.Name,
 		AccountUuid: params.AccountUuid,
 		Schema:      params.Schema,
-		Status:      model.TableStatus_DRAFT,
+		Status:      model.DataTableStatus_DRAFT,
 	}
 
 	createErr := r.WithContext(ctx).Table(r.TableName).Create(&dataTable).Error
@@ -64,7 +65,7 @@ type UpdateDataTableParams struct {
 	ID     int64
 	Name   string
 	Schema pqtype.NullRawMessage
-	Status model.TableStatus
+	Status model.DataTableStatus
 }
 
 func (r *dataTableRepo) UpdateDataTable(ctx context.Context, params *UpdateDataTableParams) error {
@@ -106,4 +107,8 @@ func (r *dataTableRepo) ListDataTables(ctx context.Context, filter *ListDataTabl
 	}
 
 	return dataTables, nil
+}
+
+func (r *dataTableRepo) UpdateStatusDataTable(ctx context.Context, id int64, status model.DataTableStatus) error {
+	return r.WithContext(ctx).Table(r.TableName).Where("id = ?", id).Update("status", status).Error
 }
