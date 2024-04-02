@@ -25,7 +25,7 @@ func (b business) ProcessImportCsv(ctx context.Context, request *api.ImportCsvRe
 			Region:          b.config.S3StorageConfig.Region,
 			Key:             "data/" + accountUuid + "/" + dateTime + "_" + request.GetFileName(),
 		}
-		actionType = model.ActionType_UploadDataFromFile
+		actionType = model.ActionType_ImportDataFromFile
 	} else {
 		connection, err := b.repository.ConnectionRepository.GetConnection(ctx, request.ConnectionId)
 		if err != nil {
@@ -37,7 +37,7 @@ func (b business) ProcessImportCsv(ctx context.Context, request *api.ImportCsvRe
 		if connection.Type != model.ConnectionType_S3 {
 			return status.Error(codes.InvalidArgument, "Invalid connection")
 		}
-		actionType = model.ActionType_UploadDataFromS3
+		actionType = model.ActionType_ImportDataFromS3
 		var configuration model.S3Configurations
 		err = json.Unmarshal(connection.Configurations.RawMessage, &configuration)
 

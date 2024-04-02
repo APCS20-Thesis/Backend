@@ -2,16 +2,19 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"github.com/APCS20-Thesis/Backend/api"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/airflow"
 	"github.com/APCS20-Thesis/Backend/internal/model"
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 	"gorm.io/gorm"
+	"strconv"
 )
 
 type TransactionRepository interface {
 	ImportCsvTransaction(ctx context.Context, params *ImportCsvTransactionParams, airflowAdapter airflow.AirflowAdapter) error
+	ExportDataToCSVTransaction(ctx context.Context, params *ExportDataToCSVTransactionParams, airflowAdapter airflow.AirflowAdapter) error
 }
 
 type transactionRepo struct {
@@ -60,7 +63,7 @@ func (r transactionRepo) ImportCsvTransaction(ctx context.Context, params *Impor
 		return err
 	}
 	if params.TableId > 0 {
-		dataTable = model.DataTable{ID: params.TableId, Status: model.TableStatus_UPDATING}
+		dataTable = model.DataTable{ID: params.TableId, Status: model.DataTableStatus_UPDATING}
 		err = tx.WithContext(ctx).Table("data_table").
 			Where("id = ?", params.TableId).
 			Updates(&dataTable).
@@ -72,7 +75,7 @@ func (r transactionRepo) ImportCsvTransaction(ctx context.Context, params *Impor
 	} else {
 		dataTable = model.DataTable{
 			Name:        params.NewTableName,
-			Status:      model.TableStatus_DRAFT,
+			Status:      model.DataTableStatus_DRAFT,
 			AccountUuid: params.AccountUuid,
 			Schema: pqtype.NullRawMessage{
 				RawMessage: []byte("{}"),
@@ -86,10 +89,10 @@ func (r transactionRepo) ImportCsvTransaction(ctx context.Context, params *Impor
 		}
 	}
 	sourceTableMap := &model.SourceTableMap{
-		TableId:           dataTable.ID,
-		SourceId:          dataSource.ID,
-		MappingOptions:    params.MappingOptions,
-		TableNameInSource: params.TableNameInSource,
+		TableId:         dataTable.ID,
+		SourceId:        dataSource.ID,
+		MappingOptions:  params.MappingOptions,
+		SourceTableName: params.TableNameInSource,
 	}
 
 	err = tx.WithContext(ctx).Table("source_table_map").Create(&sourceTableMap).Error
@@ -97,21 +100,21 @@ func (r transactionRepo) ImportCsvTransaction(ctx context.Context, params *Impor
 		tx.Rollback()
 		return err
 	}
-	//_, err = airflowAdapter.TriggerGenerateDagImportCsv(ctx, &airflow.TriggerGenerateDagImportCsvRequest{
-	//	Config: airflow.ImportCsvRequestConfig{
-	//		DagId:            params.DagId,
-	//		AccountUuid:      params.AccountUuid.String(),
-	//		DeltaTableName:   dataTable.Name,
-	//		S3Configurations: params.S3Configurations,
-	//		WriteMode:        params.WriteMode,
-	//		CsvReadOptions:   params.CsvReadOptions,
-	//		Headers:          params.Headers,
-	//	},
-	//})
-	//if err != nil {
-	//	tx.Rollback()
-	//	return err
-	//}
+	_, err = airflowAdapter.TriggerGenerateDagImportCsv(ctx, &airflow.TriggerGenerateDagImportCsvRequest{
+		Config: airflow.ImportCsvRequestConfig{
+			DagId:            params.DagId,
+			AccountUuid:      params.AccountUuid.String(),
+			DeltaTableName:   dataTable.Name,
+			S3Configurations: params.S3Configurations,
+			WriteMode:        params.WriteMode,
+			CsvReadOptions:   params.CsvReadOptions,
+			Headers:          params.Headers,
+		},
+	})
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
 	dataAction := &model.DataAction{
 		ActionType:       params.DataActionType,
 		Status:           model.DataActionStatus_Pending,
@@ -142,4 +145,124 @@ func (r transactionRepo) ImportCsvTransaction(ctx context.Context, params *Impor
 	tx.Commit()
 
 	return nil
+}
+
+type ExportDataToCSVTransactionParams struct {
+	AccountUuid uuid.UUID
+	TableId     int64
+	S3Key       string
+}
+
+func (r transactionRepo) ExportDataToCSVTransaction(ctx context.Context, params *ExportDataToCSVTransactionParams, airflowAdapter airflow.AirflowAdapter) error {
+
+	var fileExportRecord model.FileExportRecord
+	err := r.WithContext(ctx).Table("file_export_record").Where("data_table_id = ?", params.TableId).First(&fileExportRecord).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return r.NewExportFileCSVTransaction(ctx, params, airflowAdapter)
+	}
+	if err != nil {
+		return err
+	}
+
+	return r.TriggerExportFileCSVTransaction(ctx, params, airflowAdapter, fileExportRecord.DataActionId)
+}
+
+func (r transactionRepo) TriggerExportFileCSVTransaction(ctx context.Context, params *ExportDataToCSVTransactionParams, airflowAdapter airflow.AirflowAdapter, dataActionId int64) error {
+	var dataAction model.DataAction
+	err := r.DB.WithContext(ctx).Table("data_action").First(&dataAction, "id = ?", dataActionId).Error
+	if err != nil {
+		return err
+	}
+
+	triggerDagRunResp, err := airflowAdapter.TriggerNewDagRun(ctx, dataAction.DagId, &airflow.TriggerNewDagRunRequest{})
+	if err != nil {
+		return err
+	}
+
+	tx := r.DB.Begin()
+
+	dataActionRun := model.DataActionRun{
+		ActionId:    dataAction.ID,
+		RunId:       dataAction.RunCount + 1,
+		DagRunId:    triggerDagRunResp.DagRunId,
+		Status:      model.DataActionRunStatus_Processing,
+		AccountUuid: params.AccountUuid,
+	}
+	err = tx.WithContext(ctx).Table("data_action_run").Create(&dataActionRun).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	err = tx.WithContext(ctx).Table("data_action").Where("id = ?", dataAction.ID).Update("run_count", dataAction.RunCount+1).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	err = tx.WithContext(ctx).Table("file_export_record").Create(&model.FileExportRecord{
+		DataTableId:     params.TableId,
+		Format:          model.FileType_CSV,
+		AccountUuid:     params.AccountUuid,
+		DataActionId:    dataAction.ID,
+		DataActionRunId: dataActionRun.ID,
+	}).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
+}
+
+func (r transactionRepo) NewExportFileCSVTransaction(ctx context.Context, params *ExportDataToCSVTransactionParams, airflowAdapter airflow.AirflowAdapter) error {
+	var dataTable model.DataTable
+	err := r.DB.WithContext(ctx).Table("data_table").First(&dataTable, "id = ?", params.TableId).Error
+	if err != nil {
+		return err
+	}
+
+	tx := r.DB.Begin()
+	dagId := "export_file_" + params.AccountUuid.String() + "_" + strconv.FormatInt(params.TableId, 10)
+
+	// trigger new dag run
+	_, err = airflowAdapter.TriggerGenerateDagExportFile(ctx, &airflow.TriggerGenerateDagExportFileRequest{
+		Config: airflow.ExportFileRequestConfig{
+			DagId:          dagId,
+			AccountUuid:    params.AccountUuid.String(),
+			DeltaTableName: dataTable.TableName(),
+			SavedS3Path:    params.S3Key,
+		}})
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	dataAction := model.DataAction{
+		ActionType:  model.ActionType_ExportDataToCSV,
+		Status:      model.DataActionStatus_Pending,
+		RunCount:    1,
+		DagId:       dagId,
+		AccountUuid: params.AccountUuid,
+	}
+	err = tx.WithContext(ctx).Table("data_action").Create(&dataAction).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	fileExportRecord := model.FileExportRecord{
+		DataTableId:  params.TableId,
+		Format:       model.FileType_CSV,
+		AccountUuid:  params.AccountUuid,
+		DataActionId: dataAction.ID,
+		S3Key:        params.S3Key,
+	}
+	err = tx.WithContext(ctx).Table("file_export_record").Create(&fileExportRecord).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
 }

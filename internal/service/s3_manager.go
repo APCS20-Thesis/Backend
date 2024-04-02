@@ -6,7 +6,10 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
+	"log"
+	"time"
 )
 
 type S3Manager struct {
@@ -40,4 +43,27 @@ func (manager *S3Manager) S3Uploader(bucket string, key string, content []byte) 
 		return err
 	}
 	return nil
+}
+
+func (manager *S3Manager) GeneratePreSignedURL(bucket string, key string) (string, error) {
+	s3Session, err := session.NewSession(manager.S3Config)
+	if err != nil {
+		return "", err
+	}
+	svc := s3.New(s3Session)
+
+	req, _ := svc.GetObjectRequest(&s3.GetObjectInput{
+		Bucket: aws.String(bucket),
+		Key:    aws.String(key),
+	})
+
+	//fmt.Print(svc.GetObject)
+
+	urlStr, err := req.Presign(24 * 60 * time.Minute)
+	if err != nil {
+		log.Println("Failed to sign request", err)
+		return "", err
+	}
+
+	return urlStr, nil
 }

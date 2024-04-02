@@ -19,12 +19,17 @@ func (j *job) SyncDagRunStatus(ctx context.Context) {
 	jobLog.Info("dataActionRuns", "data", dataActionRuns)
 
 	for _, dataActionRun := range dataActionRuns {
+		if dataActionRun.DagRunId == "" {
+			err = j.repository.DataActionRunRepository.UpdateDataActionRunStatus(ctx, dataActionRun.ID, model.DataActionRunStatus_Failed)
+			continue
+		}
+
 		response, err := j.airflowAdapter.GetDagRun(ctx, dataActionRun.DagId, dataActionRun.DagRunId)
 		if err != nil {
 			jobLog.Error(err, "cannot get dag run from airflow", "dagId", dataActionRun.DagId, "dagRunId", dataActionRun.DagRunId)
 			continue
 		}
-		jobLog.Info("response", "resp", response)
+
 		switch response.State {
 		case "success":
 			err = j.repository.DataActionRunRepository.UpdateDataActionRunStatus(ctx, dataActionRun.ID, model.DataActionRunStatus_Success)
@@ -34,7 +39,35 @@ func (j *job) SyncDagRunStatus(ctx context.Context) {
 		}
 		if err != nil {
 			jobLog.Error(err, "cannot get dag run from airflow", "dagId", dataActionRun.DagId, "dagRunId", dataActionRun.DagRunId)
+			continue
 		}
+
+		// additional handling
+		go j.SyncRelatedStatusFromDataActionRunStatus(ctx, dataActionRun.ActionId)
+	}
+
+	return
+}
+
+func (j *job) SyncRelatedStatusFromDataActionRunStatus(ctx context.Context, dataActionId int64) {
+	dataAction, err := j.repository.DataActionRepository.GetDataAction(ctx, dataActionId)
+	if err != nil {
+		j.logger.WithName("job:SyncRelatedStatusFromDataActionStatus").Error(err, "cannot get data action ")
+	}
+
+	switch dataAction.ActionType {
+	case model.ActionType_ImportDataFromFile:
+		sourceTableMap, err := j.repository.SourceTableMapRepository.GetSourceTableMapById(ctx, dataAction.SourceTableMapId)
+		if err != nil {
+			j.logger.WithName("job:SyncRelatedStatusFromDataActionStatus").Error(err, "cannot get source table map", "sourceTableMapId", dataAction.SourceTableMapId)
+			return
+		}
+		err = j.repository.DataTableRepository.UpdateStatusDataTable(ctx, sourceTableMap.TableId, model.DataTableStatus_NEED_TO_SYNC)
+		if err != nil {
+			j.logger.WithName("job:SyncRelatedStatusFromDataActionStatus").Error(err, "cannot update data table status", "TableId", sourceTableMap.TableId)
+			return
+		}
+	default:
 	}
 
 	return
