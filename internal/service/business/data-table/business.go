@@ -15,6 +15,7 @@ type Business interface {
 	GetDataTable(ctx context.Context, request *api.GetDataTableRequest, accountUuid string) (*api.GetDataTableResponse, error)
 	GetListDataTables(ctx context.Context, request *api.GetListDataTablesRequest, accountUuid string) ([]*api.GetListDataTablesResponse_DataTable, error)
 	ExportDataTableToFile(ctx context.Context, request *api.ExportDataTableToFileRequest, accountUuid string) (*api.ExportDataTableToFileResponse, error)
+	GetListFileExportRecords(ctx context.Context, request *api.GetListFileExportRecordsRequest, accountUuid string) ([]*api.GetListFileExportRecordsResponse_FileExportRecord, error)
 }
 
 type business struct {

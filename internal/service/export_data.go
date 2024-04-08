@@ -23,3 +23,22 @@ func (s *Service) ExportDataTableToFile(ctx context.Context, request *api.Export
 
 	return s.business.DataTableBusiness.ExportDataTableToFile(ctx, request, accountUuid)
 }
+
+func (s *Service) GetListFileExportRecords(ctx context.Context, request *api.GetListFileExportRecordsRequest) (*api.GetListFileExportRecordsResponse, error) {
+	accountUuid, err := GetAccountUuidFromCtx(ctx)
+	if err != nil {
+		s.log.WithName("GetListFileExportRecords").Error(err, "cannot get account uuid from context")
+		return nil, err
+	}
+
+	records, err := s.business.DataTableBusiness.GetListFileExportRecords(ctx, request, accountUuid)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.GetListFileExportRecordsResponse{
+		Code:    int32(codes.OK),
+		Message: "Success",
+		Results: records,
+	}, nil
+}
