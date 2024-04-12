@@ -94,6 +94,14 @@ service CDPService {
       body: "*"
     };
   }
+
+  rpc ImportCsvFromS3(ImportCsvFromS3Request) returns (ImportCsvFromS3Response) {
+    option (google.api.http) = {
+      post: "/api/v1/data-source/s3/import-csv"
+      body: "*"
+    };
+  }
+
 }
 
 // CheckHealthRequest
@@ -166,8 +174,6 @@ message  ImportCsvRequest {
   int64 file_size = 2;
   // mapping option
   repeated MappingOptionItem mapping_options = 3;
-  // connection id
-  int64 connection_id = 4 [(validate.rules).int64.gt = -1];
   // configuration
   ImportCsvConfigurations configurations = 5;
   // file_content
@@ -180,26 +186,9 @@ message  ImportCsvRequest {
   string name = 9 [(validate.rules).string.min_len = 1];
   // description
   string description = 10;
-  // key s3
-  string key = 11;
   // write mode
   string write_mode = 12;
 
-  message MappingOptionItem {
-    // header
-    string header = 1;
-    // column name
-    string happing = 2;
-  }
-
-  message ImportCsvConfigurations {
-    // delimiter
-    string delimiter = 1 [(validate.rules).string.len = 1];
-    // skip_rows
-    int64 skip_rows = 2 [(validate.rules).int64.gt = -1];
-    // multi_line
-    bool multi_line = 3;
-  }
 }
 
 // ImportCsv Response
@@ -438,4 +427,42 @@ message ExportDataTableToFileResponse {
   int32 code = 1;
   // message
   string message = 2;
+}
+
+// ImportCsvFromS3Request
+message ImportCsvFromS3Request {
+  // file_name
+  string file_name = 1 [(validate.rules).string.min_len = 1];
+  // write mode
+  string write_mode = 2;
+  // mapping option
+  repeated MappingOptionItem mapping_options = 3;
+  // connection id
+  int64 connection_id = 4 [(validate.rules).int64.gt = -1];
+  // key s3
+  string key = 5;
+  // configuration
+  ImportCsvConfigurations configurations = 6;
+  // table_id
+  int64 table_id = 7 [(validate.rules).int64.gt = -1];
+  // new_table_name
+  string new_table_name = 8;
+  // name
+  string name = 9 [(validate.rules).string.min_len = 1];
+  // description
+  string description = 10;
+
+}
+
+// ImportCsvFromS3Response
+message ImportCsvFromS3Response {
+  // code
+  int32 code = 1;
+  //message
+  string message = 2;
+}
+
+//
+message GetListDagsRequest {
+
 }

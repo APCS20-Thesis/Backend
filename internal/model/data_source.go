@@ -31,10 +31,10 @@ type DataSource struct {
 
 type (
 	CsvConfigurations struct {
-		FileName      string                                        `json:"file_name"`
-		ConnectionId  int64                                         `json:"connection_id"`
-		Key           string                                        `json:"key"`
-		CsvReadOption *api.ImportCsvRequest_ImportCsvConfigurations `json:"csv_read_option"`
+		FileName      string                       `json:"file_name"`
+		ConnectionId  int64                        `json:"connection_id"`
+		Key           string                       `json:"key"`
+		CsvReadOption *api.ImportCsvConfigurations `json:"csv_read_option"`
 	}
 
 	DataSourceType string

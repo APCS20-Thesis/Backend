@@ -3,6 +3,7 @@ package data_source
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"github.com/APCS20-Thesis/Backend/api"
 	"github.com/APCS20-Thesis/Backend/internal/model"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
@@ -80,6 +81,9 @@ func (b business) GetListConnections(ctx context.Context, request *api.GetListCo
 func (b business) GetConnection(ctx context.Context, request *api.GetConnectionRequest, accountUuid string) (*api.GetConnectionResponse, error) {
 	connection, err := b.repository.ConnectionRepository.GetConnection(ctx, request.Id)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, "Not found connection with id "+string(request.Id))
+		}
 		b.log.WithName("GetConnection").
 			WithValues("Context", ctx).
 			Error(err, "Cannot get connection")

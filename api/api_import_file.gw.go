@@ -33,14 +33,14 @@ func request_CDPServiceFile_ImportCsv_0(ctx context.Context, client CDPServiceFi
 	}
 
 	jsonMappingOptions := req.Form.Get("mapping_options")
-	var mappingOptions []*ImportCsvRequest_MappingOptionItem
+	var mappingOptions []*MappingOptionItem
 	err = json.Unmarshal([]byte(jsonMappingOptions), &mappingOptions)
 	if err != nil {
 		return nil, err
 	}
 
 	jsonConfigurations := req.Form.Get("configurations")
-	var configurations *ImportCsvRequest_ImportCsvConfigurations
+	var configurations *ImportCsvConfigurations
 	err = json.Unmarshal([]byte(jsonConfigurations), &configurations)
 	if err != nil {
 		return nil, err
@@ -51,7 +51,6 @@ func request_CDPServiceFile_ImportCsv_0(ctx context.Context, client CDPServiceFi
 	description := form.Get("description")
 	newTableName := form.Get("new_table_name")
 	writeMode := form.Get("write_mode")
-	key := form.Get("key")
 
 	var tableId int64
 	if len(form.Get("table_id")) > 0 {
@@ -63,15 +62,6 @@ func request_CDPServiceFile_ImportCsv_0(ctx context.Context, client CDPServiceFi
 		tableId = 0
 	}
 
-	var connectionId int64
-	if len(form.Get("connection_id")) > 0 {
-		connectionId, err = strconv.ParseInt(form.Get("connection_id"), 10, 64)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		connectionId = 0
-	}
 	var metadata runtime.ServerMetadata
 	response, err := client.ImportCsv(ctx,
 		&ImportCsvRequest{
@@ -83,9 +73,7 @@ func request_CDPServiceFile_ImportCsv_0(ctx context.Context, client CDPServiceFi
 			Name:           name,
 			Description:    description,
 			TableId:        tableId,
-			ConnectionId:   connectionId,
 			NewTableName:   newTableName,
-			Key:            key,
 			WriteMode:      writeMode,
 		},
 		grpc.Header(&metadata.HeaderMD),
