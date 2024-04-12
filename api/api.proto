@@ -94,6 +94,12 @@ service CDPService {
       body: "*"
     };
   }
+
+  rpc GetListFileExportRecords(GetListFileExportRecordsRequest) returns (GetListFileExportRecordsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/data-table/{id}/export"
+    };
+  }
 }
 
 // CheckHealthRequest
@@ -438,4 +444,35 @@ message ExportDataTableToFileResponse {
   int32 code = 1;
   // message
   string message = 2;
+}
+
+message GetListFileExportRecordsRequest {
+  // id - Table Id
+  int64 id = 1;
+}
+
+message GetListFileExportRecordsResponse {
+  // code
+  int32 code = 1;
+  // message
+  string message = 2;
+  // results
+  repeated FileExportRecord results = 3;
+
+  message FileExportRecord {
+    // id
+    int64 id = 1;
+    // data_table_id
+    int64 data_table_id = 2;
+    // format
+    string format = 3;
+    // status
+    string status = 4;
+    // download_url
+    string download_url = 5;
+    // expiration_time
+    string expiration_time = 6;
+    // created_at
+    string created_at = 7;
+  }
 }

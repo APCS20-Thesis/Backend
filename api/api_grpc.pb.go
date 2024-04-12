@@ -36,6 +36,7 @@ type CDPServiceClient interface {
 	UpdateConnection(ctx context.Context, in *UpdateConnectionRequest, opts ...grpc.CallOption) (*UpdateConnectionResponse, error)
 	DeleteConnection(ctx context.Context, in *DeleteConnectionRequest, opts ...grpc.CallOption) (*DeleteConnectionResponse, error)
 	ExportDataTableToFile(ctx context.Context, in *ExportDataTableToFileRequest, opts ...grpc.CallOption) (*ExportDataTableToFileResponse, error)
+	GetListFileExportRecords(ctx context.Context, in *GetListFileExportRecordsRequest, opts ...grpc.CallOption) (*GetListFileExportRecordsResponse, error)
 }
 
 type cDPServiceClient struct {
@@ -172,6 +173,15 @@ func (c *cDPServiceClient) ExportDataTableToFile(ctx context.Context, in *Export
 	return out, nil
 }
 
+func (c *cDPServiceClient) GetListFileExportRecords(ctx context.Context, in *GetListFileExportRecordsRequest, opts ...grpc.CallOption) (*GetListFileExportRecordsResponse, error) {
+	out := new(GetListFileExportRecordsResponse)
+	err := c.cc.Invoke(ctx, "/api.CDPService/GetListFileExportRecords", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CDPServiceServer is the server API for CDPService service.
 // All implementations must embed UnimplementedCDPServiceServer
 // for forward compatibility
@@ -190,6 +200,7 @@ type CDPServiceServer interface {
 	UpdateConnection(context.Context, *UpdateConnectionRequest) (*UpdateConnectionResponse, error)
 	DeleteConnection(context.Context, *DeleteConnectionRequest) (*DeleteConnectionResponse, error)
 	ExportDataTableToFile(context.Context, *ExportDataTableToFileRequest) (*ExportDataTableToFileResponse, error)
+	GetListFileExportRecords(context.Context, *GetListFileExportRecordsRequest) (*GetListFileExportRecordsResponse, error)
 	mustEmbedUnimplementedCDPServiceServer()
 }
 
@@ -238,6 +249,9 @@ func (UnimplementedCDPServiceServer) DeleteConnection(context.Context, *DeleteCo
 }
 func (UnimplementedCDPServiceServer) ExportDataTableToFile(context.Context, *ExportDataTableToFileRequest) (*ExportDataTableToFileResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ExportDataTableToFile not implemented")
+}
+func (UnimplementedCDPServiceServer) GetListFileExportRecords(context.Context, *GetListFileExportRecordsRequest) (*GetListFileExportRecordsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetListFileExportRecords not implemented")
 }
 func (UnimplementedCDPServiceServer) mustEmbedUnimplementedCDPServiceServer() {}
 
@@ -504,6 +518,24 @@ func _CDPService_ExportDataTableToFile_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CDPService_GetListFileExportRecords_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetListFileExportRecordsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDPServiceServer).GetListFileExportRecords(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.CDPService/GetListFileExportRecords",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDPServiceServer).GetListFileExportRecords(ctx, req.(*GetListFileExportRecordsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CDPService_ServiceDesc is the grpc.ServiceDesc for CDPService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -566,6 +598,10 @@ var CDPService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ExportDataTableToFile",
 			Handler:    _CDPService_ExportDataTableToFile_Handler,
+		},
+		{
+			MethodName: "GetListFileExportRecords",
+			Handler:    _CDPService_GetListFileExportRecords_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

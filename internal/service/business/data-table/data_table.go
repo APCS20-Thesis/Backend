@@ -114,3 +114,26 @@ func (b business) ExportDataTableToFile(ctx context.Context, request *api.Export
 		Message: "Success",
 	}, nil
 }
+
+func (b business) GetListFileExportRecords(ctx context.Context, request *api.GetListFileExportRecordsRequest, accountUuid string) ([]*api.GetListFileExportRecordsResponse_FileExportRecord, error) {
+	records, err := b.repository.FileExportRecordRepository.ListFileExportRecords(ctx, request.Id, accountUuid)
+	if err != nil {
+		b.log.WithName("GetListFileExportRecords").Error(err, "cannot get file export records data")
+		return nil, err
+	}
+
+	returnRecords := make([]*api.GetListFileExportRecordsResponse_FileExportRecord, 0, len(records))
+	for _, record := range records {
+		returnRecords = append(returnRecords, &api.GetListFileExportRecordsResponse_FileExportRecord{
+			Id:             record.ID,
+			DataTableId:    record.DataTableId,
+			Format:         string(record.Format),
+			Status:         record.Status,
+			DownloadUrl:    record.DownloadUrl,
+			ExpirationTime: utils.ToTimeString(record.ExpirationTime),
+			CreatedAt:      utils.ToTimeString(record.CreatedAt),
+		})
+	}
+
+	return returnRecords, nil
+}
