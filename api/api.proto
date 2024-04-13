@@ -102,6 +102,12 @@ service CDPService {
     };
   }
 
+
+  rpc GetListFileExportRecords(GetListFileExportRecordsRequest) returns (GetListFileExportRecordsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/data-table/{id}/export"
+    };
+  }
 }
 
 // CheckHealthRequest
@@ -174,6 +180,8 @@ message  ImportCsvRequest {
   int64 file_size = 2;
   // mapping option
   repeated MappingOptionItem mapping_options = 3;
+  // connection id
+  int64 connection_id = 4 [(validate.rules).int64.gt = -1];
   // configuration
   ImportCsvConfigurations configurations = 5;
   // file_content
@@ -186,9 +194,26 @@ message  ImportCsvRequest {
   string name = 9 [(validate.rules).string.min_len = 1];
   // description
   string description = 10;
+  // key s3
+  string key = 11;
   // write mode
   string write_mode = 12;
 
+  message MappingOptionItem {
+    // header
+    string header = 1;
+    // column name
+    string happing = 2;
+  }
+
+  message ImportCsvConfigurations {
+    // delimiter
+    string delimiter = 1 [(validate.rules).string.len = 1];
+    // skip_rows
+    int64 skip_rows = 2 [(validate.rules).int64.gt = -1];
+    // multi_line
+    bool multi_line = 3;
+  }
 }
 
 // ImportCsv Response
@@ -427,6 +452,37 @@ message ExportDataTableToFileResponse {
   int32 code = 1;
   // message
   string message = 2;
+}
+
+message GetListFileExportRecordsRequest {
+  // id - Table Id
+  int64 id = 1;
+}
+
+message GetListFileExportRecordsResponse {
+  // code
+  int32 code = 1;
+  // message
+  string message = 2;
+  // results
+  repeated FileExportRecord results = 3;
+
+  message FileExportRecord {
+    // id
+    int64 id = 1;
+    // data_table_id
+    int64 data_table_id = 2;
+    // format
+    string format = 3;
+    // status
+    string status = 4;
+    // download_url
+    string download_url = 5;
+    // expiration_time
+    string expiration_time = 6;
+    // created_at
+    string created_at = 7;
+  }
 }
 
 // ImportCsvFromS3Request

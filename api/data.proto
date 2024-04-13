@@ -31,9 +31,9 @@ message Account {
 
 
 message MappingOptionItem {
-  // header
+  // source_field_name
   string source_field_name = 1;
-  // column name
+  // destination_field_name
   string destination_field_name = 2;
 }
 

@@ -19,21 +19,22 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	CDPService_CheckHealth_FullMethodName           = "/api.CDPService/CheckHealth"
-	CDPService_Login_FullMethodName                 = "/api.CDPService/Login"
-	CDPService_SignUp_FullMethodName                = "/api.CDPService/SignUp"
-	CDPService_GetAccountInfo_FullMethodName        = "/api.CDPService/GetAccountInfo"
-	CDPService_GetListDataSources_FullMethodName    = "/api.CDPService/GetListDataSources"
-	CDPService_GetDataSource_FullMethodName         = "/api.CDPService/GetDataSource"
-	CDPService_GetListDataTables_FullMethodName     = "/api.CDPService/GetListDataTables"
-	CDPService_GetDataTable_FullMethodName          = "/api.CDPService/GetDataTable"
-	CDPService_GetConnection_FullMethodName         = "/api.CDPService/GetConnection"
-	CDPService_GetListConnections_FullMethodName    = "/api.CDPService/GetListConnections"
-	CDPService_CreateConnection_FullMethodName      = "/api.CDPService/CreateConnection"
-	CDPService_UpdateConnection_FullMethodName      = "/api.CDPService/UpdateConnection"
-	CDPService_DeleteConnection_FullMethodName      = "/api.CDPService/DeleteConnection"
-	CDPService_ExportDataTableToFile_FullMethodName = "/api.CDPService/ExportDataTableToFile"
-	CDPService_ImportCsvFromS3_FullMethodName       = "/api.CDPService/ImportCsvFromS3"
+	CDPService_CheckHealth_FullMethodName              = "/api.CDPService/CheckHealth"
+	CDPService_Login_FullMethodName                    = "/api.CDPService/Login"
+	CDPService_SignUp_FullMethodName                   = "/api.CDPService/SignUp"
+	CDPService_GetAccountInfo_FullMethodName           = "/api.CDPService/GetAccountInfo"
+	CDPService_GetListDataSources_FullMethodName       = "/api.CDPService/GetListDataSources"
+	CDPService_GetDataSource_FullMethodName            = "/api.CDPService/GetDataSource"
+	CDPService_GetListDataTables_FullMethodName        = "/api.CDPService/GetListDataTables"
+	CDPService_GetDataTable_FullMethodName             = "/api.CDPService/GetDataTable"
+	CDPService_GetConnection_FullMethodName            = "/api.CDPService/GetConnection"
+	CDPService_GetListConnections_FullMethodName       = "/api.CDPService/GetListConnections"
+	CDPService_CreateConnection_FullMethodName         = "/api.CDPService/CreateConnection"
+	CDPService_UpdateConnection_FullMethodName         = "/api.CDPService/UpdateConnection"
+	CDPService_DeleteConnection_FullMethodName         = "/api.CDPService/DeleteConnection"
+	CDPService_ExportDataTableToFile_FullMethodName    = "/api.CDPService/ExportDataTableToFile"
+	CDPService_ImportCsvFromS3_FullMethodName          = "/api.CDPService/ImportCsvFromS3"
+	CDPService_GetListFileExportRecords_FullMethodName = "/api.CDPService/GetListFileExportRecords"
 )
 
 // CDPServiceClient is the client API for CDPService service.
@@ -55,6 +56,7 @@ type CDPServiceClient interface {
 	DeleteConnection(ctx context.Context, in *DeleteConnectionRequest, opts ...grpc.CallOption) (*DeleteConnectionResponse, error)
 	ExportDataTableToFile(ctx context.Context, in *ExportDataTableToFileRequest, opts ...grpc.CallOption) (*ExportDataTableToFileResponse, error)
 	ImportCsvFromS3(ctx context.Context, in *ImportCsvFromS3Request, opts ...grpc.CallOption) (*ImportCsvFromS3Response, error)
+	GetListFileExportRecords(ctx context.Context, in *GetListFileExportRecordsRequest, opts ...grpc.CallOption) (*GetListFileExportRecordsResponse, error)
 }
 
 type cDPServiceClient struct {
@@ -200,6 +202,15 @@ func (c *cDPServiceClient) ImportCsvFromS3(ctx context.Context, in *ImportCsvFro
 	return out, nil
 }
 
+func (c *cDPServiceClient) GetListFileExportRecords(ctx context.Context, in *GetListFileExportRecordsRequest, opts ...grpc.CallOption) (*GetListFileExportRecordsResponse, error) {
+	out := new(GetListFileExportRecordsResponse)
+	err := c.cc.Invoke(ctx, CDPService_GetListFileExportRecords_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CDPServiceServer is the server API for CDPService service.
 // All implementations must embed UnimplementedCDPServiceServer
 // for forward compatibility
@@ -219,6 +230,7 @@ type CDPServiceServer interface {
 	DeleteConnection(context.Context, *DeleteConnectionRequest) (*DeleteConnectionResponse, error)
 	ExportDataTableToFile(context.Context, *ExportDataTableToFileRequest) (*ExportDataTableToFileResponse, error)
 	ImportCsvFromS3(context.Context, *ImportCsvFromS3Request) (*ImportCsvFromS3Response, error)
+	GetListFileExportRecords(context.Context, *GetListFileExportRecordsRequest) (*GetListFileExportRecordsResponse, error)
 	mustEmbedUnimplementedCDPServiceServer()
 }
 
@@ -270,6 +282,9 @@ func (UnimplementedCDPServiceServer) ExportDataTableToFile(context.Context, *Exp
 }
 func (UnimplementedCDPServiceServer) ImportCsvFromS3(context.Context, *ImportCsvFromS3Request) (*ImportCsvFromS3Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ImportCsvFromS3 not implemented")
+}
+func (UnimplementedCDPServiceServer) GetListFileExportRecords(context.Context, *GetListFileExportRecordsRequest) (*GetListFileExportRecordsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetListFileExportRecords not implemented")
 }
 func (UnimplementedCDPServiceServer) mustEmbedUnimplementedCDPServiceServer() {}
 
@@ -554,6 +569,24 @@ func _CDPService_ImportCsvFromS3_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CDPService_GetListFileExportRecords_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetListFileExportRecordsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDPServiceServer).GetListFileExportRecords(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CDPService_GetListFileExportRecords_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDPServiceServer).GetListFileExportRecords(ctx, req.(*GetListFileExportRecordsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CDPService_ServiceDesc is the grpc.ServiceDesc for CDPService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -620,6 +653,10 @@ var CDPService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ImportCsvFromS3",
 			Handler:    _CDPService_ImportCsvFromS3_Handler,
+		},
+		{
+			MethodName: "GetListFileExportRecords",
+			Handler:    _CDPService_GetListFileExportRecords_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
