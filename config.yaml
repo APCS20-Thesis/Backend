@@ -16,3 +16,8 @@ POSTGRESQL:
   USERNAME: cdp_service
   PASSWORD: postgres
   DATABASE: cdp_service
+
+AIRFLOW_ADAPTER_CONFIG:
+  ADDRESS: https://c275-113-161-84-248.ngrok-free.app
+  USERNAME: airflow
+  PASSWORD: airflow

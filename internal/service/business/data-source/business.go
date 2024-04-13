@@ -24,6 +24,8 @@ type Business interface {
 	GetConnection(ctx context.Context, request *api.GetConnectionRequest, accountUuid string) (*api.GetConnectionResponse, error)
 	GetListConnections(ctx context.Context, request *api.GetListConnectionsRequest, accountUuid string) ([]*api.GetListConnectionsResponse_Connection, error)
 	DeleteConnection(ctx context.Context, request *api.DeleteConnectionRequest, accountUuid string) error
+
+	ProcessImportCsvFromS3(ctx context.Context, request *api.ImportCsvFromS3Request, accountUuid string, dateTime string) error
 }
 
 type business struct {

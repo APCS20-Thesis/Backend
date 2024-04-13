@@ -41,7 +41,7 @@ type ImportCsvTransactionParams struct {
 	DagId            string
 	S3Configurations *airflow.S3Configurations
 	WriteMode        airflow.DeltaWriteMode
-	CsvReadOptions   *api.ImportCsvRequest_ImportCsvConfigurations
+	CsvReadOptions   *api.ImportCsvConfigurations
 	Headers          []string
 }
 

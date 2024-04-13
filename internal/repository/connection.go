@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"errors"
 	"github.com/APCS20-Thesis/Backend/internal/model"
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
@@ -63,9 +62,6 @@ func (r *ConnectionRepo) GetConnection(ctx context.Context, id int64) (*model.Co
 	var connection model.Connection
 	err := r.WithContext(ctx).Table(r.TableName).Where("id = ?", id).First(&connection).Error
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
 		return nil, err
 	}
 
@@ -122,9 +118,6 @@ func (r *ConnectionRepo) ListConnections(ctx context.Context, filter *FilterConn
 	}
 	err := query.Find(&connections).Error
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
 		return nil, err
 	}
 	return connections, nil

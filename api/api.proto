@@ -95,6 +95,14 @@ service CDPService {
     };
   }
 
+  rpc ImportCsvFromS3(ImportCsvFromS3Request) returns (ImportCsvFromS3Response) {
+    option (google.api.http) = {
+      post: "/api/v1/data-source/s3/import-csv"
+      body: "*"
+    };
+  }
+
+
   rpc GetListFileExportRecords(GetListFileExportRecordsRequest) returns (GetListFileExportRecordsResponse) {
     option (google.api.http) = {
       get: "/api/v1/data-table/{id}/export"
@@ -475,4 +483,42 @@ message GetListFileExportRecordsResponse {
     // created_at
     string created_at = 7;
   }
+}
+
+// ImportCsvFromS3Request
+message ImportCsvFromS3Request {
+  // file_name
+  string file_name = 1 [(validate.rules).string.min_len = 1];
+  // write mode
+  string write_mode = 2;
+  // mapping option
+  repeated MappingOptionItem mapping_options = 3;
+  // connection id
+  int64 connection_id = 4 [(validate.rules).int64.gt = -1];
+  // key s3
+  string key = 5;
+  // configuration
+  ImportCsvConfigurations configurations = 6;
+  // table_id
+  int64 table_id = 7 [(validate.rules).int64.gt = -1];
+  // new_table_name
+  string new_table_name = 8;
+  // name
+  string name = 9 [(validate.rules).string.min_len = 1];
+  // description
+  string description = 10;
+
+}
+
+// ImportCsvFromS3Response
+message ImportCsvFromS3Response {
+  // code
+  int32 code = 1;
+  //message
+  string message = 2;
+}
+
+//
+message GetListDagsRequest {
+
 }

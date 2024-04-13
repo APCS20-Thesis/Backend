@@ -28,3 +28,20 @@ message Account {
 //*****************************************//
 // DataSource
 //*****************************************//
+
+
+message MappingOptionItem {
+  // source_field_name
+  string source_field_name = 1;
+  // destination_field_name
+  string destination_field_name = 2;
+}
+
+message ImportCsvConfigurations {
+  // delimiter
+  string delimiter = 1 [(validate.rules).string.len = 1];
+  // skip_rows
+  int64 skip_rows = 2 [(validate.rules).int64.gt = -1];
+  // multi_line
+  bool multi_line = 3;
+}

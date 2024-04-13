@@ -24,18 +24,16 @@ func (s *Service) ImportCsv(ctx context.Context, request *api.ImportCsvRequest) 
 	}
 	dateTime := strconv.FormatInt(time.Now().Unix(), 10)
 
-	if request.ConnectionId == 0 {
-		err = s.s3Manger.S3Uploader(
-			constants.S3BucketName,
-			"data/"+accountUuid+"/"+dateTime+"_"+request.GetFileName(),
-			request.GetFileContent())
+	err = s.s3Manger.S3Uploader(
+		constants.S3BucketName,
+		"data/"+accountUuid+"/"+dateTime+"_"+request.GetFileName(),
+		request.GetFileContent())
 
-		if err != nil {
-			s.log.WithName("ImportCsv").
-				WithValues("Context", ctx).
-				Error(err, "Cannot uploaded Csv to S3")
-			return nil, err
-		}
+	if err != nil {
+		s.log.WithName("ImportCsv").
+			WithValues("Context", ctx).
+			Error(err, "Cannot uploaded Csv to S3")
+		return nil, err
 	}
 
 	err = s.business.DataSourceBusiness.ProcessImportCsv(ctx, request, accountUuid, dateTime)
@@ -83,17 +81,6 @@ func (s *Service) GetDataSource(ctx context.Context, request *api.GetDataSourceR
 	}
 	return response, nil
 }
-
-//func GetDateTimeString() string {
-//	var currentTime time.Time
-//	location, err := time.LoadLocation("Asia/Ho_Chi_Minh")
-//	if err != nil {
-//		currentTime = time.Now()
-//	}
-//	currentTime = time.Now().In(location)
-//
-//	return currentTime.Format("02012006150405")
-//}
 
 func (s *Service) GetListConnections(ctx context.Context, request *api.GetListConnectionsRequest) (*api.GetListConnectionsResponse, error) {
 	accountUuid, err := GetAccountUuidFromCtx(ctx)
@@ -207,4 +194,24 @@ func (s *Service) DeleteConnection(ctx context.Context, request *api.DeleteConne
 		return nil, err
 	}
 	return &api.DeleteConnectionResponse{Message: "Delete Success", Code: int32(codes.OK)}, nil
+}
+
+func (s *Service) ImportCsvFromS3(ctx context.Context, request *api.ImportCsvFromS3Request) (*api.ImportCsvFromS3Response, error) {
+	accountUuid, err := GetAccountUuidFromCtx(ctx)
+	if err != nil {
+		s.log.WithName("ImportCsv").
+			WithValues("Context", ctx).
+			Error(err, "Cannot get account_uuid from context")
+		return nil, err
+	}
+	dateTime := strconv.FormatInt(time.Now().Unix(), 10)
+
+	err = s.business.DataSourceBusiness.ProcessImportCsvFromS3(ctx, request, accountUuid, dateTime)
+	if err != nil {
+		s.log.WithName("ImportCsv").
+			WithValues("Context", ctx).
+			Error(err, "Failed to process import Csv from s3")
+		return nil, err
+	}
+	return &api.ImportCsvFromS3Response{Message: "Import Success", Code: int32(codes.OK)}, nil
 }

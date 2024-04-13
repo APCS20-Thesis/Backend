@@ -18,5 +18,6 @@ func AccessibleRoles() map[string][]string {
 		rootServicePath + "DeleteConnection":         {"admin", "user"},
 		rootServicePath + "ExportDataTableToFile":    {"admin", "user"},
 		rootServicePath + "GetListFileExportRecords": {"admin", "user"},
+		rootServicePath + "ImportCsvFromS3":          {"admin", "user"},
 	}
 }

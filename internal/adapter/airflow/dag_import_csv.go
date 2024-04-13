@@ -12,13 +12,13 @@ type (
 	}
 
 	ImportCsvRequestConfig struct {
-		DagId            string                                        `json:"dag_id"`
-		AccountUuid      string                                        `json:"account_uuid"`
-		DeltaTableName   string                                        `json:"delta_table_name"`
-		S3Configurations *S3Configurations                             `json:"s3_configurations"`
-		WriteMode        DeltaWriteMode                                `json:"write_mode"`
-		CsvReadOptions   *api.ImportCsvRequest_ImportCsvConfigurations `json:"csv_read_options"`
-		Headers          []string                                      `json:"headers"`
+		DagId            string                       `json:"dag_id"`
+		AccountUuid      string                       `json:"account_uuid"`
+		DeltaTableName   string                       `json:"delta_table_name"`
+		S3Configurations *S3Configurations            `json:"s3_configurations"`
+		WriteMode        DeltaWriteMode               `json:"write_mode"`
+		CsvReadOptions   *api.ImportCsvConfigurations `json:"csv_read_options"`
+		Headers          []string                     `json:"headers"`
 	}
 
 	S3Configurations struct {
