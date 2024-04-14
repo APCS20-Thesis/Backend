@@ -5,7 +5,6 @@ CREATE TABLE IF NOT EXISTS file_export_record (
     data_table_id int,
     format varchar(255),
     account_uuid uuid not null,
-    data_action_id int,
     data_action_run_id int,
     status varchar(255),
     s3_key varchar(255),

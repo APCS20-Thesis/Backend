@@ -57,9 +57,9 @@ func (j *job) SyncRelatedStatusFromDataActionRunStatus(ctx context.Context, data
 
 	switch dataAction.ActionType {
 	case model.ActionType_ImportDataFromFile:
-		sourceTableMap, err := j.repository.SourceTableMapRepository.GetSourceTableMapById(ctx, dataAction.SourceTableMapId)
+		sourceTableMap, err := j.repository.SourceTableMapRepository.GetSourceTableMapById(ctx, dataAction.ObjectId)
 		if err != nil {
-			j.logger.WithName("job:SyncRelatedStatusFromDataActionStatus").Error(err, "cannot get source table map", "sourceTableMapId", dataAction.SourceTableMapId)
+			j.logger.WithName("job:SyncRelatedStatusFromDataActionStatus").Error(err, "cannot get source table map", "sourceTableMapId", dataAction.ObjectId)
 			return
 		}
 		err = j.repository.DataTableRepository.UpdateStatusDataTable(ctx, sourceTableMap.TableId, model.DataTableStatus_NEED_TO_SYNC)

@@ -114,9 +114,9 @@ type MappingOptionItem struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// header
+	// source_field_name
 	SourceFieldName string `protobuf:"bytes,1,opt,name=source_field_name,json=sourceFieldName,proto3" json:"source_field_name,omitempty"`
-	// column name
+	// destination_field_name
 	DestinationFieldName string `protobuf:"bytes,2,opt,name=destination_field_name,json=destinationFieldName,proto3" json:"destination_field_name,omitempty"`
 }
 

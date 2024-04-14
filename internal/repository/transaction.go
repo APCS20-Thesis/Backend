@@ -34,15 +34,13 @@ type ImportCsvTransactionParams struct {
 	TableId                  int64
 	NewTableName             string
 	MappingOptions           pqtype.NullRawMessage
-	TableNameInSource        string
-
-	DataActionType   model.ActionType
-	Schedule         string
-	DagId            string
-	S3Configurations *airflow.S3Configurations
-	WriteMode        airflow.DeltaWriteMode
-	CsvReadOptions   *api.ImportCsvConfigurations
-	Headers          []string
+	DataActionType           model.ActionType
+	Schedule                 string
+	DagId                    string
+	S3Configurations         *airflow.S3Configurations
+	WriteMode                airflow.DeltaWriteMode
+	CsvReadOptions           *api.ImportCsvConfigurations
+	Headers                  []string
 }
 
 func (r transactionRepo) ImportCsvTransaction(ctx context.Context, params *ImportCsvTransactionParams, airflowAdapter airflow.AirflowAdapter) error {
@@ -89,10 +87,9 @@ func (r transactionRepo) ImportCsvTransaction(ctx context.Context, params *Impor
 		}
 	}
 	sourceTableMap := &model.SourceTableMap{
-		TableId:         dataTable.ID,
-		SourceId:        dataSource.ID,
-		MappingOptions:  params.MappingOptions,
-		SourceTableName: params.TableNameInSource,
+		TableId:        dataTable.ID,
+		SourceId:       dataSource.ID,
+		MappingOptions: params.MappingOptions,
 	}
 
 	err = tx.WithContext(ctx).Table("source_table_map").Create(&sourceTableMap).Error
@@ -116,13 +113,14 @@ func (r transactionRepo) ImportCsvTransaction(ctx context.Context, params *Impor
 		return err
 	}
 	dataAction := &model.DataAction{
-		ActionType:       params.DataActionType,
-		Status:           model.DataActionStatus_Pending,
-		RunCount:         0,
-		Schedule:         params.Schedule,
-		DagId:            params.DagId,
-		AccountUuid:      params.AccountUuid,
-		SourceTableMapId: sourceTableMap.ID,
+		TargetTable: model.TargetTable_SourceTableMap,
+		ActionType:  params.DataActionType,
+		Status:      model.DataActionStatus_Pending,
+		RunCount:    0,
+		Schedule:    params.Schedule,
+		DagId:       params.DagId,
+		AccountUuid: params.AccountUuid,
+		ObjectId:    sourceTableMap.ID,
 	}
 
 	err = tx.WithContext(ctx).Table("data_action").Create(&dataAction).Error
@@ -155,8 +153,10 @@ type ExportDataToCSVTransactionParams struct {
 
 func (r transactionRepo) ExportDataToCSVTransaction(ctx context.Context, params *ExportDataToCSVTransactionParams, airflowAdapter airflow.AirflowAdapter) error {
 
-	var fileExportRecord model.FileExportRecord
-	err := r.WithContext(ctx).Table("file_export_record").Where("data_table_id = ?", params.TableId).First(&fileExportRecord).Error
+	var dataAction model.DataAction
+	err := r.WithContext(ctx).Table(string(model.TargetTable_DataTable)).
+		Where("id = ? AND action_type = ?", params.TableId, string(model.ActionType_ExportDataToCSV)).
+		First(&dataAction).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return r.NewExportFileCSVTransaction(ctx, params, airflowAdapter)
 	}
@@ -164,7 +164,7 @@ func (r transactionRepo) ExportDataToCSVTransaction(ctx context.Context, params 
 		return err
 	}
 
-	return r.TriggerExportFileCSVTransaction(ctx, params, airflowAdapter, fileExportRecord.DataActionId)
+	return r.TriggerExportFileCSVTransaction(ctx, params, airflowAdapter, dataAction.ID)
 }
 
 func (r transactionRepo) TriggerExportFileCSVTransaction(ctx context.Context, params *ExportDataToCSVTransactionParams, airflowAdapter airflow.AirflowAdapter, dataActionId int64) error {
@@ -204,7 +204,6 @@ func (r transactionRepo) TriggerExportFileCSVTransaction(ctx context.Context, pa
 		DataTableId:     params.TableId,
 		Format:          model.FileType_CSV,
 		AccountUuid:     params.AccountUuid,
-		DataActionId:    dataAction.ID,
 		DataActionRunId: dataActionRun.ID,
 	}).Error
 	if err != nil {
@@ -239,11 +238,13 @@ func (r transactionRepo) NewExportFileCSVTransaction(ctx context.Context, params
 	}
 
 	dataAction := model.DataAction{
+		TargetTable: model.TargetTable_DataTable,
 		ActionType:  model.ActionType_ExportDataToCSV,
 		Status:      model.DataActionStatus_Pending,
 		RunCount:    1,
 		DagId:       dagId,
 		AccountUuid: params.AccountUuid,
+		ObjectId:    dataTable.ID,
 	}
 	err = tx.WithContext(ctx).Table("data_action").Create(&dataAction).Error
 	if err != nil {
@@ -252,11 +253,10 @@ func (r transactionRepo) NewExportFileCSVTransaction(ctx context.Context, params
 	}
 
 	fileExportRecord := model.FileExportRecord{
-		DataTableId:  params.TableId,
-		Format:       model.FileType_CSV,
-		AccountUuid:  params.AccountUuid,
-		DataActionId: dataAction.ID,
-		S3Key:        params.S3Key,
+		DataTableId: params.TableId,
+		Format:      model.FileType_CSV,
+		AccountUuid: params.AccountUuid,
+		S3Key:       params.S3Key,
 	}
 	err = tx.WithContext(ctx).Table("file_export_record").Create(&fileExportRecord).Error
 	if err != nil {

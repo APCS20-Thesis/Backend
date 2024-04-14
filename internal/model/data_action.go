@@ -14,6 +14,13 @@ const (
 	ActionType_ExportDataToCSV    ActionType = "EXPORT_DATA_TO_CSV"
 )
 
+type DataActionTargetTable string
+
+const (
+	TargetTable_SourceTableMap DataActionTargetTable = "source_table_map"
+	TargetTable_DataTable      DataActionTargetTable = "data_table"
+)
+
 type DataActionStatus string
 
 const (
@@ -22,17 +29,18 @@ const (
 )
 
 type DataAction struct {
-	ID               int64 `gorm:"primaryKey"`
-	ActionType       ActionType
-	Payload          pqtype.NullRawMessage
-	Status           DataActionStatus
-	RunCount         int64
-	Schedule         string
-	DagId            string
-	SourceTableMapId int64
-	AccountUuid      uuid.UUID
-	CreatedAt        time.Time `gorm:"autoCreateTime"`
-	UpdatedAt        time.Time `gorm:"autoUpdateTime"`
+	ID          int64 `gorm:"primaryKey"`
+	ActionType  ActionType
+	Payload     pqtype.NullRawMessage
+	Status      DataActionStatus
+	RunCount    int64
+	Schedule    string
+	DagId       string
+	TargetTable DataActionTargetTable
+	ObjectId    int64
+	AccountUuid uuid.UUID
+	CreatedAt   time.Time `gorm:"autoCreateTime"`
+	UpdatedAt   time.Time `gorm:"autoUpdateTime"`
 }
 
 func (DataAction) TableName() string {
