@@ -17,7 +17,6 @@ type FileExportRecord struct {
 	DataTableId     int64
 	Format          FileType
 	AccountUuid     uuid.UUID
-	DataActionId    int64
 	DataActionRunId int64
 	Status          string
 	DownloadUrl     string

@@ -27,21 +27,25 @@ func NewDataActionRepository(db *gorm.DB) DataActionRepository {
 }
 
 type CreateDataActionParams struct {
+	TargetTable model.DataActionTargetTable
 	ActionType  model.ActionType
 	Schedule    string
 	AccountUuid uuid.UUID
 	DagId       string
 	Status      model.DataActionStatus
+	ObjectId    int64
 }
 
 func (r *dataActionRepo) CreateDataAction(ctx context.Context, params *CreateDataActionParams) (*model.DataAction, error) {
 	dataAction := &model.DataAction{
+		TargetTable: params.TargetTable,
 		ActionType:  params.ActionType,
 		Schedule:    params.Schedule,
 		AccountUuid: params.AccountUuid,
 		DagId:       params.DagId,
 		RunCount:    0,
 		Status:      params.Status,
+		ObjectId:    params.ObjectId,
 	}
 
 	createErr := r.WithContext(ctx).Table(r.TableName).Create(&dataAction).Error
