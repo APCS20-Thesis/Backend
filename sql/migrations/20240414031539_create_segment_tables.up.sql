@@ -1,5 +1,5 @@
 ALTER TABLE data_action RENAME COLUMN source_table_map_id TO object_id;
-ALTER TABLE data_action ADD COLUMN object_type varchar(255);
+ALTER TABLE data_action ADD COLUMN target_table varchar(255);
 
 CREATE TABLE IF NOT EXISTS master_segment (
     id bigserial not null constraint master_segment_pk primary key,
