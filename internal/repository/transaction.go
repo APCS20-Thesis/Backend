@@ -10,6 +10,8 @@ import (
 	"github.com/APCS20-Thesis/Backend/utils"
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 	"strconv"
 )
@@ -350,12 +352,23 @@ func (r transactionRepo) CreateMasterSegmentTransaction(ctx context.Context, par
 }
 
 func (r transactionRepo) TriggerAirflowCreateMasterSegment(ctx context.Context, tx *gorm.DB, masterSegmentId int64, params *CreateMasterSegmentTransactionParams, airflowAdapter airflow.AirflowAdapter) error {
+	var mainTable model.DataTable
+	err := r.WithContext(ctx).Table(model.DataTable{}.TableName()).Where("id = ? AND account_uuid = ?", params.BuildConfiguration.MainTableId, params.AccountUuid).First(&mainTable).Error
+	if err != nil {
+		if err != gorm.ErrRecordNotFound {
+			return status.Error(codes.PermissionDenied, "user not have access to main table")
+		}
+		return err
+	}
 
 	var behaviorTables []airflow.CreateMasterSegmentConfig_BehaviorTable
 	for _, table := range params.BehaviorTables {
 		var behaviorTable model.DataTable
-		err := r.DB.Table("data_table").Where("id = ?", table.TableId).First(&behaviorTable).Error
+		err := r.DB.Table(model.DataTable{}.TableName()).Where("id = ? AND account_uuid = ?", table.TableId, params.AccountUuid).First(&behaviorTable).Error
 		if err != nil {
+			if err != gorm.ErrRecordNotFound {
+				return status.Error(codes.PermissionDenied, "user not have access to one behavior table")
+			}
 			return err
 		}
 		var columns []airflow.CreateMasterSegmentConfig_TableColumns
@@ -381,8 +394,11 @@ func (r transactionRepo) TriggerAirflowCreateMasterSegment(ctx context.Context, 
 	var attributeTables []airflow.CreateMasterSegmentConfig_AttributeTable
 	for _, table := range params.BuildConfiguration.AttributeTables {
 		var attributeTable model.DataTable
-		err = r.DB.Table("data_table").Where("id = ?", table.TableId).First(&attributeTable).Error
+		err = r.DB.Table("data_table").Where("id = ? AND account_uuid = ?", table.TableId, params.AccountUuid).First(&attributeTable).Error
 		if err != nil {
+			if err != gorm.ErrRecordNotFound {
+				return status.Error(codes.PermissionDenied, "user not have access to attribute table")
+			}
 			return err
 		}
 		var columns []airflow.CreateMasterSegmentConfig_TableColumns
@@ -422,6 +438,7 @@ func (r transactionRepo) TriggerAirflowCreateMasterSegment(ctx context.Context, 
 			DagId:           dagId,
 			AccountUuid:     params.AccountUuid.String(),
 			MasterSegmentId: masterSegmentId,
+			MainTableName:   mainTable.Name,
 			MainAttributes:  string(jsonMainAttributes),
 			AttributeTables: string(jsonAttributeTables),
 			BehaviorTables:  string(jsonBehaviorTables),

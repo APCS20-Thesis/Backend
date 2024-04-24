@@ -484,13 +484,13 @@ message ImportCsvFromS3Request {
   // mapping option
   repeated MappingOptionItem mapping_options = 3;
   // connection id
-  int64 connection_id = 4 [(validate.rules).int64.gt = -1];
+  int64 connection_id = 4 [(validate.rules).int64.gt = 0];
   // key s3
   string key = 5;
   // configuration
   ImportCsvConfigurations configurations = 6;
   // table_id
-  int64 table_id = 7 [(validate.rules).int64.gt = -1];
+  int64 table_id = 7 [(validate.rules).int64.gt = 0];
   // new_table_name
   string new_table_name = 8;
   // name
@@ -515,15 +515,15 @@ message ImportCsvFromS3Response {
 // CreateMasterSegmentRequest
 message CreateMasterSegmentRequest {
   // name - Name of master segment
-  string name = 1;
+  string name = 1 [(validate.rules).string.min_len = 1];
   // description - Description of master segment
   string description = 2;
   // audience_table_name - Name of audience table to save in database. Default should be audience
-  string audience_table_name = 3;
+  string audience_table_name = 3 [(validate.rules).string.min_len = 1];
   // main_table_id - Id of main table to create audience
-  int64 main_table_id = 4;
+  int64 main_table_id = 4 [(validate.rules).int64.gt = 0];
   // selected_columns - List of selected column names and their corresponding new name in audience table. If empty, then select all columns and use default name.
-  repeated  TransferredCsolumn selected_columns = 5;
+  repeated TransferredColumn selected_columns = 5;
   // attribute_tables - List of attribute tables
   repeated AttributeTable attribute_tables = 6;
   // behavior_tables - List of behavior tables
@@ -531,26 +531,26 @@ message CreateMasterSegmentRequest {
 
   message AttributeTable {
     // table_id - Raw table id
-    int64 table_id = 1;
+    int64 table_id = 1 [(validate.rules).int64.gt = 0];
     // foreign_key - Key in attribute table
-    string foreign_key = 2;
+    string foreign_key = 2 [(validate.rules).string.min_len = 1];
     // join_key - Key in main table
-    string join_key = 3;
+    string join_key = 3 [(validate.rules).string.min_len = 1];
     // selected_columns - List of selected column names and their corresponding new name in audience table. If empty, then select all columns and use default name.
-    repeated TransferredColumn selected_columns = 4;
+    repeated TransferredColumn selected_columns = 4 [(validate.rules).repeated.min_items = 1];
   }
 
   message BehaviorTable {
     // name - Name of behavior table
-    string name = 1;
+    string name = 1 [(validate.rules).string.min_len = 1];
     // table_id - Raw table id
-    int64 table_id = 2;
+    int64 table_id = 2 [(validate.rules).int64.gt = 0];
     // foreign_key - Key in behavior table
-    string foreign_key = 3;
+    string foreign_key = 3 [(validate.rules).string.min_len = 1];
     // join_key - Key in main table
-    string join_key = 4;
+    string join_key = 4 [(validate.rules).string.min_len = 1];
     // selected_columns - List of selected column names and their corresponding new name in behavior table. If empty, then select all columns and use default name.
-    repeated TransferredColumn selected_columns = 5;
+    repeated TransferredColumn selected_columns = 5 [(validate.rules).repeated.min_items = 1];
   }
 }
 

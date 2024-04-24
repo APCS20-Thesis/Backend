@@ -3,7 +3,6 @@ package airflow
 import (
 	"context"
 	"github.com/APCS20-Thesis/Backend/utils"
-	"strings"
 )
 
 type (
@@ -14,6 +13,7 @@ type (
 		DagId           string `json:"dag_id"`
 		AccountUuid     string `json:"account_uuid"`
 		MasterSegmentId int64  `json:"master_segment_id"`
+		MainTableName   string `json:"main_table_name"`
 		MainAttributes  string `json:"main_attributes"`
 		AttributeTables string `json:"attribute_tables"`
 		BehaviorTables  string `json:"behavior_tables"`
@@ -39,13 +39,12 @@ type (
 
 func (c *airflow) TriggerGenerateDagCreateMasterSegment(ctx context.Context, request *TriggerGenerateDagCreateMasterSegmentRequest) error {
 	response := &TriggerNewDagRunResponse{}
-	endpoint := strings.Replace(Endpoint_TRIGGER_GENERATE_DAG_CREATE_MASTER_SEGMENT, "dag_id", request.Config.DagId, 1)
 
 	err := c.client.SendHttpRequestWithBasicAuth(ctx, utils.BasicAuth{
 		Username: c.username,
 		Password: c.password,
 	}, utils.Request{
-		Endpoint: endpoint,
+		Endpoint: Endpoint_TRIGGER_GENERATE_DAG_CREATE_MASTER_SEGMENT,
 		Method:   utils.Method_POST,
 		Body:     request,
 		Headers:  map[string]string{utils.Header_CONTENT_TYPE: "application/json"},
