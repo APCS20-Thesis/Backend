@@ -2,19 +2,31 @@ package repository
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"github.com/APCS20-Thesis/Backend/api"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/airflow"
 	"github.com/APCS20-Thesis/Backend/internal/model"
+	"github.com/APCS20-Thesis/Backend/utils"
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 	"strconv"
+)
+
+const (
+	tableMasterSegment = "master_segment"
+	tableSegmentTable  = "segment"
+	tableAudienceTable = "audience_table"
+	tableBehaviorTable = "behavior_table"
 )
 
 type TransactionRepository interface {
 	ImportCsvTransaction(ctx context.Context, params *ImportCsvTransactionParams, airflowAdapter airflow.AirflowAdapter) error
 	ExportDataToCSVTransaction(ctx context.Context, params *ExportDataToCSVTransactionParams, airflowAdapter airflow.AirflowAdapter) error
+	CreateMasterSegmentTransaction(ctx context.Context, params *CreateMasterSegmentTransactionParams, airflowAdapter airflow.AirflowAdapter) error
 }
 
 type transactionRepo struct {
@@ -265,4 +277,193 @@ func (r transactionRepo) NewExportFileCSVTransaction(ctx context.Context, params
 	}
 
 	return tx.Commit().Error
+}
+
+type CreateMasterSegmentTransactionParams struct {
+	MasterSegmentName  string
+	Description        string
+	AccountUuid        uuid.UUID
+	AudienceName       string
+	BuildConfiguration AudienceBuildConfiguration
+	BehaviorTables     []*CreateBehaviorTableParams
+}
+
+func (r transactionRepo) CreateMasterSegmentTransaction(ctx context.Context, params *CreateMasterSegmentTransactionParams, airflowAdapter airflow.AirflowAdapter) error {
+	// prepare audience table
+	buildConfiguration, err := json.Marshal(params.BuildConfiguration)
+	if err != nil {
+		return err
+	}
+
+	err = r.Transaction(func(tx *gorm.DB) error {
+		// Create master segment
+		var masterSegment = model.MasterSegment{
+			Description: params.Description,
+			Name:        params.MasterSegmentName,
+			AccountUuid: params.AccountUuid,
+			Status:      model.MasterSegmentStatus_DRAFT,
+		}
+		txErr := tx.WithContext(ctx).Table(tableMasterSegment).Create(&masterSegment).Error
+		if txErr != nil {
+			return txErr
+		}
+
+		// Create audience table
+		txErr = tx.WithContext(ctx).Table(tableAudienceTable).Create(&model.AudienceTable{
+			MasterSegmentId:    masterSegment.ID,
+			BuildConfiguration: pqtype.NullRawMessage{RawMessage: buildConfiguration, Valid: buildConfiguration != nil},
+			Name:               params.AudienceName,
+		}).Error
+		if txErr != nil {
+			return txErr
+		}
+
+		// Create behavior tables
+		var (
+			modelBehaviorTables []*model.BehaviorTable
+		)
+		for _, table := range params.BehaviorTables {
+			modelBehaviorTables = append(modelBehaviorTables, &model.BehaviorTable{
+				MasterSegmentId: masterSegment.ID,
+				DataTableId:     table.TableId,
+				ForeignKey:      table.ForeignKey,
+				JoinKey:         table.JoinKey,
+				Name:            table.Name,
+			})
+		}
+		txErr = tx.WithContext(ctx).Table(tableBehaviorTable).Create(modelBehaviorTables).Error
+		if txErr != nil {
+			return txErr
+		}
+
+		// Airflow triggers generating dag create segment
+		txErr = r.TriggerAirflowCreateMasterSegment(ctx, tx, masterSegment.ID, params, airflowAdapter)
+		if txErr != nil {
+			return txErr
+		}
+
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r transactionRepo) TriggerAirflowCreateMasterSegment(ctx context.Context, tx *gorm.DB, masterSegmentId int64, params *CreateMasterSegmentTransactionParams, airflowAdapter airflow.AirflowAdapter) error {
+	var mainTable model.DataTable
+	err := r.WithContext(ctx).Table(model.DataTable{}.TableName()).Where("id = ? AND account_uuid = ?", params.BuildConfiguration.MainTableId, params.AccountUuid).First(&mainTable).Error
+	if err != nil {
+		if err != gorm.ErrRecordNotFound {
+			return status.Error(codes.PermissionDenied, "user not have access to main table")
+		}
+		return err
+	}
+
+	var behaviorTables []airflow.CreateMasterSegmentConfig_BehaviorTable
+	for _, table := range params.BehaviorTables {
+		var behaviorTable model.DataTable
+		err := r.DB.Table(model.DataTable{}.TableName()).Where("id = ? AND account_uuid = ?", table.TableId, params.AccountUuid).First(&behaviorTable).Error
+		if err != nil {
+			if err != gorm.ErrRecordNotFound {
+				return status.Error(codes.PermissionDenied, "user not have access to one behavior table")
+			}
+			return err
+		}
+		var columns []airflow.CreateMasterSegmentConfig_TableColumns
+		for _, column := range table.SelectedColumns {
+			columns = append(columns, airflow.CreateMasterSegmentConfig_TableColumns{
+				TableColumnName:    column.TableColumnName,
+				AudienceColumnName: column.NewTableColumnName,
+			})
+		}
+		behaviorTables = append(behaviorTables, airflow.CreateMasterSegmentConfig_BehaviorTable{
+			TableName:         behaviorTable.Name,
+			BehaviorTableName: table.Name,
+			JoinKey:           table.JoinKey,
+			ForeignKey:        table.ForeignKey,
+			Columns:           columns,
+		})
+	}
+	jsonBehaviorTables, err := json.Marshal(behaviorTables)
+	if err != nil {
+		return err
+	}
+
+	var attributeTables []airflow.CreateMasterSegmentConfig_AttributeTable
+	for _, table := range params.BuildConfiguration.AttributeTables {
+		var attributeTable model.DataTable
+		err = r.DB.Table("data_table").Where("id = ? AND account_uuid = ?", table.TableId, params.AccountUuid).First(&attributeTable).Error
+		if err != nil {
+			if err != gorm.ErrRecordNotFound {
+				return status.Error(codes.PermissionDenied, "user not have access to attribute table")
+			}
+			return err
+		}
+		var columns []airflow.CreateMasterSegmentConfig_TableColumns
+		for _, column := range table.SelectedColumns {
+			columns = append(columns, airflow.CreateMasterSegmentConfig_TableColumns{
+				TableColumnName:    column.TableColumnName,
+				AudienceColumnName: column.NewTableColumnName,
+			})
+		}
+		attributeTables = append(attributeTables, airflow.CreateMasterSegmentConfig_AttributeTable{
+			TableName:  attributeTable.Name,
+			JoinKey:    table.JoinKey,
+			ForeignKey: table.ForeignKey,
+			Columns:    columns,
+		})
+	}
+	jsonAttributeTables, err := json.Marshal(attributeTables)
+	if err != nil {
+		return err
+	}
+
+	var mainAttributes []airflow.CreateMasterSegmentConfig_TableColumns
+	for _, each := range params.BuildConfiguration.SelectedColumns {
+		mainAttributes = append(mainAttributes, airflow.CreateMasterSegmentConfig_TableColumns{
+			TableColumnName:    each.TableColumnName,
+			AudienceColumnName: each.NewTableColumnName,
+		})
+	}
+	jsonMainAttributes, err := json.Marshal(mainAttributes)
+	if err != nil {
+		return err
+	}
+
+	dagId := utils.GenerateDagIdForCreateMasterSegment(params.AccountUuid.String(), masterSegmentId)
+	request := airflow.TriggerGenerateDagCreateMasterSegmentRequest{
+		Config: airflow.CreateMasterSegmentConfig{
+			DagId:           dagId,
+			AccountUuid:     params.AccountUuid.String(),
+			MasterSegmentId: masterSegmentId,
+			MainTableName:   mainTable.Name,
+			MainAttributes:  string(jsonMainAttributes),
+			AttributeTables: string(jsonAttributeTables),
+			BehaviorTables:  string(jsonBehaviorTables),
+		},
+	}
+	err = airflowAdapter.TriggerGenerateDagCreateMasterSegment(ctx, &request)
+	if err != nil {
+		return err
+	}
+
+	payload, err := json.Marshal(request)
+	if err != nil {
+		return err
+	}
+
+	tx.WithContext(ctx).Table("data_action").Create(&model.DataAction{
+		ActionType:  model.ActionType_CreateMasterSegment,
+		Payload:     pqtype.NullRawMessage{RawMessage: payload, Valid: payload != nil},
+		Status:      model.DataActionStatus_Pending,
+		RunCount:    1,
+		DagId:       dagId,
+		TargetTable: tableMasterSegment,
+		ObjectId:    masterSegmentId,
+		AccountUuid: params.AccountUuid,
+	})
+
+	return nil
 }

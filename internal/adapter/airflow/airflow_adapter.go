@@ -9,12 +9,13 @@ import (
 )
 
 const (
-	Endpoint_TRIGGER_NEW_DAG_RUN             string = "/api/v1/dags/dag_id/dagRuns"
-	Endpoint_LIST_DAGS                       string = "/api/v1/dags"
-	Endpoint_UPDATE_DAG                      string = "/api/v1/dags/dag_id"
-	Endpoint_GET_DAG_RUN                     string = "/api/v1/dags/dag_id/dagRuns/dag_run_id"
-	Endpoint_TRIGGER_GENERATE_DAG_IMPORT_CSV string = "/api/v1/dags/generate_import_csv/dagRuns"
-	Endpoint_TRIGGER_GENERATE_DAG_EXPORT_CSV string = "/api/v1/dags/generate_export_csv/dagRuns"
+	Endpoint_TRIGGER_NEW_DAG_RUN                        string = "/api/v1/dags/dag_id/dagRuns"
+	Endpoint_LIST_DAGS                                  string = "/api/v1/dags"
+	Endpoint_UPDATE_DAG                                 string = "/api/v1/dags/dag_id"
+	Endpoint_GET_DAG_RUN                                string = "/api/v1/dags/dag_id/dagRuns/dag_run_id"
+	Endpoint_TRIGGER_GENERATE_DAG_IMPORT_CSV            string = "/api/v1/dags/generate_import_csv/dagRuns"
+	Endpoint_TRIGGER_GENERATE_DAG_EXPORT_CSV            string = "/api/v1/dags/generate_export_csv/dagRuns"
+	Endpoint_TRIGGER_GENERATE_DAG_CREATE_MASTER_SEGMENT string = "/api/v1/dags/generate_create_master_segment/dagRuns"
 
 	WriteMode_Append    DeltaWriteMode = "append"
 	WriteMode_Overwrite DeltaWriteMode = "overwrite"
@@ -24,6 +25,8 @@ type AirflowAdapter interface {
 	TriggerGenerateDagImportCsv(ctx context.Context, request *TriggerGenerateDagImportCsvRequest) (*TriggerNewDagRunResponse, error)
 	TriggerGenerateDagExportFile(ctx context.Context, request *TriggerGenerateDagExportFileRequest) (*TriggerNewDagRunResponse, error)
 	TriggerNewDagRun(ctx context.Context, dagId string, request *TriggerNewDagRunRequest) (*TriggerNewDagRunResponse, error)
+	TriggerGenerateDagCreateMasterSegment(ctx context.Context, request *TriggerGenerateDagCreateMasterSegmentRequest) error
+
 	ListDags(ctx context.Context, request *ListDagsParams) (*ListDagsResponse, error)
 	UpdateDag(ctx context.Context, dagId string, request *UpdateDagRequest) (*UpdateDagResponse, error)
 	GetDagRun(ctx context.Context, dagId string, dagRunId string) (*GetDagRunResponse, error)

@@ -14,6 +14,7 @@ type Repository struct {
 	TransactionRepository
 	FileExportRecordRepository
 	SourceTableMapRepository
+	SegmentRepository
 }
 
 func NewRepository(db *gorm.DB) *Repository {
@@ -27,5 +28,6 @@ func NewRepository(db *gorm.DB) *Repository {
 		TransactionRepository:      NewTransactionRepository(db),
 		FileExportRecordRepository: NewFileExportRecordRepository(db),
 		SourceTableMapRepository:   NewSourceTableMapRepository(db),
+		SegmentRepository:          NewSegmentRepository(db),
 	}
 }
