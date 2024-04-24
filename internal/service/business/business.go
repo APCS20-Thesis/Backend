@@ -7,6 +7,7 @@ import (
 	"github.com/APCS20-Thesis/Backend/internal/service/business/auth"
 	data_source "github.com/APCS20-Thesis/Backend/internal/service/business/data-source"
 	data_table "github.com/APCS20-Thesis/Backend/internal/service/business/data-table"
+	"github.com/APCS20-Thesis/Backend/internal/service/business/segment"
 	"github.com/go-logr/logr"
 	"gorm.io/gorm"
 )
@@ -17,6 +18,7 @@ type Business struct {
 	AuthBusiness       auth.Business
 	DataSourceBusiness data_source.Business
 	DataTableBusiness  data_table.Business
+	SegmentBusiness    segment.Business
 }
 
 func NewBusiness(
@@ -32,5 +34,6 @@ func NewBusiness(
 		AuthBusiness:       auth.NewAuthBusiness(log, repo),
 		DataSourceBusiness: data_source.NewDataSourceBusiness(log, repo, airflowAdapter, config),
 		DataTableBusiness:  data_table.NewDataTableBusiness(log, repo, airflowAdapter),
+		SegmentBusiness:    segment.NewSegmentBusiness(log, repo, airflowAdapter),
 	}
 }

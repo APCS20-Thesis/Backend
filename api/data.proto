@@ -45,3 +45,10 @@ message ImportCsvConfigurations {
   // multi_line
   bool multi_line = 3;
 }
+
+message TransferredColumn {
+  // table_column
+  string table_column_name = 1;
+  // new_table_column
+  string new_table_column_name = 2;
+}

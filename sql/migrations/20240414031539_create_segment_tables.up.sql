@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS behavior_table (
     data_table_id bigint not null,
     name varchar(255) not null,
     schema jsonb,
-    audience_foreign_key varchar(255),
+    foreign_key varchar(255),
     join_key varchar(255),
     created_at timestamptz default (NOW () AT TIME ZONE 'UTC') not null,
     updated_at timestamptz default (NOW () AT TIME ZONE 'UTC') not null

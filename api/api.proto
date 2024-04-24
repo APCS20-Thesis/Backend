@@ -102,10 +102,16 @@ service CDPService {
     };
   }
 
-
   rpc GetListFileExportRecords(GetListFileExportRecordsRequest) returns (GetListFileExportRecordsResponse) {
     option (google.api.http) = {
       get: "/api/v1/data-table/{id}/export"
+    };
+  }
+
+  rpc CreateMasterSegment(CreateMasterSegmentRequest) returns (CreateMasterSegmentResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/master-segment"
+      body: "*"
     };
   }
 }
@@ -502,7 +508,55 @@ message ImportCsvFromS3Response {
   string message = 2;
 }
 
-//
-message GetListDagsRequest {
+//*****************************************//
+// Segmentation
+//*****************************************//
 
+// CreateMasterSegmentRequest
+message CreateMasterSegmentRequest {
+  // name - Name of master segment
+  string name = 1;
+  // description - Description of master segment
+  string description = 2;
+  // audience_table_name - Name of audience table to save in database. Default should be audience
+  string audience_table_name = 3;
+  // main_table_id - Id of main table to create audience
+  int64 main_table_id = 4;
+  // selected_columns - List of selected column names and their corresponding new name in audience table. If empty, then select all columns and use default name.
+  repeated  TransferredCsolumn selected_columns = 5;
+  // attribute_tables - List of attribute tables
+  repeated AttributeTable attribute_tables = 6;
+  // behavior_tables - List of behavior tables
+  repeated BehaviorTable behavior_tables = 7;
+
+  message AttributeTable {
+    // table_id - Raw table id
+    int64 table_id = 1;
+    // foreign_key - Key in attribute table
+    string foreign_key = 2;
+    // join_key - Key in main table
+    string join_key = 3;
+    // selected_columns - List of selected column names and their corresponding new name in audience table. If empty, then select all columns and use default name.
+    repeated TransferredColumn selected_columns = 4;
+  }
+
+  message BehaviorTable {
+    // name - Name of behavior table
+    string name = 1;
+    // table_id - Raw table id
+    int64 table_id = 2;
+    // foreign_key - Key in behavior table
+    string foreign_key = 3;
+    // join_key - Key in main table
+    string join_key = 4;
+    // selected_columns - List of selected column names and their corresponding new name in behavior table. If empty, then select all columns and use default name.
+    repeated TransferredColumn selected_columns = 5;
+  }
+}
+
+message CreateMasterSegmentResponse {
+  // code
+  int32 code = 1;
+  //message
+  string message = 2;
 }

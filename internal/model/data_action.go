@@ -9,9 +9,10 @@ import (
 type ActionType string
 
 const (
-	ActionType_ImportDataFromFile ActionType = "IMPORT_DATA_FROM_FILE"
-	ActionType_ImportDataFromS3   ActionType = "IMPORT_DATA_FROM_S3"
-	ActionType_ExportDataToCSV    ActionType = "EXPORT_DATA_TO_CSV"
+	ActionType_ImportDataFromFile  ActionType = "IMPORT_DATA_FROM_FILE"
+	ActionType_ImportDataFromS3    ActionType = "IMPORT_DATA_FROM_S3"
+	ActionType_ExportDataToCSV     ActionType = "EXPORT_DATA_TO_CSV"
+	ActionType_CreateMasterSegment ActionType = "CREATE_MS_SEGMENT"
 )
 
 type DataActionTargetTable string
