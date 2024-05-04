@@ -53,6 +53,7 @@ type ImportCsvTransactionParams struct {
 	WriteMode                airflow.DeltaWriteMode
 	CsvReadOptions           *api.ImportCsvConfigurations
 	Headers                  []string
+	Schema                   pqtype.NullRawMessage
 }
 
 func (r transactionRepo) ImportCsvTransaction(ctx context.Context, params *ImportCsvTransactionParams, airflowAdapter airflow.AirflowAdapter) error {
@@ -87,10 +88,7 @@ func (r transactionRepo) ImportCsvTransaction(ctx context.Context, params *Impor
 			Name:        params.NewTableName,
 			Status:      model.DataTableStatus_DRAFT,
 			AccountUuid: params.AccountUuid,
-			Schema: pqtype.NullRawMessage{
-				RawMessage: []byte("{}"),
-				Valid:      false,
-			},
+			Schema:      params.Schema,
 		}
 		err = tx.WithContext(ctx).Table("data_table").Create(&dataTable).Error
 		if err != nil {
@@ -109,21 +107,21 @@ func (r transactionRepo) ImportCsvTransaction(ctx context.Context, params *Impor
 		tx.Rollback()
 		return err
 	}
-	_, err = airflowAdapter.TriggerGenerateDagImportCsv(ctx, &airflow.TriggerGenerateDagImportCsvRequest{
-		Config: airflow.ImportCsvRequestConfig{
-			DagId:            params.DagId,
-			AccountUuid:      params.AccountUuid.String(),
-			DeltaTableName:   dataTable.Name,
-			S3Configurations: params.S3Configurations,
-			WriteMode:        params.WriteMode,
-			CsvReadOptions:   params.CsvReadOptions,
-			Headers:          params.Headers,
-		},
-	})
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
+	//_, err = airflowAdapter.TriggerGenerateDagImportCsv(ctx, &airflow.TriggerGenerateDagImportCsvRequest{
+	//	Config: airflow.ImportCsvRequestConfig{
+	//		DagId:            params.DagId,
+	//		AccountUuid:      params.AccountUuid.String(),
+	//		DeltaTableName:   dataTable.Name,
+	//		S3Configurations: params.S3Configurations,
+	//		WriteMode:        params.WriteMode,
+	//		CsvReadOptions:   params.CsvReadOptions,
+	//		Headers:          params.Headers,
+	//	},
+	//})
+	//if err != nil {
+	//	tx.Rollback()
+	//	return err
+	//}
 	dataAction := &model.DataAction{
 		TargetTable: model.TargetTable_SourceTableMap,
 		ActionType:  params.DataActionType,
@@ -444,10 +442,10 @@ func (r transactionRepo) TriggerAirflowCreateMasterSegment(ctx context.Context, 
 			BehaviorTables:  string(jsonBehaviorTables),
 		},
 	}
-	err = airflowAdapter.TriggerGenerateDagCreateMasterSegment(ctx, &request)
-	if err != nil {
-		return err
-	}
+	//err = airflowAdapter.TriggerGenerateDagCreateMasterSegment(ctx, &request)
+	//if err != nil {
+	//	return err
+	//}
 
 	payload, err := json.Marshal(request)
 	if err != nil {
