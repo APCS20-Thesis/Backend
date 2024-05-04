@@ -16,10 +16,10 @@ func (s *Service) CreateMasterSegment(ctx context.Context, request *api.CreateMa
 	}
 
 	// validate table names
-	tableNames := []string{request.AudienceTableName}
+	tableNames := []string{"audience"}
 	for _, behaviorTable := range request.BehaviorTables {
 		if slices.Contains(tableNames, behaviorTable.Name) {
-			return nil, status.Error(codes.InvalidArgument, "behavior table cannot have same name as audience table")
+			return nil, status.Error(codes.InvalidArgument, "behavior table cannot have name as audience or have same name as each other")
 		}
 		tableNames = append(tableNames, behaviorTable.Name)
 	}
