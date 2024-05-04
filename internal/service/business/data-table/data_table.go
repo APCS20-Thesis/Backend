@@ -73,19 +73,12 @@ func (b business) GetDataTable(ctx context.Context, request *api.GetDataTableReq
 			Info("Only owner can get data_table")
 		return nil, status.Error(codes.PermissionDenied, "Only owner can get data_table")
 	}
-	var schema []model.SchemaUnit
+	var schema []*api.GetDataTableResponse_Field
 	if dataTable.Schema.RawMessage != nil {
 		err = json.Unmarshal(dataTable.Schema.RawMessage, &schema)
 		if err != nil {
 			return nil, err
 		}
-	}
-	returnSchema := make([]*api.GetDataTableResponse_Field, 0, len(schema))
-	for _, unit := range schema {
-		returnSchema = append(returnSchema, &api.GetDataTableResponse_Field{
-			ColumnName: unit.ColumnName,
-			DataType:   unit.DataType,
-		})
 	}
 
 	return &api.GetDataTableResponse{
@@ -94,7 +87,7 @@ func (b business) GetDataTable(ctx context.Context, request *api.GetDataTableReq
 		Name:      dataTable.Name,
 		CreatedAt: dataTable.CreatedAt.String(),
 		UpdatedAt: dataTable.UpdatedAt.String(),
-		Schema:    returnSchema,
+		Schema:    schema,
 	}, nil
 }
 

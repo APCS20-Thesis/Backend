@@ -30,6 +30,6 @@ func (DataTable) TableName() string {
 }
 
 type SchemaUnit struct {
-	ColumnName string `json:"columnName"`
-	DataType   string `json:"dataType"`
+	ColumnName string `json:"column_name"`
+	DataType   string `json:"data_type"`
 }
