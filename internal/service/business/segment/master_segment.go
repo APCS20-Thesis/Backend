@@ -33,7 +33,7 @@ func (b business) CreateMasterSegment(ctx context.Context, request *api.CreateMa
 		MasterSegmentName: request.Name,
 		Description:       request.Description,
 		AccountUuid:       uuid.MustParse(accountUuid),
-		AudienceName:      request.AudienceTableName,
+		AudienceName:      "audience",
 		BuildConfiguration: repository.AudienceBuildConfiguration{
 			MainTableId:     request.MainTableId,
 			SelectedColumns: request.SelectedColumns,

@@ -518,16 +518,14 @@ message CreateMasterSegmentRequest {
   string name = 1 [(validate.rules).string.min_len = 1];
   // description - Description of master segment
   string description = 2;
-  // audience_table_name - Name of audience table to save in database. Default should be audience
-  string audience_table_name = 3 [(validate.rules).string.min_len = 1];
   // main_table_id - Id of main table to create audience
-  int64 main_table_id = 4 [(validate.rules).int64.gt = 0];
+  int64 main_table_id = 3 [(validate.rules).int64.gt = 0];
   // selected_columns - List of selected column names and their corresponding new name in audience table. If empty, then select all columns and use default name.
-  repeated TransferredColumn selected_columns = 5;
+  repeated TransferredColumn selected_columns = 4;
   // attribute_tables - List of attribute tables
-  repeated AttributeTable attribute_tables = 6;
+  repeated AttributeTable attribute_tables = 5;
   // behavior_tables - List of behavior tables
-  repeated BehaviorTable behavior_tables = 7;
+  repeated BehaviorTable behavior_tables = 6;
 
   message AttributeTable {
     // table_id - Raw table id
