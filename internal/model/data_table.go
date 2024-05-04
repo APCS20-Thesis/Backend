@@ -28,3 +28,8 @@ type DataTable struct {
 func (DataTable) TableName() string {
 	return "data_table"
 }
+
+type SchemaUnit struct {
+	ColumnName string `json:"columnName"`
+	DataType   string `json:"dataType"`
+}

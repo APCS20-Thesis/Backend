@@ -49,6 +49,18 @@ func (b business) ProcessImportCsv(ctx context.Context, request *api.ImportCsvRe
 		return err
 	}
 
+	schema := make([]model.SchemaUnit, 0, len(request.MappingOptions))
+	for _, mappingOption := range request.MappingOptions {
+		schema = append(schema, model.SchemaUnit{
+			ColumnName: mappingOption.DestinationFieldName,
+		})
+	}
+	rawSchema, err := json.Marshal(schema)
+	if err != nil {
+		b.log.WithName("ProcessImportCsv").Error(err, "Cannot parse schema to JSON")
+		return err
+	}
+
 	err = b.repository.TransactionRepository.ImportCsvTransaction(ctx, &repository.ImportCsvTransactionParams{
 		DataSourceName:           request.Name,
 		DatSourceDescription:     request.Description,
@@ -65,6 +77,7 @@ func (b business) ProcessImportCsv(ctx context.Context, request *api.ImportCsvRe
 		WriteMode:                airflow.DeltaWriteMode(request.WriteMode),
 		CsvReadOptions:           request.Configurations,
 		Headers:                  headers,
+		Schema:                   pqtype.NullRawMessage{RawMessage: rawSchema, Valid: true},
 	}, b.airflowAdapter)
 
 	if err != nil {
@@ -127,6 +140,18 @@ func (b business) ProcessImportCsvFromS3(ctx context.Context, request *api.Impor
 		return err
 	}
 
+	schema := make([]model.SchemaUnit, 0, len(request.MappingOptions))
+	for _, mappingOption := range request.MappingOptions {
+		schema = append(schema, model.SchemaUnit{
+			ColumnName: mappingOption.DestinationFieldName,
+		})
+	}
+	rawSchema, err := json.Marshal(schema)
+	if err != nil {
+		b.log.WithName("ProcessImportCsv").Error(err, "Cannot parse schema to JSON")
+		return err
+	}
+
 	err = b.repository.TransactionRepository.ImportCsvTransaction(ctx, &repository.ImportCsvTransactionParams{
 		DataSourceName:           request.Name,
 		DatSourceDescription:     request.Description,
@@ -143,6 +168,7 @@ func (b business) ProcessImportCsvFromS3(ctx context.Context, request *api.Impor
 		WriteMode:                airflow.DeltaWriteMode(request.WriteMode),
 		CsvReadOptions:           request.Configurations,
 		Headers:                  headers,
+		Schema:                   pqtype.NullRawMessage{RawMessage: rawSchema, Valid: true},
 	}, b.airflowAdapter)
 
 	if err != nil {
