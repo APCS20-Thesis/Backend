@@ -52,3 +52,23 @@ message TransferredColumn {
   // new_table_column
   string new_table_column_name = 2;
 }
+
+
+//*****************************************//
+// Segmentation
+//*****************************************//
+
+message MasterSegment {
+  // id
+  int64 id = 1;
+  // name
+  string name = 2;
+  // description
+  string description = 3;
+  // status
+  string status = 4;
+  // created_at
+  string created_at = 5;
+  // updated_at
+  string updated_at = 6;
+}

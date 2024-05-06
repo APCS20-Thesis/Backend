@@ -34,3 +34,41 @@ func (s *Service) CreateMasterSegment(ctx context.Context, request *api.CreateMa
 		Message: "Success",
 	}, nil
 }
+
+func (s *Service) CreateSegment(ctx context.Context, request *api.CreateSegmentRequest) (*api.CreateSegmentResponse, error) {
+	accountUuid, err := GetAccountUuidFromCtx(ctx)
+	if err != nil {
+		s.log.WithName("CreateSegment").Error(err, "cannot get account uuid from context")
+		return nil, err
+	}
+
+	err = s.business.SegmentBusiness.CreateSegment(ctx, request, accountUuid)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.CreateSegmentResponse{
+		Code:    int32(codes.OK),
+		Message: "Success",
+	}, nil
+}
+
+func (s *Service) GetListMasterSegments(ctx context.Context, request *api.GetListMasterSegmentsRequest) (*api.GetListMasterSegmentsResponse, error) {
+	accountUuid, err := GetAccountUuidFromCtx(ctx)
+	if err != nil {
+		s.log.WithName("GetListMasterSegments").Error(err, "cannot get account uuid from context")
+		return nil, err
+	}
+
+	count, masterSegments, err := s.business.SegmentBusiness.ListMasterSegments(ctx, request, accountUuid)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.GetListMasterSegmentsResponse{
+		Code:    int32(codes.OK),
+		Message: "Success",
+		Count:   count,
+		Results: masterSegments,
+	}, nil
+}

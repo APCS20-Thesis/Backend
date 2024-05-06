@@ -48,3 +48,27 @@ func (b business) CreateMasterSegment(ctx context.Context, request *api.CreateMa
 
 	return nil
 }
+
+func (b business) ListMasterSegments(ctx context.Context, request *api.GetListMasterSegmentsRequest, accountUuid string) (int64, []*api.MasterSegment, error) {
+	modelMasterSegments, err := b.repository.SegmentRepository.ListMasterSegments(ctx, &repository.ListMasterSegmentsParams{
+		AccountUuid: uuid.MustParse(accountUuid),
+	})
+	if err != nil {
+		b.log.WithName("ListMasterSegments").Error(err, "cannot get list master segment")
+		return 0, nil, err
+	}
+
+	returnMasterSegments := make([]*api.MasterSegment, 0, len(modelMasterSegments))
+	for _, masterSegment := range modelMasterSegments {
+		returnMasterSegments = append(returnMasterSegments, &api.MasterSegment{
+			Id:          masterSegment.ID,
+			Name:        masterSegment.Name,
+			Description: masterSegment.Description,
+			Status:      string(masterSegment.Status),
+			CreatedAt:   masterSegment.CreatedAt.String(),
+			UpdatedAt:   masterSegment.UpdatedAt.String(),
+		})
+	}
+
+	return int64(len(returnMasterSegments)), returnMasterSegments, nil
+}

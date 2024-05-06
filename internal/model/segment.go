@@ -13,7 +13,6 @@ type Segment struct {
 	Description     string
 	Name            string
 	AccountUuid     uuid.UUID
-	Status          MasterSegmentStatus
 	CreatedAt       time.Time `gorm:"autoCreateTime"`
 	UpdatedAt       time.Time `gorm:"autoUpdateTime"`
 }

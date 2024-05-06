@@ -12,8 +12,10 @@ import (
 
 type SegmentRepository interface {
 	CreateMasterSegment(ctx context.Context, params *model.MasterSegment) error
+	ListMasterSegments(ctx context.Context, params *ListMasterSegmentsParams) ([]model.MasterSegment, error)
 	CreateAudienceTable(ctx context.Context, params *CreateAudienceTableParams) error
 	CreateBehaviorTable(ctx context.Context, params *CreateBehaviorTableParams) error
+	CreateSegment(ctx context.Context, params *CreateSegmentParams) error
 }
 
 type segmentRepo struct {
@@ -103,4 +105,43 @@ func (r *segmentRepo) CreateBehaviorTable(ctx context.Context, params *CreateBeh
 	}).Error
 
 	return err
+}
+
+type CreateSegmentParams struct {
+	Name            string
+	Description     string
+	MasterSegmentId int64
+	Condition       pqtype.NullRawMessage
+	AccountUuid     uuid.UUID
+}
+
+func (r *segmentRepo) CreateSegment(ctx context.Context, params *CreateSegmentParams) error {
+	err := r.WithContext(ctx).Table(r.SegmentTableName).Create(&model.Segment{
+		MasterSegmentId: params.MasterSegmentId,
+		Condition:       params.Condition,
+		Description:     params.Description,
+		Name:            params.Name,
+		AccountUuid:     params.AccountUuid,
+	}).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+type ListMasterSegmentsParams struct {
+	AccountUuid uuid.UUID
+}
+
+func (r *segmentRepo) ListMasterSegments(ctx context.Context, params *ListMasterSegmentsParams) ([]model.MasterSegment, error) {
+	var masterSegments []model.MasterSegment
+	err := r.WithContext(ctx).Table(r.MasterSegmentTableName).
+		Where("account_uuid = ?", params.AccountUuid).
+		Find(&masterSegments).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return masterSegments, nil
 }
