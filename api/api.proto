@@ -591,7 +591,7 @@ message GetListMasterSegmentsResponse {
 }
 
 message GetMasterSegmentDetailRequest {
-  int64 id = 1;
+  int64 id = 1 [(validate.rules).int64.gt = 0];
 }
 
 message GetMasterSegmentDetailResponse {
@@ -600,7 +600,7 @@ message GetMasterSegmentDetailResponse {
   //message
   string message = 2;
   // results
-  repeated MasterSegmentDetail data = 3;
+  MasterSegmentDetail data = 3;
 }
 
 message CreateSegmentRequest {

@@ -13,8 +13,14 @@ import (
 type SegmentRepository interface {
 	CreateMasterSegment(ctx context.Context, params *model.MasterSegment) error
 	ListMasterSegments(ctx context.Context, params *ListMasterSegmentsParams) ([]model.MasterSegment, error)
+	GetMasterSegment(ctx context.Context, masterSegmentId int64, accountUuid string) (model.MasterSegment, error)
+
 	CreateAudienceTable(ctx context.Context, params *CreateAudienceTableParams) error
+	GetAudienceTable(ctx context.Context, params GetAudienceTableParams) (model.AudienceTable, error)
+
 	CreateBehaviorTable(ctx context.Context, params *CreateBehaviorTableParams) error
+	ListBehaviorTables(ctx context.Context, params ListBehaviorTablesParams) ([]model.BehaviorTable, error)
+
 	CreateSegment(ctx context.Context, params *CreateSegmentParams) error
 }
 
@@ -144,4 +150,48 @@ func (r *segmentRepo) ListMasterSegments(ctx context.Context, params *ListMaster
 	}
 
 	return masterSegments, nil
+}
+
+type ListBehaviorTablesParams struct {
+	MasterSegmentId int64
+}
+
+func (r *segmentRepo) ListBehaviorTables(ctx context.Context, params ListBehaviorTablesParams) ([]model.BehaviorTable, error) {
+	var behaviorTables []model.BehaviorTable
+	err := r.WithContext(ctx).Table(r.BehaviorTableName).
+		Where("master_segment_id = ?", params.MasterSegmentId).
+		Find(&behaviorTables).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return behaviorTables, nil
+}
+
+type GetAudienceTableParams struct {
+	MasterSegmentId int64
+}
+
+func (r *segmentRepo) GetAudienceTable(ctx context.Context, params GetAudienceTableParams) (model.AudienceTable, error) {
+	var audienceTable model.AudienceTable
+	err := r.WithContext(ctx).Table(r.AudienceTableName).
+		Where("master_segment_id = ?", params.MasterSegmentId).
+		Find(&audienceTable).Error
+	if err != nil {
+		return model.AudienceTable{}, err
+	}
+
+	return audienceTable, nil
+}
+
+func (r *segmentRepo) GetMasterSegment(ctx context.Context, masterSegmentId int64, accountUuid string) (model.MasterSegment, error) {
+	var masterSegment model.MasterSegment
+	err := r.WithContext(ctx).Table(r.MasterSegmentTableName).
+		Where("account_uuid = ? AND id = ?", accountUuid, masterSegmentId).
+		First(&masterSegment).Error
+	if err != nil {
+		return model.MasterSegment{}, err
+	}
+
+	return masterSegment, nil
 }
