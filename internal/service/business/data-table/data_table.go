@@ -3,6 +3,7 @@ package data_table
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"github.com/APCS20-Thesis/Backend/api"
 	"github.com/APCS20-Thesis/Backend/internal/model"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
@@ -11,6 +12,7 @@ import (
 	"google.golang.org/genproto/googleapis/rpc/code"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"gorm.io/gorm"
 )
 
 func (b business) CreateDataTable(ctx context.Context, params *repository.CreateDataTableParams) (*model.DataTable, error) {
@@ -65,6 +67,9 @@ func (b business) GetDataTable(ctx context.Context, request *api.GetDataTableReq
 		b.log.WithName("GetDataTable").
 			WithValues("Context", ctx).
 			Error(err, "Cannot get data_table")
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, "Not exists data table")
+		}
 		return nil, err
 	}
 	if dataTable.AccountUuid != uuid.MustParse(accountUuid) {

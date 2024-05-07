@@ -114,6 +114,19 @@ service CDPService {
       body: "*"
     };
   }
+
+  rpc GetListMasterSegments(GetListMasterSegmentsRequest) returns (GetListMasterSegmentsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/master-segment"
+    };
+  }
+
+  rpc CreateSegment(CreateSegmentRequest) returns (CreateSegmentResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/segment"
+      body: "*"
+    };
+  }
 }
 
 // CheckHealthRequest
@@ -557,4 +570,47 @@ message CreateMasterSegmentResponse {
   int32 code = 1;
   //message
   string message = 2;
+}
+
+message CreateSegmentRequest {
+  // master_segment_id
+  int64 master_segment_id = 1 [(validate.rules).int64.gt = 0];
+  // name
+  string name = 2;
+  // description
+  string description = 3;
+  // condition
+  repeated GroupCondition condition = 4;
+
+  message Condition {
+    string column_name = 1;
+    string operator = 2;
+    string value = 4;
+    repeated GroupCondition condition = 5;
+  }
+
+  message GroupCondition {
+    string combinator = 1;
+    Condition condition = 2;
+  }
+}
+
+message CreateSegmentResponse {
+  // code
+  int32 code = 1;
+  //message
+  string message = 2;
+}
+
+message GetListMasterSegmentsRequest {}
+
+message GetListMasterSegmentsResponse {
+  // code
+  int32 code = 1;
+  //message
+  string message = 2;
+  // count
+  int64 count = 3;
+  // results
+  repeated MasterSegment results = 4;
 }

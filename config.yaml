@@ -11,7 +11,7 @@ LOG:
 MIGRATION_FOLDER: file://sql/migrations
 
 POSTGRESQL:
-  HOST: localhost
+  HOST: 127.0.0.1
   PORT: 5433
   USERNAME: cdp_service
   PASSWORD: postgres

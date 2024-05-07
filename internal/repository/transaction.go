@@ -329,9 +329,11 @@ func (r transactionRepo) CreateMasterSegmentTransaction(ctx context.Context, par
 				Name:            table.Name,
 			})
 		}
-		txErr = tx.WithContext(ctx).Table(tableBehaviorTable).Create(modelBehaviorTables).Error
-		if txErr != nil {
-			return txErr
+		if len(modelBehaviorTables) > 0 {
+			txErr = tx.WithContext(ctx).Table(tableBehaviorTable).Create(modelBehaviorTables).Error
+			if txErr != nil {
+				return txErr
+			}
 		}
 
 		// Airflow triggers generating dag create segment

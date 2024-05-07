@@ -52,9 +52,6 @@ func (r *dataTableRepo) GetDataTable(ctx context.Context, id int64) (*model.Data
 	var dataTable model.DataTable
 	err := r.WithContext(ctx).Table(r.TableName).Where("id = ?", id).First(&dataTable).Error
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
 		return nil, err
 	}
 
