@@ -121,10 +121,22 @@ service CDPService {
     };
   }
 
+  rpc GetMasterSegmentDetail(GetMasterSegmentDetailRequest) returns (GetMasterSegmentDetailResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/master-segment/{id}"
+    };
+  }
+
   rpc CreateSegment(CreateSegmentRequest) returns (CreateSegmentResponse) {
     option (google.api.http) = {
       post: "/api/v1/segment"
       body: "*"
+    };
+  }
+
+  rpc GetListSegments(GetListSegmentsRequest) returns (GetListSegmentsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/segment"
     };
   }
 }
@@ -331,14 +343,7 @@ message GetDataTableResponse {
   // updated_at
   string updated_at = 5;
   // schema
-  repeated Field schema = 6;
-
-  message Field {
-    // column
-    string column_name = 1;
-    // data_type
-    string data_type = 2;
-  }
+  repeated SchemaColumn schema = 6;
 }
 
 
@@ -572,6 +577,32 @@ message CreateMasterSegmentResponse {
   string message = 2;
 }
 
+message GetListMasterSegmentsRequest {}
+
+message GetListMasterSegmentsResponse {
+  // code
+  int32 code = 1;
+  //message
+  string message = 2;
+  // count
+  int64 count = 3;
+  // results
+  repeated MasterSegment results = 4;
+}
+
+message GetMasterSegmentDetailRequest {
+  int64 id = 1;
+}
+
+message GetMasterSegmentDetailResponse {
+  // code
+  int32 code = 1;
+  //message
+  string message = 2;
+  // results
+  repeated MasterSegmentDetail data = 3;
+}
+
 message CreateSegmentRequest {
   // master_segment_id
   int64 master_segment_id = 1 [(validate.rules).int64.gt = 0];
@@ -602,9 +633,9 @@ message CreateSegmentResponse {
   string message = 2;
 }
 
-message GetListMasterSegmentsRequest {}
+message GetListSegmentsRequest {}
 
-message GetListMasterSegmentsResponse {
+message GetListSegmentsResponse {
   // code
   int32 code = 1;
   //message
@@ -612,5 +643,6 @@ message GetListMasterSegmentsResponse {
   // count
   int64 count = 3;
   // results
-  repeated MasterSegment results = 4;
+  repeated Segment results = 4;
 }
+

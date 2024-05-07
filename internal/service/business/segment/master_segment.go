@@ -61,12 +61,11 @@ func (b business) ListMasterSegments(ctx context.Context, request *api.GetListMa
 	returnMasterSegments := make([]*api.MasterSegment, 0, len(modelMasterSegments))
 	for _, masterSegment := range modelMasterSegments {
 		returnMasterSegments = append(returnMasterSegments, &api.MasterSegment{
-			Id:          masterSegment.ID,
-			Name:        masterSegment.Name,
-			Description: masterSegment.Description,
-			Status:      string(masterSegment.Status),
-			CreatedAt:   masterSegment.CreatedAt.String(),
-			UpdatedAt:   masterSegment.UpdatedAt.String(),
+			Id:        masterSegment.ID,
+			Name:      masterSegment.Name,
+			Status:    string(masterSegment.Status),
+			CreatedAt: masterSegment.CreatedAt.String(),
+			UpdatedAt: masterSegment.UpdatedAt.String(),
 		})
 	}
 
