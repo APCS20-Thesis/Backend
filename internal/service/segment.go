@@ -91,3 +91,22 @@ func (s *Service) GetMasterSegmentDetail(ctx context.Context, request *api.GetMa
 		Data:    masterSegment,
 	}, nil
 }
+
+func (s *Service) GetListSegments(ctx context.Context, request *api.GetListSegmentsRequest) (*api.GetListSegmentsResponse, error) {
+	accountUuid, err := GetAccountUuidFromCtx(ctx)
+	if err != nil {
+		s.log.WithName("GetListMasterSegments").Error(err, "cannot get account uuid from context")
+		return nil, err
+	}
+
+	segments, err := s.business.SegmentBusiness.ListSegments(ctx, request, accountUuid)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.GetListSegmentsResponse{
+		Code:    int32(codes.OK),
+		Message: "Success",
+		Results: segments,
+	}, nil
+}

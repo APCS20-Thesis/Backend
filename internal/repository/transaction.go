@@ -293,6 +293,27 @@ func (r transactionRepo) CreateMasterSegmentTransaction(ctx context.Context, par
 		return err
 	}
 
+	// generate schema (TODO: remove after sync schema from db)
+	var schema []*api.SchemaColumn
+	for _, column := range params.BuildConfiguration.SelectedColumns {
+		schema = append(schema, &api.SchemaColumn{
+			ColumnName: column.NewTableColumnName,
+			DataType:   "",
+		})
+	}
+	for _, table := range params.BuildConfiguration.AttributeTables {
+		for _, column := range table.SelectedColumns {
+			schema = append(schema, &api.SchemaColumn{
+				ColumnName: column.NewTableColumnName,
+				DataType:   "",
+			})
+		}
+	}
+	jsonSchema, err := json.Marshal(schema)
+	if err != nil {
+		return err
+	}
+
 	err = r.Transaction(func(tx *gorm.DB) error {
 		// Create master segment
 		var masterSegment = model.MasterSegment{
@@ -311,6 +332,7 @@ func (r transactionRepo) CreateMasterSegmentTransaction(ctx context.Context, par
 			MasterSegmentId:    masterSegment.ID,
 			BuildConfiguration: pqtype.NullRawMessage{RawMessage: buildConfiguration, Valid: buildConfiguration != nil},
 			Name:               params.AudienceName,
+			Schema:             pqtype.NullRawMessage{RawMessage: jsonSchema, Valid: jsonSchema != nil},
 		}).Error
 		if txErr != nil {
 			return txErr

@@ -98,6 +98,12 @@ func (b business) GetMasterSegmentDetail(ctx context.Context, request *api.GetMa
 		b.log.WithName("GetMasterSegmentDetail").Error(err, "cannot parse build configuration info")
 		return nil, err
 	}
+	var audienceSchema []*api.SchemaColumn
+	err = json.Unmarshal(audienceTable.Schema.RawMessage, &audienceSchema)
+	if err != nil {
+		b.log.WithName("GetMasterSegmentDetail").Error(err, "cannot parse audience schema")
+		return nil, err
+	}
 
 	// Get behavior tables
 	behaviorTables, err := b.repository.ListBehaviorTables(ctx, repository.ListBehaviorTablesParams{
@@ -137,6 +143,7 @@ func (b business) GetMasterSegmentDetail(ctx context.Context, request *api.GetMa
 		AudienceTableId:  audienceTable.ID,
 		MainRawTableId:   buildConfiguration.MainTableId,
 		MainRawTableName: mapDataTableIdToName[buildConfiguration.MainTableId],
+		AudienceSchema:   audienceSchema,
 		AttributeTables: utils.Map(buildConfiguration.AttributeTables, func(table *repository.AttributeTableInfo) *api.MasterSegmentDetail_AttributeTable {
 			return &api.MasterSegmentDetail_AttributeTable{
 				RawTableId:      table.TableId,

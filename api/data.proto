@@ -101,6 +101,8 @@ message MasterSegmentDetail {
   repeated AttributeTable attribute_tables = 10;
   // behavior_tables
   repeated  BehaviorTable behavior_tables = 11;
+  // audience schema
+  repeated SchemaColumn audience_schema = 12;
 
   message AttributeTable {
     // table_id - Raw table id

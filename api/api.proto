@@ -611,18 +611,16 @@ message CreateSegmentRequest {
   // description
   string description = 3;
   // condition
-  repeated GroupCondition condition = 4;
+  Rule condition = 4;
+  // sql_condition
+  string sql_condition = 5;
 
-  message Condition {
-    string column_name = 1;
+  message Rule {
+    string field = 1;
     string operator = 2;
-    string value = 4;
-    repeated GroupCondition condition = 5;
-  }
-
-  message GroupCondition {
-    string combinator = 1;
-    Condition condition = 2;
+    string value = 3;
+    repeated Rule rules = 4;
+    string combinator = 5;
   }
 }
 

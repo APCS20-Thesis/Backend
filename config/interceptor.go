@@ -23,5 +23,6 @@ func AccessibleRoles() map[string][]string {
 		rootServicePath + "GetListMasterSegments":    {"admin", "user"},
 		rootServicePath + "GetMasterSegmentDetail":   {"admin", "user"},
 		rootServicePath + "CreateSegment":            {"admin", "user"},
+		rootServicePath + "GetListSegments":          {"admin", "user"},
 	}
 }

@@ -10,6 +10,7 @@ type Segment struct {
 	ID              int64 `gorm:"primaryKey"`
 	MasterSegmentId int64
 	Condition       pqtype.NullRawMessage
+	SqlCondition    string
 	Description     string
 	Name            string
 	AccountUuid     uuid.UUID

@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS segment (
     name varchar(255) not null,
     description varchar(255),
     condition jsonb,
+    sql_condition varchar(255),
     account_uuid uuid not null,
     created_at timestamptz default (NOW () AT TIME ZONE 'UTC') not null,
     updated_at timestamptz default (NOW () AT TIME ZONE 'UTC') not null
