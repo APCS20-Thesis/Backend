@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"github.com/APCS20-Thesis/Backend/api"
+	"github.com/APCS20-Thesis/Backend/utils"
 	"golang.org/x/exp/slices"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -86,9 +87,38 @@ func (s *Service) GetMasterSegmentDetail(ctx context.Context, request *api.GetMa
 	}
 
 	return &api.GetMasterSegmentDetailResponse{
-		Code:    int32(codes.OK),
-		Message: "Success",
-		Data:    masterSegment,
+		Code:             int32(codes.OK),
+		Message:          "Success",
+		Id:               masterSegment.Id,
+		Name:             masterSegment.Name,
+		Description:      masterSegment.Description,
+		Status:           masterSegment.Status,
+		CreatedAt:        masterSegment.CreatedAt,
+		UpdatedAt:        masterSegment.UpdatedAt,
+		AudienceTableId:  masterSegment.AudienceTableId,
+		MainRawTableId:   masterSegment.MainRawTableId,
+		MainRawTableName: masterSegment.MainRawTableName,
+		AttributeTables: utils.Map(masterSegment.AttributeTables, func(table *api.MasterSegmentDetail_AttributeTable) *api.GetMasterSegmentDetailResponse_AttributeTable {
+			return &api.GetMasterSegmentDetailResponse_AttributeTable{
+				RawTableId:      table.RawTableId,
+				RawTableName:    table.RawTableName,
+				ForeignKey:      table.ForeignKey,
+				JoinKey:         table.JoinKey,
+				SelectedColumns: table.SelectedColumns,
+			}
+		}),
+		BehaviorTables: utils.Map(masterSegment.BehaviorTables, func(table *api.MasterSegmentDetail_BehaviorTable) *api.GetMasterSegmentDetailResponse_BehaviorTable {
+			return &api.GetMasterSegmentDetailResponse_BehaviorTable{
+				Id:           table.Id,
+				Name:         table.Name,
+				RawTableId:   table.RawTableId,
+				RawTableName: table.RawTableName,
+				ForeignKey:   table.ForeignKey,
+				JoinKey:      table.JoinKey,
+				Schema:       table.Schema,
+			}
+		}),
+		AudienceSchema: masterSegment.AudienceSchema,
 	}, nil
 }
 

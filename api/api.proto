@@ -599,8 +599,59 @@ message GetMasterSegmentDetailResponse {
   int32 code = 1;
   //message
   string message = 2;
-  // results
-  MasterSegmentDetail data = 3;
+  // id
+  int64 id = 3;
+  // name
+  string name = 4;
+  // description
+  string description = 5;
+  // status
+  string status = 6;
+  // created_at
+  string created_at = 7;
+  // updated_at
+  string updated_at = 8;
+  // audience_table_id
+  int64 audience_table_id = 9;
+  // main_raw_table_id
+  int64 main_raw_table_id = 10;
+  // main_table_name
+  string main_raw_table_name = 11;
+  // attribute_tables
+  repeated AttributeTable attribute_tables = 12;
+  // behavior_tables
+  repeated  BehaviorTable behavior_tables = 13;
+  // audience schema
+  repeated SchemaColumn audience_schema = 14;
+
+  message AttributeTable {
+    // table_id - Raw table id
+    int64 raw_table_id = 1;
+    // table_name
+    string raw_table_name = 2;
+    // foreign_key - Key in attribute table
+    string foreign_key = 3;
+    // join_key - Key in main table
+    string join_key = 4;
+    // selected_columns - List of selected column names and their corresponding new name in audience table. If empty, then select all columns and use default name.
+    repeated TransferredColumn selected_columns = 5;
+  }
+
+  message BehaviorTable {
+    int64 id = 1;
+    // name - Name of behavior table
+    string name = 2;
+    // raw_table_id - Raw table id
+    int64 raw_table_id = 3;
+    // raw_table_name
+    string raw_table_name = 4;
+    // foreign_key - Key in behavior table
+    string foreign_key = 5;
+    // join_key - Key in main table
+    string join_key = 6;
+    // schema
+    repeated SchemaColumn schema = 7;
+  }
 }
 
 message CreateSegmentRequest {
