@@ -82,8 +82,9 @@ func (r *dataTableRepo) UpdateDataTable(ctx context.Context, params *UpdateDataT
 }
 
 type ListDataTablesFilters struct {
-	Name        string
-	AccountUuid uuid.UUID
+	Name         string
+	AccountUuid  string
+	DataTableIds []int64
 }
 
 func (r *dataTableRepo) ListDataTables(ctx context.Context, filter *ListDataTablesFilters) ([]model.DataTable, error) {
@@ -92,8 +93,11 @@ func (r *dataTableRepo) ListDataTables(ctx context.Context, filter *ListDataTabl
 	if filter.Name != "" {
 		query = query.Where("name LIKE ?", "%"+filter.Name+"%")
 	}
-	if filter.AccountUuid.String() != "" {
+	if filter.AccountUuid != "" {
 		query = query.Where("account_uuid = ?", filter.AccountUuid)
+	}
+	if len(filter.DataTableIds) > 0 {
+		query = query.Where("id IN ?", filter.DataTableIds)
 	}
 	err := query.Find(&dataTables).Error
 	if err != nil {

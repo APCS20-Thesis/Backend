@@ -53,7 +53,7 @@ func NewJob(config *config.Config, logger logr.Logger, db *gorm.DB) (Job, error)
 }
 
 func (j *job) StartCron() {
-	j.cronJob.Start()
+	//j.cronJob.Start()
 }
 
 func (j *job) RegisterCronJobs() {

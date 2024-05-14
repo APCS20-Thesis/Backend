@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"github.com/APCS20-Thesis/Backend/api"
+	"github.com/APCS20-Thesis/Backend/utils"
 	"golang.org/x/exp/slices"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -70,5 +71,72 @@ func (s *Service) GetListMasterSegments(ctx context.Context, request *api.GetLis
 		Message: "Success",
 		Count:   count,
 		Results: masterSegments,
+	}, nil
+}
+
+func (s *Service) GetMasterSegmentDetail(ctx context.Context, request *api.GetMasterSegmentDetailRequest) (*api.GetMasterSegmentDetailResponse, error) {
+	accountUuid, err := GetAccountUuidFromCtx(ctx)
+	if err != nil {
+		s.log.WithName("GetListMasterSegments").Error(err, "cannot get account uuid from context")
+		return nil, err
+	}
+
+	masterSegment, err := s.business.SegmentBusiness.GetMasterSegmentDetail(ctx, request, accountUuid)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.GetMasterSegmentDetailResponse{
+		Code:             int32(codes.OK),
+		Message:          "Success",
+		Id:               masterSegment.Id,
+		Name:             masterSegment.Name,
+		Description:      masterSegment.Description,
+		Status:           masterSegment.Status,
+		CreatedAt:        masterSegment.CreatedAt,
+		UpdatedAt:        masterSegment.UpdatedAt,
+		AudienceTableId:  masterSegment.AudienceTableId,
+		MainRawTableId:   masterSegment.MainRawTableId,
+		MainRawTableName: masterSegment.MainRawTableName,
+		AttributeTables: utils.Map(masterSegment.AttributeTables, func(table *api.MasterSegmentDetail_AttributeTable) *api.GetMasterSegmentDetailResponse_AttributeTable {
+			return &api.GetMasterSegmentDetailResponse_AttributeTable{
+				RawTableId:      table.RawTableId,
+				RawTableName:    table.RawTableName,
+				ForeignKey:      table.ForeignKey,
+				JoinKey:         table.JoinKey,
+				SelectedColumns: table.SelectedColumns,
+			}
+		}),
+		BehaviorTables: utils.Map(masterSegment.BehaviorTables, func(table *api.MasterSegmentDetail_BehaviorTable) *api.GetMasterSegmentDetailResponse_BehaviorTable {
+			return &api.GetMasterSegmentDetailResponse_BehaviorTable{
+				Id:           table.Id,
+				Name:         table.Name,
+				RawTableId:   table.RawTableId,
+				RawTableName: table.RawTableName,
+				ForeignKey:   table.ForeignKey,
+				JoinKey:      table.JoinKey,
+				Schema:       table.Schema,
+			}
+		}),
+		AudienceSchema: masterSegment.AudienceSchema,
+	}, nil
+}
+
+func (s *Service) GetListSegments(ctx context.Context, request *api.GetListSegmentsRequest) (*api.GetListSegmentsResponse, error) {
+	accountUuid, err := GetAccountUuidFromCtx(ctx)
+	if err != nil {
+		s.log.WithName("GetListMasterSegments").Error(err, "cannot get account uuid from context")
+		return nil, err
+	}
+
+	segments, err := s.business.SegmentBusiness.ListSegments(ctx, request, accountUuid)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.GetListSegmentsResponse{
+		Code:    int32(codes.OK),
+		Message: "Success",
+		Results: segments,
 	}, nil
 }

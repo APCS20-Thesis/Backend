@@ -41,7 +41,7 @@ func (b business) GetListDataTables(ctx context.Context, request *api.GetListDat
 	dataTables, err := b.repository.DataTableRepository.ListDataTables(ctx,
 		&repository.ListDataTablesFilters{
 			Name:        request.Name,
-			AccountUuid: uuid.MustParse(accountUuid),
+			AccountUuid: accountUuid,
 		})
 	if err != nil {
 		b.log.WithName("GetListDataTables").
@@ -78,7 +78,7 @@ func (b business) GetDataTable(ctx context.Context, request *api.GetDataTableReq
 			Info("Only owner can get data_table")
 		return nil, status.Error(codes.PermissionDenied, "Only owner can get data_table")
 	}
-	var schema []*api.GetDataTableResponse_Field
+	var schema []*api.SchemaColumn
 	if dataTable.Schema.RawMessage != nil {
 		err = json.Unmarshal(dataTable.Schema.RawMessage, &schema)
 		if err != nil {

@@ -21,6 +21,8 @@ func AccessibleRoles() map[string][]string {
 		rootServicePath + "ImportCsvFromS3":          {"admin", "user"},
 		rootServicePath + "CreateMasterSegment":      {"admin", "user"},
 		rootServicePath + "GetListMasterSegments":    {"admin", "user"},
+		rootServicePath + "GetMasterSegmentDetail":   {"admin", "user"},
 		rootServicePath + "CreateSegment":            {"admin", "user"},
+		rootServicePath + "GetListSegments":          {"admin", "user"},
 	}
 }

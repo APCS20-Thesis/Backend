@@ -40,7 +40,9 @@ type CDPServiceClient interface {
 	GetListFileExportRecords(ctx context.Context, in *GetListFileExportRecordsRequest, opts ...grpc.CallOption) (*GetListFileExportRecordsResponse, error)
 	CreateMasterSegment(ctx context.Context, in *CreateMasterSegmentRequest, opts ...grpc.CallOption) (*CreateMasterSegmentResponse, error)
 	GetListMasterSegments(ctx context.Context, in *GetListMasterSegmentsRequest, opts ...grpc.CallOption) (*GetListMasterSegmentsResponse, error)
+	GetMasterSegmentDetail(ctx context.Context, in *GetMasterSegmentDetailRequest, opts ...grpc.CallOption) (*GetMasterSegmentDetailResponse, error)
 	CreateSegment(ctx context.Context, in *CreateSegmentRequest, opts ...grpc.CallOption) (*CreateSegmentResponse, error)
+	GetListSegments(ctx context.Context, in *GetListSegmentsRequest, opts ...grpc.CallOption) (*GetListSegmentsResponse, error)
 }
 
 type cDPServiceClient struct {
@@ -213,9 +215,27 @@ func (c *cDPServiceClient) GetListMasterSegments(ctx context.Context, in *GetLis
 	return out, nil
 }
 
+func (c *cDPServiceClient) GetMasterSegmentDetail(ctx context.Context, in *GetMasterSegmentDetailRequest, opts ...grpc.CallOption) (*GetMasterSegmentDetailResponse, error) {
+	out := new(GetMasterSegmentDetailResponse)
+	err := c.cc.Invoke(ctx, "/api.CDPService/GetMasterSegmentDetail", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *cDPServiceClient) CreateSegment(ctx context.Context, in *CreateSegmentRequest, opts ...grpc.CallOption) (*CreateSegmentResponse, error) {
 	out := new(CreateSegmentResponse)
 	err := c.cc.Invoke(ctx, "/api.CDPService/CreateSegment", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cDPServiceClient) GetListSegments(ctx context.Context, in *GetListSegmentsRequest, opts ...grpc.CallOption) (*GetListSegmentsResponse, error) {
+	out := new(GetListSegmentsResponse)
+	err := c.cc.Invoke(ctx, "/api.CDPService/GetListSegments", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -244,7 +264,9 @@ type CDPServiceServer interface {
 	GetListFileExportRecords(context.Context, *GetListFileExportRecordsRequest) (*GetListFileExportRecordsResponse, error)
 	CreateMasterSegment(context.Context, *CreateMasterSegmentRequest) (*CreateMasterSegmentResponse, error)
 	GetListMasterSegments(context.Context, *GetListMasterSegmentsRequest) (*GetListMasterSegmentsResponse, error)
+	GetMasterSegmentDetail(context.Context, *GetMasterSegmentDetailRequest) (*GetMasterSegmentDetailResponse, error)
 	CreateSegment(context.Context, *CreateSegmentRequest) (*CreateSegmentResponse, error)
+	GetListSegments(context.Context, *GetListSegmentsRequest) (*GetListSegmentsResponse, error)
 	mustEmbedUnimplementedCDPServiceServer()
 }
 
@@ -306,8 +328,14 @@ func (UnimplementedCDPServiceServer) CreateMasterSegment(context.Context, *Creat
 func (UnimplementedCDPServiceServer) GetListMasterSegments(context.Context, *GetListMasterSegmentsRequest) (*GetListMasterSegmentsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetListMasterSegments not implemented")
 }
+func (UnimplementedCDPServiceServer) GetMasterSegmentDetail(context.Context, *GetMasterSegmentDetailRequest) (*GetMasterSegmentDetailResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMasterSegmentDetail not implemented")
+}
 func (UnimplementedCDPServiceServer) CreateSegment(context.Context, *CreateSegmentRequest) (*CreateSegmentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateSegment not implemented")
+}
+func (UnimplementedCDPServiceServer) GetListSegments(context.Context, *GetListSegmentsRequest) (*GetListSegmentsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetListSegments not implemented")
 }
 func (UnimplementedCDPServiceServer) mustEmbedUnimplementedCDPServiceServer() {}
 
@@ -646,6 +674,24 @@ func _CDPService_GetListMasterSegments_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CDPService_GetMasterSegmentDetail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMasterSegmentDetailRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDPServiceServer).GetMasterSegmentDetail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.CDPService/GetMasterSegmentDetail",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDPServiceServer).GetMasterSegmentDetail(ctx, req.(*GetMasterSegmentDetailRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _CDPService_CreateSegment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateSegmentRequest)
 	if err := dec(in); err != nil {
@@ -660,6 +706,24 @@ func _CDPService_CreateSegment_Handler(srv interface{}, ctx context.Context, dec
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CDPServiceServer).CreateSegment(ctx, req.(*CreateSegmentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CDPService_GetListSegments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetListSegmentsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDPServiceServer).GetListSegments(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.CDPService/GetListSegments",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDPServiceServer).GetListSegments(ctx, req.(*GetListSegmentsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -744,8 +808,16 @@ var CDPService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _CDPService_GetListMasterSegments_Handler,
 		},
 		{
+			MethodName: "GetMasterSegmentDetail",
+			Handler:    _CDPService_GetMasterSegmentDetail_Handler,
+		},
+		{
 			MethodName: "CreateSegment",
 			Handler:    _CDPService_CreateSegment_Handler,
+		},
+		{
+			MethodName: "GetListSegments",
+			Handler:    _CDPService_GetListSegments_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

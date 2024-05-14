@@ -773,6 +773,60 @@ func local_request_CDPService_GetListMasterSegments_0(ctx context.Context, marsh
 
 }
 
+func request_CDPService_GetMasterSegmentDetail_0(ctx context.Context, marshaler runtime.Marshaler, client CDPServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetMasterSegmentDetailRequest
+	var metadata runtime.ServerMetadata
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
+	}
+
+	protoReq.Id, err = runtime.Int64(val)
+
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
+	}
+
+	msg, err := client.GetMasterSegmentDetail(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_CDPService_GetMasterSegmentDetail_0(ctx context.Context, marshaler runtime.Marshaler, server CDPServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetMasterSegmentDetailRequest
+	var metadata runtime.ServerMetadata
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
+	}
+
+	protoReq.Id, err = runtime.Int64(val)
+
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
+	}
+
+	msg, err := server.GetMasterSegmentDetail(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
 func request_CDPService_CreateSegment_0(ctx context.Context, marshaler runtime.Marshaler, client CDPServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq CreateSegmentRequest
 	var metadata runtime.ServerMetadata
@@ -803,6 +857,24 @@ func local_request_CDPService_CreateSegment_0(ctx context.Context, marshaler run
 	}
 
 	msg, err := server.CreateSegment(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+func request_CDPService_GetListSegments_0(ctx context.Context, marshaler runtime.Marshaler, client CDPServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetListSegmentsRequest
+	var metadata runtime.ServerMetadata
+
+	msg, err := client.GetListSegments(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_CDPService_GetListSegments_0(ctx context.Context, marshaler runtime.Marshaler, server CDPServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetListSegmentsRequest
+	var metadata runtime.ServerMetadata
+
+	msg, err := server.GetListSegments(ctx, &protoReq)
 	return msg, metadata, err
 
 }
@@ -1173,6 +1245,26 @@ func RegisterCDPServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 
 	})
 
+	mux.Handle("GET", pattern_CDPService_GetMasterSegmentDetail_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_CDPService_GetMasterSegmentDetail_0(rctx, inboundMarshaler, server, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_CDPService_GetMasterSegmentDetail_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
 	mux.Handle("POST", pattern_CDPService_CreateSegment_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -1190,6 +1282,26 @@ func RegisterCDPServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_CDPService_CreateSegment_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("GET", pattern_CDPService_GetListSegments_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_CDPService_GetListSegments_0(rctx, inboundMarshaler, server, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_CDPService_GetListSegments_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -1594,6 +1706,26 @@ func RegisterCDPServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 
 	})
 
+	mux.Handle("GET", pattern_CDPService_GetMasterSegmentDetail_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_CDPService_GetMasterSegmentDetail_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_CDPService_GetMasterSegmentDetail_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
 	mux.Handle("POST", pattern_CDPService_CreateSegment_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -1611,6 +1743,26 @@ func RegisterCDPServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_CDPService_CreateSegment_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("GET", pattern_CDPService_GetListSegments_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_CDPService_GetListSegments_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_CDPService_GetListSegments_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -1654,7 +1806,11 @@ var (
 
 	pattern_CDPService_GetListMasterSegments_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "master-segment"}, "", runtime.AssumeColonVerbOpt(true)))
 
+	pattern_CDPService_GetMasterSegmentDetail_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"api", "v1", "master-segment", "id"}, "", runtime.AssumeColonVerbOpt(true)))
+
 	pattern_CDPService_CreateSegment_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "segment"}, "", runtime.AssumeColonVerbOpt(true)))
+
+	pattern_CDPService_GetListSegments_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "segment"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (
@@ -1694,5 +1850,9 @@ var (
 
 	forward_CDPService_GetListMasterSegments_0 = runtime.ForwardResponseMessage
 
+	forward_CDPService_GetMasterSegmentDetail_0 = runtime.ForwardResponseMessage
+
 	forward_CDPService_CreateSegment_0 = runtime.ForwardResponseMessage
+
+	forward_CDPService_GetListSegments_0 = runtime.ForwardResponseMessage
 )

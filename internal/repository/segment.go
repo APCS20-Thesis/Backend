@@ -8,14 +8,22 @@ import (
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 	"gorm.io/gorm"
+	"time"
 )
 
 type SegmentRepository interface {
 	CreateMasterSegment(ctx context.Context, params *model.MasterSegment) error
 	ListMasterSegments(ctx context.Context, params *ListMasterSegmentsParams) ([]model.MasterSegment, error)
+	GetMasterSegment(ctx context.Context, masterSegmentId int64, accountUuid string) (model.MasterSegment, error)
+
 	CreateAudienceTable(ctx context.Context, params *CreateAudienceTableParams) error
+	GetAudienceTable(ctx context.Context, params GetAudienceTableParams) (model.AudienceTable, error)
+
 	CreateBehaviorTable(ctx context.Context, params *CreateBehaviorTableParams) error
+	ListBehaviorTables(ctx context.Context, params ListBehaviorTablesParams) ([]model.BehaviorTable, error)
+
 	CreateSegment(ctx context.Context, params *CreateSegmentParams) error
+	ListSegments(ctx context.Context, accountUuid string) ([]SegmentListItem, error)
 }
 
 type segmentRepo struct {
@@ -112,6 +120,7 @@ type CreateSegmentParams struct {
 	Description     string
 	MasterSegmentId int64
 	Condition       pqtype.NullRawMessage
+	SqlCondition    string
 	AccountUuid     uuid.UUID
 }
 
@@ -119,6 +128,7 @@ func (r *segmentRepo) CreateSegment(ctx context.Context, params *CreateSegmentPa
 	err := r.WithContext(ctx).Table(r.SegmentTableName).Create(&model.Segment{
 		MasterSegmentId: params.MasterSegmentId,
 		Condition:       params.Condition,
+		SqlCondition:    params.SqlCondition,
 		Description:     params.Description,
 		Name:            params.Name,
 		AccountUuid:     params.AccountUuid,
@@ -144,4 +154,76 @@ func (r *segmentRepo) ListMasterSegments(ctx context.Context, params *ListMaster
 	}
 
 	return masterSegments, nil
+}
+
+type ListBehaviorTablesParams struct {
+	MasterSegmentId int64
+}
+
+func (r *segmentRepo) ListBehaviorTables(ctx context.Context, params ListBehaviorTablesParams) ([]model.BehaviorTable, error) {
+	var behaviorTables []model.BehaviorTable
+	err := r.WithContext(ctx).Table(r.BehaviorTableName).
+		Where("master_segment_id = ?", params.MasterSegmentId).
+		Find(&behaviorTables).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return behaviorTables, nil
+}
+
+type GetAudienceTableParams struct {
+	MasterSegmentId int64
+}
+
+func (r *segmentRepo) GetAudienceTable(ctx context.Context, params GetAudienceTableParams) (model.AudienceTable, error) {
+	var audienceTable model.AudienceTable
+	err := r.WithContext(ctx).Table(r.AudienceTableName).
+		Where("master_segment_id = ?", params.MasterSegmentId).
+		Find(&audienceTable).Error
+	if err != nil {
+		return model.AudienceTable{}, err
+	}
+
+	return audienceTable, nil
+}
+
+func (r *segmentRepo) GetMasterSegment(ctx context.Context, masterSegmentId int64, accountUuid string) (model.MasterSegment, error) {
+	var masterSegment model.MasterSegment
+	err := r.WithContext(ctx).Table(r.MasterSegmentTableName).
+		Where("account_uuid = ? AND id = ?", accountUuid, masterSegmentId).
+		First(&masterSegment).Error
+	if err != nil {
+		return model.MasterSegment{}, err
+	}
+
+	return masterSegment, nil
+}
+
+type SegmentListItem struct {
+	ID                int64
+	Name              string
+	MasterSegmentId   int64
+	MasterSegmentName string
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+}
+
+func (r *segmentRepo) ListSegments(ctx context.Context, accountUuid string) ([]SegmentListItem, error) {
+	var segments []SegmentListItem
+	err := r.WithContext(ctx).Table(r.SegmentTableName).
+		Where("segment.account_uuid = ?", accountUuid).
+		Joins("LEFT JOIN master_segment ON segment.master_segment_id = master_segment.id").
+		Select("segment.id AS id," +
+			"segment.name AS name, " +
+			"segment.master_segment_id as master_segment_id, " +
+			"master_segment.name as master_segment_name, " +
+			"segment.created_at AS created_at, " +
+			"segment.updated_at AS updated_at").
+		Scan(&segments).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return segments, nil
 }
