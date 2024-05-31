@@ -9,9 +9,12 @@ import (
 type ConnectionType string
 
 const (
-	ConnectionType_S3    ConnectionType = "AWS-S3"
-	ConnectionType_MySQL ConnectionType = "MYSQL"
+	ConnectionType_S3      ConnectionType = "AWS-S3"
+	ConnectionType_MySQL   ConnectionType = "MYSQL"
+	ConnectionType_Gophish ConnectionType = "GOPHISH"
 )
+
+var ConnectionTypes = []ConnectionType{ConnectionType_S3, ConnectionType_MySQL, ConnectionType_Gophish}
 
 type Connection struct {
 	ID             int64 `gorm:"primaryKey"`
@@ -29,6 +32,12 @@ type (
 		SecretAccessKey string `json:"secret_access_key"`
 		BucketName      string `json:"bucket_name"`
 		Region          string `json:"region"`
+	}
+
+	GophishConfiguration struct {
+		Host   string `json:"host"`
+		Port   int    `json:"port"`
+		ApiKey string `json:"api_key"`
 	}
 )
 

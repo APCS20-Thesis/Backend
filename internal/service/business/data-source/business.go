@@ -19,7 +19,7 @@ type Business interface {
 	GetDataSource(ctx context.Context, request *api.GetDataSourceRequest, accountUuid string) (*api.GetDataSourceResponse, error)
 	GetListDataSources(ctx context.Context, request *api.GetListDataSourcesRequest, accountUuid string) ([]*api.GetListDataSourcesResponse_DataSource, error)
 
-	CreateConnection(ctx context.Context, params *repository.CreateConnectionParams) (*model.Connection, error)
+	CreateConnection(ctx context.Context, request *api.CreateConnectionRequest, accountUuid string) (*model.Connection, error)
 	UpdateConnection(ctx context.Context, params *repository.UpdateConnectionParams) error
 	GetConnection(ctx context.Context, request *api.GetConnectionRequest, accountUuid string) (*api.GetConnectionResponse, error)
 	GetListConnections(ctx context.Context, request *api.GetListConnectionsRequest, accountUuid string) ([]*api.GetListConnectionsResponse_Connection, error)

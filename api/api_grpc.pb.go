@@ -69,6 +69,7 @@ type CDPServiceClient interface {
 	GetMasterSegmentDetail(ctx context.Context, in *GetMasterSegmentDetailRequest, opts ...grpc.CallOption) (*GetMasterSegmentDetailResponse, error)
 	CreateSegment(ctx context.Context, in *CreateSegmentRequest, opts ...grpc.CallOption) (*CreateSegmentResponse, error)
 	GetListSegments(ctx context.Context, in *GetListSegmentsRequest, opts ...grpc.CallOption) (*GetListSegmentsResponse, error)
+	GetSegmentDetail(ctx context.Context, in *GetSegmentDetailRequest, opts ...grpc.CallOption) (*GetSegmentDetailResponse, error)
 }
 
 type cDPServiceClient struct {
@@ -277,6 +278,15 @@ func (c *cDPServiceClient) GetListSegments(ctx context.Context, in *GetListSegme
 	return out, nil
 }
 
+func (c *cDPServiceClient) GetSegmentDetail(ctx context.Context, in *GetSegmentDetailRequest, opts ...grpc.CallOption) (*GetSegmentDetailResponse, error) {
+	out := new(GetSegmentDetailResponse)
+	err := c.cc.Invoke(ctx, "/api.CDPService/GetSegmentDetail", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CDPServiceServer is the server API for CDPService service.
 // All implementations must embed UnimplementedCDPServiceServer
 // for forward compatibility
@@ -303,6 +313,7 @@ type CDPServiceServer interface {
 	GetMasterSegmentDetail(context.Context, *GetMasterSegmentDetailRequest) (*GetMasterSegmentDetailResponse, error)
 	CreateSegment(context.Context, *CreateSegmentRequest) (*CreateSegmentResponse, error)
 	GetListSegments(context.Context, *GetListSegmentsRequest) (*GetListSegmentsResponse, error)
+	GetSegmentDetail(context.Context, *GetSegmentDetailRequest) (*GetSegmentDetailResponse, error)
 	mustEmbedUnimplementedCDPServiceServer()
 }
 
@@ -375,6 +386,9 @@ func (UnimplementedCDPServiceServer) CreateSegment(context.Context, *CreateSegme
 }
 func (UnimplementedCDPServiceServer) GetListSegments(context.Context, *GetListSegmentsRequest) (*GetListSegmentsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetListSegments not implemented")
+}
+func (UnimplementedCDPServiceServer) GetSegmentDetail(context.Context, *GetSegmentDetailRequest) (*GetSegmentDetailResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSegmentDetail not implemented")
 }
 func (UnimplementedCDPServiceServer) mustEmbedUnimplementedCDPServiceServer() {}
 
@@ -785,6 +799,24 @@ func _CDPService_GetListSegments_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CDPService_GetSegmentDetail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSegmentDetailRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDPServiceServer).GetSegmentDetail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.CDPService/GetSegmentDetail",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDPServiceServer).GetSegmentDetail(ctx, req.(*GetSegmentDetailRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CDPService_ServiceDesc is the grpc.ServiceDesc for CDPService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -879,6 +911,10 @@ var CDPService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetListSegments",
 			Handler:    _CDPService_GetListSegments_Handler,
+		},
+		{
+			MethodName: "GetSegmentDetail",
+			Handler:    _CDPService_GetSegmentDetail_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

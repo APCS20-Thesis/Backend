@@ -14,6 +14,7 @@ type Business interface {
 
 	CreateSegment(ctx context.Context, request *api.CreateSegmentRequest, accountUuid string) error
 	ListSegments(ctx context.Context, request *api.GetListSegmentsRequest, accountUuid string) ([]*api.Segment, error)
+	GetSegmentDetail(ctx context.Context, request *api.GetSegmentDetailRequest, accountUuid string) (*api.GetSegmentDetailResponse, error)
 
 	GetMasterSegmentDetail(ctx context.Context, request *api.GetMasterSegmentDetailRequest, accountUuid string) (*api.MasterSegmentDetail, error)
 }

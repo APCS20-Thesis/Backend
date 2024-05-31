@@ -99,10 +99,12 @@ func (b business) GetMasterSegmentDetail(ctx context.Context, request *api.GetMa
 		return nil, err
 	}
 	var audienceSchema []*api.SchemaColumn
-	err = json.Unmarshal(audienceTable.Schema.RawMessage, &audienceSchema)
-	if err != nil {
-		b.log.WithName("GetMasterSegmentDetail").Error(err, "cannot parse audience schema")
-		return nil, err
+	if audienceTable.Schema.RawMessage != nil && audienceTable.Schema.Valid {
+		err = json.Unmarshal(audienceTable.Schema.RawMessage, &audienceSchema)
+		if err != nil {
+			b.log.WithName("GetMasterSegmentDetail").Error(err, "cannot parse audience schema")
+			return nil, err
+		}
 	}
 
 	// Get behavior tables

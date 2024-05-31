@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"github.com/APCS20-Thesis/Backend/api"
 	"github.com/APCS20-Thesis/Backend/internal/constants"
-	"github.com/APCS20-Thesis/Backend/internal/model"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
@@ -126,19 +125,8 @@ func (s *Service) CreateConnection(ctx context.Context, request *api.CreateConne
 			Error(err, "Cannot get account_uuid from context")
 		return nil, err
 	}
-	configurations, err := json.Marshal(request.Configurations)
-	if err != nil {
-		s.log.WithName("CreateConnection").
-			WithValues("Configuration", request.Configurations).
-			Error(err, "Cannot parse configuration to JSON")
-		return nil, err
-	}
-	_, err = s.business.DataSourceBusiness.CreateConnection(ctx, &repository.CreateConnectionParams{
-		Name:           request.Name,
-		Type:           model.ConnectionType(request.Type),
-		Configurations: pqtype.NullRawMessage{RawMessage: configurations, Valid: true},
-		AccountUuid:    uuid.MustParse(accountUuid),
-	})
+
+	_, err = s.business.DataSourceBusiness.CreateConnection(ctx, request, accountUuid)
 	if err != nil {
 		s.log.WithName("CreateConnection").
 			WithValues("Context", ctx).

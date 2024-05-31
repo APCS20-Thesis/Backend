@@ -25,5 +25,6 @@ func AccessibleRoles() map[string][]string {
 		rootServicePath + "CreateSegment":            {"admin", "user"},
 		rootServicePath + "GetListSegments":          {"admin", "user"},
 		rootServicePath + "GetQueryDataTable":        {"admin", "user"},
+		rootServicePath + "GetSegmentDetail":         {"admin", "user"},
 	}
 }
