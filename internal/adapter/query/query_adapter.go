@@ -7,11 +7,13 @@ import (
 )
 
 const (
-	Endpoint_GET_DATA_TABLE   string = "/data_table"
-	Endpoint_GET_SCHEMA_TABLE string = "/schema_table"
+	Endpoint_GET_DATA_TABLE    string = "/data-table"
+	Endpoint_GET_SCHEMA_TABLE  string = "/schema-table"
+	Endpoint_GET_DATA_TABLE_V2 string = "/v2/data-table"
 )
 
 type QueryAdapter interface {
+	GetDataTableV2(ctx context.Context, request *GetQueryDataTableV2Request) (*GetQueryDataTableV2Response, error)
 	GetDataTable(ctx context.Context, request *GetQueryDataTableRequest) (*GetQueryDataTableResponse, error)
 	GetSchemaTable(ctx context.Context, request *GetSchemaDataTableRequest) (*GetSchemaDataTableResponse, error)
 }
@@ -31,14 +33,39 @@ func NewQueryAdapter(log logr.Logger, host string) (QueryAdapter, error) {
 }
 
 type (
+	GetQueryDataTableV2Request struct {
+		Limit     int32  `json:"limit"`
+		TablePath string `json:"table_path"`
+	}
+
+	GetQueryDataTableV2Response struct {
+		Count int64    `json:"count"`
+		Data  []string `json:"data"`
+	}
+)
+
+func (c *query) GetDataTableV2(ctx context.Context, request *GetQueryDataTableV2Request) (*GetQueryDataTableV2Response, error) {
+	response := &GetQueryDataTableV2Response{}
+
+	err := c.client.SendHttpRequest(ctx, utils.Request{
+		Endpoint: Endpoint_GET_DATA_TABLE_V2,
+		Method:   utils.Method_POST,
+		Body:     request,
+		Headers:  map[string]string{utils.Header_CONTENT_TYPE: "application/json"},
+	}, response)
+
+	return response, err
+}
+
+type (
 	GetQueryDataTableRequest struct {
 		Limit     int32  `json:"limit"`
 		TablePath string `json:"table_path"`
 	}
 
 	GetQueryDataTableResponse struct {
-		Count int64    `json:"count"`
-		Data  []string `json:"data"`
+		Count int64               `json:"count"`
+		Data  []map[string]string `json:"data"`
 	}
 )
 

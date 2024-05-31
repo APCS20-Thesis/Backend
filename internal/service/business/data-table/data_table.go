@@ -157,7 +157,7 @@ func (b business) GetQueryDataTable(ctx context.Context, request *api.GetQueryDa
 		return nil, status.Error(codes.PermissionDenied, "Only owner can access data_table")
 	}
 
-	res, err := b.queryAdapter.GetDataTable(ctx, &query.GetQueryDataTableRequest{
+	res, err := b.queryAdapter.GetDataTableV2(ctx, &query.GetQueryDataTableV2Request{
 		Limit:     request.Limit,
 		TablePath: utils.GenerateDeltaTablePath(accountUuid, dataTable.Name),
 	})
