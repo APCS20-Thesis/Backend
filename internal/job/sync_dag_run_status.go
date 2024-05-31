@@ -2,8 +2,11 @@ package job
 
 import (
 	"context"
+	"encoding/json"
+	"github.com/APCS20-Thesis/Backend/internal/adapter/query"
 	"github.com/APCS20-Thesis/Backend/internal/model"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
+	"github.com/sqlc-dev/pqtype"
 )
 
 func (j *job) SyncDagRunStatus(ctx context.Context) {
@@ -62,11 +65,32 @@ func (j *job) SyncRelatedStatusFromDataActionRunStatus(ctx context.Context, data
 			j.logger.WithName("job:SyncRelatedStatusFromDataActionStatus").Error(err, "cannot get source table map", "sourceTableMapId", dataAction.ObjectId)
 			return
 		}
-		err = j.repository.DataTableRepository.UpdateStatusDataTable(ctx, sourceTableMap.TableId, model.DataTableStatus_NEED_TO_SYNC)
+		path, err := j.repository.DataTableRepository.GetDataTableDeltaPath(ctx, sourceTableMap.TableId)
 		if err != nil {
-			j.logger.WithName("job:SyncRelatedStatusFromDataActionStatus").Error(err, "cannot update data table status", "TableId", sourceTableMap.TableId)
+			j.logger.WithName("job:SyncRelatedStatusFromDataActionStatus").Error(err, "cannot get table delta path", "TableId", sourceTableMap.TableId)
 			return
 		}
+		schema, err := j.queryAdapter.GetSchemaTable(ctx, &query.GetSchemaDataTableRequest{TablePath: path})
+		if err != nil {
+			err = j.repository.DataTableRepository.UpdateStatusDataTable(ctx, sourceTableMap.TableId, model.DataTableStatus_NEED_TO_SYNC)
+			if err != nil {
+				j.logger.WithName("job:SyncRelatedStatusFromDataActionStatus").Error(err, "cannot update data table status", "TableId", sourceTableMap.TableId)
+				return
+			}
+		}
+		jsonSchema, err := json.Marshal(schema)
+		if err != nil {
+			return
+		}
+		err = j.repository.DataTableRepository.UpdateDataTable(ctx, &repository.UpdateDataTableParams{
+			Schema: pqtype.NullRawMessage{Valid: true, RawMessage: jsonSchema},
+			Status: model.DataTableStatus_UP_TO_DATE,
+		})
+		if err != nil {
+			j.logger.WithName("job:SyncRelatedStatusFromDataActionStatus").Error(err, "cannot update data table", "TableId", sourceTableMap.TableId)
+			return
+		}
+
 	default:
 	}
 

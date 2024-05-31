@@ -15,6 +15,7 @@ type DataTableRepository interface {
 	UpdateDataTable(ctx context.Context, params *UpdateDataTableParams) error
 	ListDataTables(ctx context.Context, filter *ListDataTablesFilters) ([]model.DataTable, error)
 	UpdateStatusDataTable(ctx context.Context, id int64, status model.DataTableStatus) error
+	GetDataTableDeltaPath(ctx context.Context, id int64) (string, error)
 }
 
 type dataTableRepo struct {
@@ -112,4 +113,14 @@ func (r *dataTableRepo) ListDataTables(ctx context.Context, filter *ListDataTabl
 
 func (r *dataTableRepo) UpdateStatusDataTable(ctx context.Context, id int64, status model.DataTableStatus) error {
 	return r.WithContext(ctx).Table(r.TableName).Where("id = ?", id).Update("status", status).Error
+}
+
+func (r *dataTableRepo) GetDataTableDeltaPath(ctx context.Context, id int64) (string, error) {
+	var dataTable model.DataTable
+	err := r.WithContext(ctx).Table(r.TableName).Where("id = ?", id).First(&dataTable).Error
+	if err != nil {
+		return "", err
+	}
+
+	return "/data/bronze" + dataTable.AccountUuid.String() + "/" + dataTable.Name, err
 }

@@ -9,6 +9,7 @@ type Config struct {
 	S3StorageConfig S3StorageConfig  `json:"s3_storage_config" mapstructure:"s3_storage_config"`
 
 	AirflowAdapterConfig AirflowConfig `json:"airflow_adapter_config" mapstructure:"airflow_adapter_config"`
+	QueryAdapterConfig   QueryConfig   `json:"query_adapter_config" mapstructure:"query_adapter_config"`
 }
 
 type Base struct {
@@ -44,6 +45,7 @@ func loadDefaultConfig() *Config {
 			Username: "airflow",
 			Password: "airflow",
 		},
+		QueryAdapterConfig: QueryConfig{Address: "http://localhost:8000"},
 	}
 	return c
 }
