@@ -3,6 +3,7 @@ package business
 import (
 	"github.com/APCS20-Thesis/Backend/config"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/airflow"
+	"github.com/APCS20-Thesis/Backend/internal/adapter/query"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
 	"github.com/APCS20-Thesis/Backend/internal/service/business/auth"
 	data_source "github.com/APCS20-Thesis/Backend/internal/service/business/data-source"
@@ -26,6 +27,7 @@ func NewBusiness(
 	db *gorm.DB,
 	airflowAdapter airflow.AirflowAdapter,
 	config *config.Config,
+	queryAdapter query.QueryAdapter,
 ) *Business {
 	repo := repository.NewRepository(db)
 	return &Business{
@@ -33,7 +35,7 @@ func NewBusiness(
 		repository:         repo,
 		AuthBusiness:       auth.NewAuthBusiness(log, repo),
 		DataSourceBusiness: data_source.NewDataSourceBusiness(log, repo, airflowAdapter, config),
-		DataTableBusiness:  data_table.NewDataTableBusiness(log, repo, airflowAdapter),
+		DataTableBusiness:  data_table.NewDataTableBusiness(log, repo, airflowAdapter, queryAdapter),
 		SegmentBusiness:    segment.NewSegmentBusiness(log, repo, airflowAdapter),
 	}
 }

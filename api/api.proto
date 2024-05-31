@@ -59,6 +59,12 @@ service CDPService {
     };
   }
 
+  rpc GetQueryDataTable(GetQueryDataTableRequest) returns (GetQueryDataTableResponse){
+    option (google.api.http) = {
+      get: "/api/v1/data-source/data-table/{id}/data"
+    };
+  }
+
   rpc GetConnection(GetConnectionRequest) returns (GetConnectionResponse){
     option (google.api.http) = {
       get: "/api/v1/data-source/connection/{id}"
@@ -346,6 +352,23 @@ message GetDataTableResponse {
   repeated SchemaColumn schema = 6;
 }
 
+// GetQueryDataTable Request
+message GetQueryDataTableRequest {
+  // id
+  int64 id = 1 [(validate.rules).int64.gt = 0];
+  // limit
+  int32 limit = 2;
+}
+
+// GetQueryDataTable Response
+message GetQueryDataTableResponse {
+  // code
+  int32 code = 1;
+  // count
+  int64 count = 2;
+  // data
+  repeated string data = 3;
+}
 
 // CreateConnection Request
 message CreateConnectionRequest {

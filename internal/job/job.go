@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/APCS20-Thesis/Backend/config"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/airflow"
+	"github.com/APCS20-Thesis/Backend/internal/adapter/query"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
 	"github.com/go-logr/logr"
 	"github.com/robfig/cron/v3"
@@ -26,6 +27,7 @@ type job struct {
 	airflowAdapter airflow.AirflowAdapter
 	repository     *repository.Repository
 	db             *gorm.DB
+	queryAdapter   query.QueryAdapter
 }
 
 func NewJob(config *config.Config, logger logr.Logger, db *gorm.DB) (Job, error) {
@@ -35,7 +37,7 @@ func NewJob(config *config.Config, logger logr.Logger, db *gorm.DB) (Job, error)
 	if err != nil {
 		return nil, err
 	}
-
+	queryAdapter, err := query.NewQueryAdapter(logger, config.QueryAdapterConfig.Address)
 	// Repository
 	repo := repository.NewRepository(db)
 
@@ -49,6 +51,7 @@ func NewJob(config *config.Config, logger logr.Logger, db *gorm.DB) (Job, error)
 		airflowAdapter: airflowAdapter,
 		repository:     repo,
 		db:             db,
+		queryAdapter:   queryAdapter,
 	}, nil
 }
 

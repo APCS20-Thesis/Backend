@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/APCS20-Thesis/Backend/api"
+	"github.com/APCS20-Thesis/Backend/internal/adapter/query"
 	"github.com/APCS20-Thesis/Backend/internal/model"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
 	"github.com/APCS20-Thesis/Backend/utils"
@@ -141,4 +142,30 @@ func (b business) GetListFileExportRecords(ctx context.Context, request *api.Get
 	}
 
 	return returnRecords, nil
+}
+
+func (b business) GetQueryDataTable(ctx context.Context, request *api.GetQueryDataTableRequest, accountUuid string) (*api.GetQueryDataTableResponse, error) {
+	dataTable, err := b.repository.DataTableRepository.GetDataTable(ctx, request.GetId())
+	if err != nil {
+		b.log.WithName("GetQueryDataTable").Error(err, "Table not found", "id", request.Id)
+		return nil, err
+	}
+	if dataTable.AccountUuid != uuid.MustParse(accountUuid) {
+		b.log.WithName("GetQueryDataTable").
+			WithValues("Context", ctx).
+			Info("Only owner can access data_table")
+		return nil, status.Error(codes.PermissionDenied, "Only owner can access data_table")
+	}
+
+	res, err := b.queryAdapter.GetDataTable(ctx, &query.GetQueryDataTableRequest{
+		Limit:     request.Limit,
+		TablePath: utils.GenerateDeltaTablePath(accountUuid, dataTable.Name),
+	})
+
+	if err != nil {
+		b.log.WithName("GetQueryDataTable").Error(err, "cannot get query table", "id", dataTable.ID)
+		return nil, err
+	}
+
+	return &api.GetQueryDataTableResponse{Code: int32(codes.OK), Count: res.Count, Data: res.Data}, nil
 }

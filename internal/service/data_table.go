@@ -41,3 +41,21 @@ func (s *Service) GetDataTable(ctx context.Context, request *api.GetDataTableReq
 	}
 	return response, nil
 }
+
+func (s *Service) GetQueryDataTable(ctx context.Context, request *api.GetQueryDataTableRequest) (*api.GetQueryDataTableResponse, error) {
+	accountUuid, err := GetAccountUuidFromCtx(ctx)
+	if err != nil {
+		s.log.WithName("GetQueryDataTable").
+			WithValues("Context", ctx).
+			Error(err, "Cannot get account_uuid from context")
+		return nil, err
+	}
+	response, err := s.business.DataTableBusiness.GetQueryDataTable(ctx, request, accountUuid)
+	if err != nil {
+		s.log.WithName("GetDataTable").
+			WithValues("Context", ctx).
+			Error(err, "Failed to process get data table")
+		return nil, err
+	}
+	return response, nil
+}

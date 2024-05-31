@@ -14,8 +14,11 @@ const (
 	ExportDataFileLocationFormat                        = "export/account_uuid/datetime/file_name.file_format"
 
 	CreateMasterSegmentFormat_DagId           = "create_ms_segment_account_uuid_master_segment_id"
-	CreateMasterSegmentFormat_AccountUuid     = "account_uuid"
+	Common_AccountUuid                        = "account_uuid"
 	CreateMasterSegmentFormat_MasterSegmentId = "master_segment_id"
+
+	QueryDeltaTable_Path      = "data/bronze/account_uuid/table_name"
+	QueryDeltaTable_TableName = "table_name"
 )
 
 func GenerateExportDataFileLocation(accountUuid string, fileName string, fileFormat string) string {
@@ -29,9 +32,15 @@ func GenerateExportDataFileLocation(accountUuid string, fileName string, fileFor
 }
 
 func GenerateDagIdForCreateMasterSegment(accountUuid string, masterSegmentId int64) string {
-	path := strings.Replace(CreateMasterSegmentFormat_DagId, CreateMasterSegmentFormat_AccountUuid, accountUuid, 1)
+	path := strings.Replace(CreateMasterSegmentFormat_DagId, Common_AccountUuid, accountUuid, 1)
 	path = strings.Replace(path, CreateMasterSegmentFormat_MasterSegmentId, strconv.FormatInt(masterSegmentId, 10), 1)
 
+	return path
+}
+
+func GenerateDeltaTablePath(accountUuid string, tableName string) string {
+	path := strings.Replace(QueryDeltaTable_Path, Common_AccountUuid, accountUuid, 1)
+	path = strings.Replace(QueryDeltaTable_Path, QueryDeltaTable_TableName, tableName, 1)
 	return path
 }
 
