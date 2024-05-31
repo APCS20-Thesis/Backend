@@ -357,7 +357,7 @@ message GetQueryDataTableRequest {
   // id
   int64 id = 1 [(validate.rules).int64.gt = 0];
   // limit
-  int32 limit =2;
+  int32 limit = 2;
 }
 
 // GetQueryDataTable Response

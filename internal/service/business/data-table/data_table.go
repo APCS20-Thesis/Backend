@@ -159,11 +159,11 @@ func (b business) GetQueryDataTable(ctx context.Context, request *api.GetQueryDa
 
 	res, err := b.queryAdapter.GetDataTable(ctx, &query.GetQueryDataTableRequest{
 		Limit:     request.Limit,
-		TablePath: "data/bronze/" + accountUuid + "/" + dataTable.Name,
+		TablePath: utils.GenerateDeltaTablePath(accountUuid, dataTable.Name),
 	})
 
 	if err != nil {
-		b.log.WithName("GetQueryDataTable").Error(err, "cannot get query table", "name", dataTable.Name)
+		b.log.WithName("GetQueryDataTable").Error(err, "cannot get query table", "id", dataTable.ID)
 		return nil, err
 	}
 
