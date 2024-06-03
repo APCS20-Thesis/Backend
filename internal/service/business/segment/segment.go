@@ -54,35 +54,36 @@ func (b business) ListSegments(ctx context.Context, request *api.GetListSegments
 }
 
 func (b business) GetSegmentDetail(ctx context.Context, request *api.GetSegmentDetailRequest, accountUuid string) (*api.GetSegmentDetailResponse, error) {
+	logger := b.log.WithName("GetSegmentDetail").WithValues("id", request.Id)
 	segment, err := b.repository.SegmentRepository.GetSegment(ctx, request.Id, accountUuid)
 	if err != nil {
-		b.log.WithName("GetSegmentDetail").Error(err, "cannot get segment")
+		logger.Error(err, "cannot get segment")
 		return nil, err
 	}
 
 	masterSegment, err := b.repository.SegmentRepository.GetMasterSegment(ctx, segment.MasterSegmentId, accountUuid)
 	if err != nil {
-		b.log.WithName("GetSegmentDetail").Error(err, "cannot get segment")
+		logger.Error(err, "cannot get segment")
 		return nil, err
 	}
 
 	var condition api.GetSegmentDetailResponse_Rule
 	err = json.Unmarshal(segment.Condition.RawMessage, &condition)
 	if err != nil {
-		b.log.WithName("GetSegmentDetail").Error(err, "cannot unmarshal condition")
+		logger.Error(err, "cannot unmarshal condition")
 		return nil, err
 	}
 
 	audienceTable, err := b.repository.SegmentRepository.GetAudienceTable(ctx, repository.GetAudienceTableParams{MasterSegmentId: masterSegment.ID})
 	if err != nil {
-		b.log.WithName("GetSegmentDetail").Error(err, "cannot get audience table", "masterSegmentId", masterSegment.ID)
+		logger.Error(err, "cannot get audience table", "masterSegmentId", masterSegment.ID)
 		return nil, err
 	}
 
 	var audienceSchema []*api.SchemaColumn
 	err = json.Unmarshal(audienceTable.Schema.RawMessage, &audienceSchema)
 	if err != nil {
-		b.log.WithName("GetSegmentDetail").Error(err, "cannot parse audience schema")
+		logger.Error(err, "cannot parse audience schema")
 		return nil, err
 	}
 

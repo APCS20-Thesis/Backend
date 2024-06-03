@@ -777,13 +777,6 @@ message CreateGophishUserGroupFromSegmentRequest {
   string name = 3 [(validate.rules).string.min_len = 1];
   //
   MappingGophishProfile mapping = 4;
-
-  message MappingGophishProfile {
-    string email = 1 [(validate.rules).string.min_len = 1];
-    string first_name = 2;
-    string last_name = 3;
-    string position = 4;
-  }
 }
 
 message CreateGophishUserGroupFromSegmentResponse {

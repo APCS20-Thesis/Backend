@@ -152,3 +152,10 @@ message Segment {
 
   string updated_at = 7;
 }
+
+message MappingGophishProfile {
+  string email = 1;
+  string first_name = 2;
+  string last_name = 3;
+  string position = 4;
+}

@@ -676,6 +676,77 @@ func (x *Segment) GetUpdatedAt() string {
 	return ""
 }
 
+type MappingGophishProfile struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Email     string `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
+	FirstName string `protobuf:"bytes,2,opt,name=first_name,json=firstName,proto3" json:"first_name,omitempty"`
+	LastName  string `protobuf:"bytes,3,opt,name=last_name,json=lastName,proto3" json:"last_name,omitempty"`
+	Position  string `protobuf:"bytes,4,opt,name=position,proto3" json:"position,omitempty"`
+}
+
+func (x *MappingGophishProfile) Reset() {
+	*x = MappingGophishProfile{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_data_proto_msgTypes[8]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *MappingGophishProfile) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MappingGophishProfile) ProtoMessage() {}
+
+func (x *MappingGophishProfile) ProtoReflect() protoreflect.Message {
+	mi := &file_data_proto_msgTypes[8]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MappingGophishProfile.ProtoReflect.Descriptor instead.
+func (*MappingGophishProfile) Descriptor() ([]byte, []int) {
+	return file_data_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *MappingGophishProfile) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *MappingGophishProfile) GetFirstName() string {
+	if x != nil {
+		return x.FirstName
+	}
+	return ""
+}
+
+func (x *MappingGophishProfile) GetLastName() string {
+	if x != nil {
+		return x.LastName
+	}
+	return ""
+}
+
+func (x *MappingGophishProfile) GetPosition() string {
+	if x != nil {
+		return x.Position
+	}
+	return ""
+}
+
 type MasterSegmentDetail_AttributeTable struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -696,7 +767,7 @@ type MasterSegmentDetail_AttributeTable struct {
 func (x *MasterSegmentDetail_AttributeTable) Reset() {
 	*x = MasterSegmentDetail_AttributeTable{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_data_proto_msgTypes[8]
+		mi := &file_data_proto_msgTypes[9]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -709,7 +780,7 @@ func (x *MasterSegmentDetail_AttributeTable) String() string {
 func (*MasterSegmentDetail_AttributeTable) ProtoMessage() {}
 
 func (x *MasterSegmentDetail_AttributeTable) ProtoReflect() protoreflect.Message {
-	mi := &file_data_proto_msgTypes[8]
+	mi := &file_data_proto_msgTypes[9]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -783,7 +854,7 @@ type MasterSegmentDetail_BehaviorTable struct {
 func (x *MasterSegmentDetail_BehaviorTable) Reset() {
 	*x = MasterSegmentDetail_BehaviorTable{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_data_proto_msgTypes[9]
+		mi := &file_data_proto_msgTypes[10]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -796,7 +867,7 @@ func (x *MasterSegmentDetail_BehaviorTable) String() string {
 func (*MasterSegmentDetail_BehaviorTable) ProtoMessage() {}
 
 func (x *MasterSegmentDetail_BehaviorTable) ProtoReflect() protoreflect.Message {
-	mi := &file_data_proto_msgTypes[9]
+	mi := &file_data_proto_msgTypes[10]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -994,10 +1065,19 @@ var file_data_proto_rawDesc = []byte{
 	0x63, 0x72, 0x65, 0x61, 0x74, 0x65, 0x64, 0x5f, 0x61, 0x74, 0x18, 0x06, 0x20, 0x01, 0x28, 0x09,
 	0x52, 0x09, 0x63, 0x72, 0x65, 0x61, 0x74, 0x65, 0x64, 0x41, 0x74, 0x12, 0x1d, 0x0a, 0x0a, 0x75,
 	0x70, 0x64, 0x61, 0x74, 0x65, 0x64, 0x5f, 0x61, 0x74, 0x18, 0x07, 0x20, 0x01, 0x28, 0x09, 0x52,
-	0x09, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x64, 0x41, 0x74, 0x42, 0x26, 0x5a, 0x24, 0x67, 0x69,
-	0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x41, 0x50, 0x43, 0x53, 0x32, 0x30, 0x2d,
-	0x54, 0x68, 0x65, 0x73, 0x69, 0x73, 0x2f, 0x42, 0x61, 0x63, 0x6b, 0x65, 0x6e, 0x64, 0x2f, 0x61,
-	0x70, 0x69, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x09, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x64, 0x41, 0x74, 0x22, 0x85, 0x01, 0x0a, 0x15, 0x4d,
+	0x61, 0x70, 0x70, 0x69, 0x6e, 0x67, 0x47, 0x6f, 0x70, 0x68, 0x69, 0x73, 0x68, 0x50, 0x72, 0x6f,
+	0x66, 0x69, 0x6c, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x65, 0x6d, 0x61, 0x69, 0x6c, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x09, 0x52, 0x05, 0x65, 0x6d, 0x61, 0x69, 0x6c, 0x12, 0x1d, 0x0a, 0x0a, 0x66, 0x69,
+	0x72, 0x73, 0x74, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09,
+	0x66, 0x69, 0x72, 0x73, 0x74, 0x4e, 0x61, 0x6d, 0x65, 0x12, 0x1b, 0x0a, 0x09, 0x6c, 0x61, 0x73,
+	0x74, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x6c, 0x61,
+	0x73, 0x74, 0x4e, 0x61, 0x6d, 0x65, 0x12, 0x1a, 0x0a, 0x08, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x69,
+	0x6f, 0x6e, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x69,
+	0x6f, 0x6e, 0x42, 0x26, 0x5a, 0x24, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d,
+	0x2f, 0x41, 0x50, 0x43, 0x53, 0x32, 0x30, 0x2d, 0x54, 0x68, 0x65, 0x73, 0x69, 0x73, 0x2f, 0x42,
+	0x61, 0x63, 0x6b, 0x65, 0x6e, 0x64, 0x2f, 0x61, 0x70, 0x69, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x33,
 }
 
 var (
@@ -1012,7 +1092,7 @@ func file_data_proto_rawDescGZIP() []byte {
 	return file_data_proto_rawDescData
 }
 
-var file_data_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_data_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_data_proto_goTypes = []interface{}{
 	(*Account)(nil),                            // 0: api.Account
 	(*MappingOptionItem)(nil),                  // 1: api.MappingOptionItem
@@ -1022,20 +1102,21 @@ var file_data_proto_goTypes = []interface{}{
 	(*MasterSegment)(nil),                      // 5: api.MasterSegment
 	(*MasterSegmentDetail)(nil),                // 6: api.MasterSegmentDetail
 	(*Segment)(nil),                            // 7: api.Segment
-	(*MasterSegmentDetail_AttributeTable)(nil), // 8: api.MasterSegmentDetail.AttributeTable
-	(*MasterSegmentDetail_BehaviorTable)(nil),  // 9: api.MasterSegmentDetail.BehaviorTable
+	(*MappingGophishProfile)(nil),              // 8: api.MappingGophishProfile
+	(*MasterSegmentDetail_AttributeTable)(nil), // 9: api.MasterSegmentDetail.AttributeTable
+	(*MasterSegmentDetail_BehaviorTable)(nil),  // 10: api.MasterSegmentDetail.BehaviorTable
 }
 var file_data_proto_depIdxs = []int32{
-	8, // 0: api.MasterSegmentDetail.attribute_tables:type_name -> api.MasterSegmentDetail.AttributeTable
-	9, // 1: api.MasterSegmentDetail.behavior_tables:type_name -> api.MasterSegmentDetail.BehaviorTable
-	4, // 2: api.MasterSegmentDetail.audience_schema:type_name -> api.SchemaColumn
-	3, // 3: api.MasterSegmentDetail.AttributeTable.selected_columns:type_name -> api.TransferredColumn
-	4, // 4: api.MasterSegmentDetail.BehaviorTable.schema:type_name -> api.SchemaColumn
-	5, // [5:5] is the sub-list for method output_type
-	5, // [5:5] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	9,  // 0: api.MasterSegmentDetail.attribute_tables:type_name -> api.MasterSegmentDetail.AttributeTable
+	10, // 1: api.MasterSegmentDetail.behavior_tables:type_name -> api.MasterSegmentDetail.BehaviorTable
+	4,  // 2: api.MasterSegmentDetail.audience_schema:type_name -> api.SchemaColumn
+	3,  // 3: api.MasterSegmentDetail.AttributeTable.selected_columns:type_name -> api.TransferredColumn
+	4,  // 4: api.MasterSegmentDetail.BehaviorTable.schema:type_name -> api.SchemaColumn
+	5,  // [5:5] is the sub-list for method output_type
+	5,  // [5:5] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_data_proto_init() }
@@ -1141,7 +1222,7 @@ func file_data_proto_init() {
 			}
 		}
 		file_data_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*MasterSegmentDetail_AttributeTable); i {
+			switch v := v.(*MappingGophishProfile); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1153,6 +1234,18 @@ func file_data_proto_init() {
 			}
 		}
 		file_data_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*MasterSegmentDetail_AttributeTable); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_data_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MasterSegmentDetail_BehaviorTable); i {
 			case 0:
 				return &v.state
@@ -1171,7 +1264,7 @@ func file_data_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_data_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

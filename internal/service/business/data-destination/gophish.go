@@ -4,6 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/APCS20-Thesis/Backend/internal/repository"
+	"github.com/google/uuid"
+	"github.com/sqlc-dev/pqtype"
 
 	"github.com/APCS20-Thesis/Backend/api"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/gophish"
@@ -70,6 +73,23 @@ func (b business) CreateGophishUserGroupFromSegment(ctx context.Context, account
 		return err
 	}
 	logger.Info("create gophish user group response", "response", resp)
+
+	config, err := json.Marshal(model.GophishDestinationConfiguration{
+		UserGroupName: request.Name,
+		Mapping:       request.Mapping,
+	})
+	_, err = b.repository.DataDestinationRepository.CreateDataDestination(ctx, &repository.CreateDataDestinationParams{
+		Name:          request.Name,
+		AccountUuid:   uuid.MustParse(accountUuid),
+		Type:          model.DataDestinationType_GOPHISH,
+		Status:        "DONE",
+		Configuration: pqtype.NullRawMessage{RawMessage: config, Valid: config != nil},
+		ConnectionId:  0,
+	})
+	if err != nil {
+		logger.Error(err, "cannot create data destination")
+		return err
+	}
 
 	return nil
 }

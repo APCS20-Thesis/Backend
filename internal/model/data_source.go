@@ -24,6 +24,7 @@ type DataSource struct {
 	Type           DataSourceType
 	Status         DataSourceStatus
 	Configurations pqtype.NullRawMessage
+	ConnectionId   int64
 	AccountUuid    uuid.UUID
 	CreatedAt      time.Time `gorm:"autoCreateTime"`
 	UpdatedAt      time.Time `gorm:"autoUpdateTime"`
