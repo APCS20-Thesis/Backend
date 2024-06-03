@@ -770,11 +770,13 @@ message GetSegmentDetailResponse {
 
 message CreateGophishUserGroupFromSegmentRequest {
   // segment_id - Id of selected segment
-  int64 segment_id = 1;
+  int64 segment_id = 1 [(validate.rules).int64.gt = 0];
   // connection_id - Id of gophish connection
-  int64 connection_id = 2;
+  int64 connection_id = 2 [(validate.rules).int64.gt = 0];
   // name - Name of the user group in Gophish
   string name = 3 [(validate.rules).string.min_len = 1];
+  //
+  MappingGophishProfile mapping = 4;
 
   message MappingGophishProfile {
     string email = 1 [(validate.rules).string.min_len = 1];

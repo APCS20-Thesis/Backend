@@ -21,8 +21,6 @@ type Service struct {
 
 	business *business.Business
 
-	mailAdapter gophish.GophishAdapter
-
 	// embedded unimplemented service server
 	api.UnimplementedCDPServiceServer
 	api.UnimplementedCDPServiceFile
@@ -37,12 +35,12 @@ func NewService(logger logr.Logger, config *config.Config, gormDb *gorm.DB, jwtM
 	if err != nil {
 		return nil, err
 	}
-	mailAdapter, err := gophish.NewMailAdapter(logger, config.MailAdapterAddress)
+	gophishAdapter, err := gophish.NewGophishAdapter(logger, config.MailAdapterAddress)
 	if err != nil {
 		return nil, err
 	}
 
-	business := business.NewBusiness(logger, gormDb, airflowAdapter, config, queryAdapter)
+	business := business.NewBusiness(logger, gormDb, airflowAdapter, config, queryAdapter, gophishAdapter)
 
 	s3Manager := NewS3Manager(
 		config.S3StorageConfig.Region,
@@ -50,11 +48,10 @@ func NewService(logger logr.Logger, config *config.Config, gormDb *gorm.DB, jwtM
 		config.S3StorageConfig.SecretAccessKey,
 	)
 	return &Service{
-		log:         logger,
-		config:      config,
-		jwtManager:  jwtManager,
-		s3Manger:    s3Manager,
-		business:    business,
-		mailAdapter: mailAdapter,
+		log:        logger,
+		config:     config,
+		jwtManager: jwtManager,
+		s3Manger:   s3Manager,
+		business:   business,
 	}, nil
 }

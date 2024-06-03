@@ -10,12 +10,14 @@ const (
 	Endpoint_GET_DATA_TABLE    string = "/data-table"
 	Endpoint_GET_SCHEMA_TABLE  string = "/schema-table"
 	Endpoint_GET_DATA_TABLE_V2 string = "/v2/data-table"
+	Endpoint_QUERY_SQL         string = "/delta-query"
 )
 
 type QueryAdapter interface {
 	GetDataTableV2(ctx context.Context, request *GetQueryDataTableV2Request) (*GetQueryDataTableV2Response, error)
 	GetDataTable(ctx context.Context, request *GetQueryDataTableRequest) (*GetQueryDataTableResponse, error)
 	GetSchemaTable(ctx context.Context, request *GetSchemaDataTableRequest) (*GetSchemaDataTableResponse, error)
+	QueryRawSQL(ctx context.Context, request *QueryRawSQLRequest) (*QueryRawSQLResponse, error)
 }
 
 type query struct {
@@ -106,4 +108,29 @@ func (c *query) GetSchemaTable(ctx context.Context, request *GetSchemaDataTableR
 	}, response)
 
 	return response, err
+}
+
+type (
+	QueryRawSQLRequest struct {
+		Query string `json:"query"`
+	}
+	QueryRawSQLResponse struct {
+		Count int              `json:"count"`
+		Data  []map[string]any `json:"data"`
+	}
+)
+
+func (c *query) QueryRawSQL(ctx context.Context, request *QueryRawSQLRequest) (*QueryRawSQLResponse, error) {
+	var response QueryRawSQLResponse
+
+	err := c.client.SendHttpRequest(ctx, utils.Request{
+		Endpoint: Endpoint_QUERY_SQL,
+		Method:   utils.Method_POST,
+		Body:     request,
+	}, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	return &response, nil
 }

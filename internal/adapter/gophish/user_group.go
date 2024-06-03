@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/APCS20-Thesis/Backend/internal/model"
 	"github.com/APCS20-Thesis/Backend/utils"
-	"strconv"
 	"time"
 )
 
@@ -19,41 +18,37 @@ type CreateUserGroupParams struct {
 }
 
 type CreateUserGroupResponse struct {
-	Id           int
-	Name         string
-	ProfileCount int
+	Id           int       `json:"id"`
+	Name         string    `json:"name"`
+	ModifiedDate time.Time `json:"modified_date"`
+	Targets      []struct {
+		Email string `json:"email"`
+	}
 }
 
 func (c *gophish) CreateUserGroup(ctx context.Context, params *CreateUserGroupParams) (*CreateUserGroupResponse, error) {
 
 	var endpoint = params.GophishConfig.Host
-	if params.GophishConfig.Port != 0 {
-		endpoint = endpoint + ":" + strconv.FormatInt(int64(params.GophishConfig.Port), 10)
+	if params.GophishConfig.Port != "" {
+		endpoint = endpoint + ":" + params.GophishConfig.Port
 	}
 
-	var response struct {
-		Id           int       `json:"id"`
-		Name         string    `json:"name"`
-		ModifiedDate time.Time `json:"modified_date"`
-		Targets      []struct {
-			Email string `json:"email"`
-		}
-	}
+	client := utils.HttpClient{}
+	client.Init("Gophish Client", c.log, endpoint)
 
-	err := c.client.SendHttpRequest(ctx, utils.Request{
-		Endpoint: endpoint,
-		Method:   utils.Method_GET,
+	var response CreateUserGroupResponse
+
+	err := client.SendHttpRequest(ctx, utils.Request{
+		Endpoint: Endpoint_CREATE_USER_GROUP,
+		Method:   utils.Method_POST,
 		Headers: map[string]string{
-			"Authorization": apiKey,
+			"Authorization": params.GophishConfig.ApiKey,
 		},
+		Body: params.Payload,
 	}, &response)
 	if err != nil {
 		return nil, err
 	}
 
-	return &CreateUserGroupResponse{
-		Id:           response.Id,
-		Name:         response.Name,
-		ProfileCount: len(response.Targets),
-	}, nil
+	return &response, nil
 }

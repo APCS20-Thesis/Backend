@@ -77,6 +77,7 @@ func (b business) GetListConnections(ctx context.Context, request *api.GetListCo
 	Connections, err := b.repository.ConnectionRepository.ListConnections(ctx,
 		&repository.FilterConnection{
 			Name:        request.Name,
+			Type:        model.ConnectionType(request.Type),
 			AccountUuid: uuid.MustParse(accountUuid),
 		})
 	if err != nil {

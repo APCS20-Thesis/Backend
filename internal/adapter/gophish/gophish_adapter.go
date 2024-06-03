@@ -35,7 +35,7 @@ type gophish struct {
 	client utils.HttpClient
 }
 
-func NewMailAdapter(log logr.Logger, host string) (GophishAdapter, error) {
+func NewGophishAdapter(log logr.Logger, host string) (GophishAdapter, error) {
 	client := utils.HttpClient{}
 	client.Init("Mail Client", log, host)
 	return &gophish{

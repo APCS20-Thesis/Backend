@@ -36,7 +36,7 @@ type (
 
 	GophishConfiguration struct {
 		Host   string `json:"host"`
-		Port   int    `json:"port"`
+		Port   string `json:"port"`
 		ApiKey string `json:"api_key"`
 	}
 )
