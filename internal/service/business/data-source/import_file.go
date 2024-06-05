@@ -169,6 +169,7 @@ func (b business) ProcessImportCsvFromS3(ctx context.Context, request *api.Impor
 		CsvReadOptions:           request.Configurations,
 		Headers:                  headers,
 		Schema:                   pqtype.NullRawMessage{RawMessage: rawSchema, Valid: true},
+		ConnectionId:             request.ConnectionId,
 	}, b.airflowAdapter)
 
 	if err != nil {

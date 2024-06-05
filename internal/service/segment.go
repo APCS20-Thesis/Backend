@@ -140,3 +140,13 @@ func (s *Service) GetListSegments(ctx context.Context, request *api.GetListSegme
 		Results: segments,
 	}, nil
 }
+
+func (s *Service) GetSegmentDetail(ctx context.Context, request *api.GetSegmentDetailRequest) (*api.GetSegmentDetailResponse, error) {
+	accountUuid, err := GetAccountUuidFromCtx(ctx)
+	if err != nil {
+		s.log.WithName("GetSegmentDetail").Error(err, "cannot get account uuid from context")
+		return nil, err
+	}
+
+	return s.business.SegmentBusiness.GetSegmentDetail(ctx, request, accountUuid)
+}

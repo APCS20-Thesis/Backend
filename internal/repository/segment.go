@@ -24,6 +24,7 @@ type SegmentRepository interface {
 
 	CreateSegment(ctx context.Context, params *CreateSegmentParams) error
 	ListSegments(ctx context.Context, accountUuid string) ([]SegmentListItem, error)
+	GetSegment(ctx context.Context, segmentId int64, accountUuid string) (model.Segment, error)
 }
 
 type segmentRepo struct {
@@ -226,4 +227,15 @@ func (r *segmentRepo) ListSegments(ctx context.Context, accountUuid string) ([]S
 	}
 
 	return segments, nil
+}
+
+func (r *segmentRepo) GetSegment(ctx context.Context, segmentId int64, accountUuid string) (model.Segment, error) {
+	var segment model.Segment
+	err := r.WithContext(ctx).Table(r.SegmentTableName).
+		Where("account_uuid = ? AND id = ?", accountUuid, segmentId).
+		First(&segment).Error
+	if err != nil {
+		return model.Segment{}, err
+	}
+	return segment, nil
 }

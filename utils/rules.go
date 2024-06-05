@@ -19,6 +19,9 @@ const (
 
 	QueryDeltaTable_Path      = "data/bronze/account_uuid/table_name"
 	QueryDeltaTable_TableName = "table_name"
+
+	DeltaAudience_Path            = "segments/id/id_audience"
+	DeltaAudience_MasterSegmentId = "id"
 )
 
 func GenerateExportDataFileLocation(accountUuid string, fileName string, fileFormat string) string {
@@ -42,6 +45,11 @@ func GenerateDeltaTablePath(accountUuid string, tableName string) string {
 	path := strings.Replace(QueryDeltaTable_Path, Common_AccountUuid, accountUuid, 1)
 	path = strings.Replace(QueryDeltaTable_Path, QueryDeltaTable_TableName, tableName, 1)
 	return path
+}
+
+func GenerateDeltaAudiencePath(masterSegmentId int64) string {
+	return strings.Replace(DeltaAudience_Path, DeltaAudience_MasterSegmentId,
+		strconv.FormatInt(masterSegmentId, 10), 2)
 }
 
 //func BuildSQLCondition(condition []*api.CreateSegmentRequest_GroupCondition) string {

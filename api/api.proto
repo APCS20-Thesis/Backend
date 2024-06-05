@@ -145,6 +145,19 @@ service CDPService {
       get: "/api/v1/segment"
     };
   }
+
+  rpc GetSegmentDetail(GetSegmentDetailRequest) returns (GetSegmentDetailResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/segment/{id}"
+    };
+  }
+
+  rpc CreateGophishUserGroupFromSegment(CreateGophishUserGroupFromSegmentRequest) returns (CreateGophishUserGroupFromSegmentResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/gophish/user-group"
+      body: "*"
+    };
+  }
 }
 
 // CheckHealthRequest
@@ -718,3 +731,57 @@ message GetListSegmentsResponse {
   repeated Segment results = 4;
 }
 
+message GetSegmentDetailRequest {
+  int64 id = 1;
+}
+
+message GetSegmentDetailResponse {
+  // code
+  int32 code = 1;
+  // message
+  string message = 2;
+  // id
+  int64 id = 3;
+  // name
+  string name = 4;
+  // description
+  string description = 5;
+  // master_segment_id
+  int64 master_segment_id = 6;
+  // master_segment_name
+  string master_segment_name = 7;
+  // created_at
+  string created_at = 8;
+  // updated_at
+  string updated_at = 9;
+  // condition
+  Rule condition = 10;
+  // schema
+  repeated SchemaColumn schema = 11;
+
+  message Rule {
+    string field = 1;
+    string operator = 2;
+    string value = 3;
+    repeated Rule rules = 4;
+    string combinator = 5;
+  }
+}
+
+message CreateGophishUserGroupFromSegmentRequest {
+  // segment_id - Id of selected segment
+  int64 segment_id = 1 [(validate.rules).int64.gt = 0];
+  // connection_id - Id of gophish connection
+  int64 connection_id = 2 [(validate.rules).int64.gt = 0];
+  // name - Name of the user group in Gophish
+  string name = 3 [(validate.rules).string.min_len = 1];
+  //
+  MappingGophishProfile mapping = 4;
+}
+
+message CreateGophishUserGroupFromSegmentResponse {
+  // code
+  int32 code = 1;
+  // message
+  string message = 2;
+}

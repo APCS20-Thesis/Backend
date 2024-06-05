@@ -4,6 +4,7 @@ import (
 	"github.com/APCS20-Thesis/Backend/api"
 	"github.com/APCS20-Thesis/Backend/config"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/airflow"
+	"github.com/APCS20-Thesis/Backend/internal/adapter/gophish"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/query"
 	"github.com/APCS20-Thesis/Backend/internal/service/business"
 	"github.com/go-logr/logr"
@@ -34,7 +35,12 @@ func NewService(logger logr.Logger, config *config.Config, gormDb *gorm.DB, jwtM
 	if err != nil {
 		return nil, err
 	}
-	business := business.NewBusiness(logger, gormDb, airflowAdapter, config, queryAdapter)
+	gophishAdapter, err := gophish.NewGophishAdapter(logger)
+	if err != nil {
+		return nil, err
+	}
+
+	business := business.NewBusiness(logger, gormDb, airflowAdapter, config, queryAdapter, gophishAdapter)
 
 	s3Manager := NewS3Manager(
 		config.S3StorageConfig.Region,
@@ -45,7 +51,7 @@ func NewService(logger logr.Logger, config *config.Config, gormDb *gorm.DB, jwtM
 		log:        logger,
 		config:     config,
 		jwtManager: jwtManager,
-		business:   business,
 		s3Manger:   s3Manager,
+		business:   business,
 	}, nil
 }

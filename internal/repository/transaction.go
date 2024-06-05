@@ -54,6 +54,7 @@ type ImportCsvTransactionParams struct {
 	CsvReadOptions           *api.ImportCsvConfigurations
 	Headers                  []string
 	Schema                   pqtype.NullRawMessage
+	ConnectionId             int64
 }
 
 func (r transactionRepo) ImportCsvTransaction(ctx context.Context, params *ImportCsvTransactionParams, airflowAdapter airflow.AirflowAdapter) error {
@@ -64,6 +65,7 @@ func (r transactionRepo) ImportCsvTransaction(ctx context.Context, params *Impor
 		Configurations: params.DataSourceConfigurations,
 		AccountUuid:    params.AccountUuid,
 		Status:         model.DataSourceStatus_Processing,
+		ConnectionId:   params.ConnectionId,
 	}
 	var dataTable model.DataTable
 

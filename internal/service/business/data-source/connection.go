@@ -8,18 +8,36 @@ import (
 	"github.com/APCS20-Thesis/Backend/internal/model"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
 	"github.com/google/uuid"
+	"github.com/sqlc-dev/pqtype"
+	"golang.org/x/exp/slices"
 	"google.golang.org/genproto/googleapis/rpc/code"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
+	"strconv"
 )
 
-func (b business) CreateConnection(ctx context.Context, params *repository.CreateConnectionParams) (*model.Connection, error) {
-	connection, err := b.repository.ConnectionRepository.CreateConnection(ctx, params)
+func (b business) CreateConnection(ctx context.Context, request *api.CreateConnectionRequest, accountUuid string) (*model.Connection, error) {
+	if !slices.Contains(model.ConnectionTypes, model.ConnectionType(request.Type)) {
+		return nil, status.Error(codes.InvalidArgument, "Invalid connection type")
+	}
+
+	configurations, err := json.Marshal(request.Configurations)
 	if err != nil {
 		b.log.WithName("CreateConnection").
-			WithValues("Context", ctx).
-			Error(err, "Cannot create connection")
+			WithValues("Configuration", request.Configurations).
+			Error(err, "Cannot parse configuration to JSON")
+		return nil, err
+	}
+
+	connection, err := b.repository.ConnectionRepository.CreateConnection(ctx, &repository.CreateConnectionParams{
+		Name:           request.Name,
+		Type:           model.ConnectionType(request.Type),
+		Configurations: pqtype.NullRawMessage{RawMessage: configurations, Valid: configurations != nil},
+		AccountUuid:    uuid.MustParse(accountUuid),
+	})
+	if err != nil {
+		b.log.WithName("CreateConnection").Error(err, "Cannot create connection")
 		return nil, err
 	}
 	return connection, nil
@@ -30,13 +48,13 @@ func (b business) UpdateConnection(ctx context.Context, params *repository.Updat
 	if err != nil {
 		b.log.WithName("UpdateConnection").
 			WithValues("ConnectionID", params.ID).
-			Error(err, "Can not get record with id "+string(params.ID))
+			Error(err, "Can not get record with id "+strconv.FormatInt(params.ID, 10))
 		return err
 	}
 	if connection == nil {
 		b.log.WithName("UpdateConnection").
 			WithValues("ConnectionID", params.ID).
-			Error(err, "No record with id "+string(params.ID))
+			Error(err, "No record with id "+strconv.FormatInt(params.ID, 10))
 		return gorm.ErrRecordNotFound
 	}
 	if connection.AccountUuid != params.AccountUuid {
@@ -59,6 +77,7 @@ func (b business) GetListConnections(ctx context.Context, request *api.GetListCo
 	Connections, err := b.repository.ConnectionRepository.ListConnections(ctx,
 		&repository.FilterConnection{
 			Name:        request.Name,
+			Type:        model.ConnectionType(request.Type),
 			AccountUuid: uuid.MustParse(accountUuid),
 		})
 	if err != nil {
@@ -82,7 +101,7 @@ func (b business) GetConnection(ctx context.Context, request *api.GetConnectionR
 	connection, err := b.repository.ConnectionRepository.GetConnection(ctx, request.Id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, status.Error(codes.NotFound, "Not found connection with id "+string(request.Id))
+			return nil, status.Error(codes.NotFound, "Not found connection with id "+strconv.FormatInt(request.Id, 10))
 		}
 		b.log.WithName("GetConnection").
 			WithValues("Context", ctx).
@@ -115,13 +134,13 @@ func (b business) DeleteConnection(ctx context.Context, request *api.DeleteConne
 	if err != nil {
 		b.log.WithName("DeleteConnection").
 			WithValues("ConnectionID", request.Id).
-			Error(err, "Can not get record with id "+string(request.Id))
+			Error(err, "Can not get record with id "+strconv.FormatInt(request.Id, 10))
 		return err
 	}
 	if connection == nil {
 		b.log.WithName("DeleteConnection").
 			WithValues("ConnectionID", request.Id).
-			Error(err, "No record with id "+string(request.Id))
+			Error(err, "No record with id "+strconv.FormatInt(request.Id, 10))
 		return gorm.ErrRecordNotFound
 	}
 	if connection.AccountUuid != uuid.MustParse(accountUuid) {
