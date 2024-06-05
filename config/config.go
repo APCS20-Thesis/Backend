@@ -10,7 +10,6 @@ type Config struct {
 
 	AirflowAdapterConfig AirflowConfig `json:"airflow_adapter_config" mapstructure:"airflow_adapter_config"`
 	QueryAdapterConfig   QueryConfig   `json:"query_adapter_config" mapstructure:"query_adapter_config"`
-	MailAdapterAddress   string        `json:"mail_adapter_address" mapstructure:"mail_adapter_address"`
 }
 
 type Base struct {
@@ -47,7 +46,6 @@ func loadDefaultConfig() *Config {
 			Password: "airflow",
 		},
 		QueryAdapterConfig: QueryConfig{Address: "http://localhost:8000"},
-		MailAdapterAddress: "http://localhost:3333",
 	}
 	return c
 }

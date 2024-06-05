@@ -35,7 +35,7 @@ func NewService(logger logr.Logger, config *config.Config, gormDb *gorm.DB, jwtM
 	if err != nil {
 		return nil, err
 	}
-	gophishAdapter, err := gophish.NewGophishAdapter(logger, config.MailAdapterAddress)
+	gophishAdapter, err := gophish.NewGophishAdapter(logger)
 	if err != nil {
 		return nil, err
 	}
