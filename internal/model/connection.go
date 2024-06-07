@@ -39,6 +39,14 @@ type (
 		Port   string `json:"port"`
 		ApiKey string `json:"api_key"`
 	}
+
+	MySQLConfiguration struct {
+		Host     string `json:"host"`
+		Port     string `json:"port"`
+		Database string `json:"database"`
+		User     string `json:"user"`
+		Password string `json:"password"`
+	}
 )
 
 func (Connection) TableName() string {

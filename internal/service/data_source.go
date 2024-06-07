@@ -8,6 +8,7 @@ import (
 	"github.com/APCS20-Thesis/Backend/internal/repository"
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
+	"google.golang.org/genproto/googleapis/rpc/code"
 	"google.golang.org/grpc/codes"
 	"strconv"
 	"time"
@@ -202,4 +203,22 @@ func (s *Service) ImportCsvFromS3(ctx context.Context, request *api.ImportCsvFro
 		return nil, err
 	}
 	return &api.ImportCsvFromS3Response{Message: "Import Success", Code: int32(codes.OK)}, nil
+}
+
+func (s *Service) ImportFromMySQLSource(ctx context.Context, request *api.ImportFromMySQLSourceRequest) (*api.ImportFromMySQLSourceResponse, error) {
+	accountUuid, err := GetAccountUuidFromCtx(ctx)
+	if err != nil {
+		s.log.WithName("ImportCsv").Error(err, "Cannot get account_uuid from context")
+		return nil, err
+	}
+
+	err = s.business.DataSourceBusiness.ProcessImportFromMySQLSource(ctx, request, uuid.MustParse(accountUuid))
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.ImportFromMySQLSourceResponse{
+		Code:    int32(code.Code_OK),
+		Message: "Success",
+	}, nil
 }

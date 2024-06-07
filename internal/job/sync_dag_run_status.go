@@ -36,6 +36,8 @@ func (j *job) SyncDagRunStatus(ctx context.Context) {
 		switch response.State {
 		case "success":
 			err = j.repository.DataActionRunRepository.UpdateDataActionRunStatus(ctx, dataActionRun.ID, model.DataActionRunStatus_Success)
+			// additional handling
+			go j.SyncRelatedStatusFromDataActionRunStatus(ctx, dataActionRun.ActionId)
 		case "failed":
 			err = j.repository.DataActionRunRepository.UpdateDataActionRunStatus(ctx, dataActionRun.ID, model.DataActionRunStatus_Failed)
 		default:
@@ -45,8 +47,6 @@ func (j *job) SyncDagRunStatus(ctx context.Context) {
 			continue
 		}
 
-		// additional handling
-		go j.SyncRelatedStatusFromDataActionRunStatus(ctx, dataActionRun.ActionId)
 	}
 
 	return
@@ -59,7 +59,7 @@ func (j *job) SyncRelatedStatusFromDataActionRunStatus(ctx context.Context, data
 	}
 
 	switch dataAction.ActionType {
-	case model.ActionType_ImportDataFromFile:
+	case model.ActionType_ImportDataFromFile, model.ActionType_ImportDataFromMySQL:
 		sourceTableMap, err := j.repository.SourceTableMapRepository.GetSourceTableMapById(ctx, dataAction.ObjectId)
 		if err != nil {
 			j.logger.WithName("job:SyncRelatedStatusFromDataActionStatus").Error(err, "cannot get source table map", "sourceTableMapId", dataAction.ObjectId)
@@ -70,19 +70,29 @@ func (j *job) SyncRelatedStatusFromDataActionRunStatus(ctx context.Context, data
 			j.logger.WithName("job:SyncRelatedStatusFromDataActionStatus").Error(err, "cannot get table delta path", "TableId", sourceTableMap.TableId)
 			return
 		}
-		schema, err := j.queryAdapter.GetSchemaTable(ctx, &query.GetSchemaDataTableRequest{TablePath: path})
+		response, err := j.queryAdapter.GetSchemaTable(ctx, &query.GetSchemaDataTableRequest{TablePath: path})
 		if err != nil {
+			j.logger.WithName("GetSchemaTable").Info("error here")
 			err = j.repository.DataTableRepository.UpdateStatusDataTable(ctx, sourceTableMap.TableId, model.DataTableStatus_NEED_TO_SYNC)
 			if err != nil {
 				j.logger.WithName("job:SyncRelatedStatusFromDataActionStatus").Error(err, "cannot update data table status", "TableId", sourceTableMap.TableId)
 				return
 			}
 		}
+		schema := make([]model.SchemaUnit, 0, len(response.Schema))
+		for _, column := range response.Schema {
+			schema = append(schema, model.SchemaUnit{
+				ColumnName: column.Name,
+				DataType:   column.Type,
+			})
+		}
 		jsonSchema, err := json.Marshal(schema)
 		if err != nil {
+			j.logger.WithName("job:SyncRelatedStatusFromDataActionStatus").Error(err, "cannot parse schema")
 			return
 		}
 		err = j.repository.DataTableRepository.UpdateDataTable(ctx, &repository.UpdateDataTableParams{
+			ID:     sourceTableMap.TableId,
 			Schema: pqtype.NullRawMessage{Valid: true, RawMessage: jsonSchema},
 			Status: model.DataTableStatus_UP_TO_DATE,
 		})
@@ -90,6 +100,7 @@ func (j *job) SyncRelatedStatusFromDataActionRunStatus(ctx context.Context, data
 			j.logger.WithName("job:SyncRelatedStatusFromDataActionStatus").Error(err, "cannot update data table", "TableId", sourceTableMap.TableId)
 			return
 		}
+		j.logger.WithName("GetSchemaTable").Info("update table here", "schema", schema)
 
 	default:
 	}

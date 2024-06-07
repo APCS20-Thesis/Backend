@@ -158,6 +158,20 @@ service CDPService {
       body: "*"
     };
   }
+
+  rpc ImportFromMySQLSource(ImportFromMySQLSourceRequest) returns (ImportFromMySQLSourceResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/data-source/mysql"
+      body: "*"
+    };
+  }
+
+  rpc ExportToMySQLDestination(ExportToMySQLDestinationRequest) returns (ExportToMySQLDestinationResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/data-destination/mysql"
+      body: "*"
+    };
+  }
 }
 
 // CheckHealthRequest
@@ -780,6 +794,48 @@ message CreateGophishUserGroupFromSegmentRequest {
 }
 
 message CreateGophishUserGroupFromSegmentResponse {
+  // code
+  int32 code = 1;
+  // message
+  string message = 2;
+}
+
+message ImportFromMySQLSourceRequest {
+  // name - Name of data source
+  string name = 1 [(validate.rules).string.min_len = 1];
+  // description - Description of data source
+  string description = 2 [(validate.rules).string.min_len = 1];
+  // connection_id - MySQL connection id
+  int64 connection_id = 3;
+  // source_table_name - MySQL table name to import data from
+  string source_table_name = 4 [(validate.rules).string.min_len = 1];
+  // delta_table_name - Delta table name where data will be stored
+  string delta_table_name = 5 [(validate.rules).string.min_len = 1];
+  // headers
+  repeated string headers = 6 [(validate.rules).repeated.min_items = 1];
+}
+
+message ImportFromMySQLSourceResponse {
+  // code
+  int32 code = 1;
+  // message
+  string message = 2;
+}
+
+message ExportToMySQLDestinationRequest {
+  // data_table_id - Export data table to MySQL destination
+  int64 data_table_id = 1;
+  // master_segment_id - Export master segment to MySQL destination
+  int64 master_segment_id = 2;
+  // segment_id - Export segment to MySQL destination
+  int64 segment_id = 3;
+  // connection_id - MySQL connection
+  int64 connection_id = 4;
+  // destination_table_name - Output table name
+  string destination_table_name = 5;
+}
+
+message ExportToMySQLDestinationResponse {
   // code
   int32 code = 1;
   // message

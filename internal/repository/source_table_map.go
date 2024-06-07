@@ -7,7 +7,7 @@ import (
 )
 
 type SourceTableMapRepository interface {
-	CreateSourceTableMap(ctx context.Context, params *CreateSourceTableMapParams) error
+	CreateSourceTableMap(ctx context.Context, params *CreateSourceTableMapParams) (*model.SourceTableMap, error)
 	GetSourceTableMapById(ctx context.Context, id int64) (*model.SourceTableMap, error)
 }
 
@@ -21,22 +21,28 @@ func NewSourceTableMapRepository(db *gorm.DB) SourceTableMapRepository {
 }
 
 type CreateSourceTableMapParams struct {
+	Tx       *gorm.DB
 	TableId  int64
 	SourceId int64
 }
 
-func (r *sourceTableMapRepo) CreateSourceTableMap(ctx context.Context, params *CreateSourceTableMapParams) error {
-	SourceTableMap := &model.SourceTableMap{
+func (r *sourceTableMapRepo) CreateSourceTableMap(ctx context.Context, params *CreateSourceTableMapParams) (*model.SourceTableMap, error) {
+	sourceTableMap := &model.SourceTableMap{
 		TableId:  params.TableId,
 		SourceId: params.SourceId,
 	}
 
-	createErr := r.WithContext(ctx).Table(r.TableName).Create(&SourceTableMap).Error
+	var createErr error
+	if params.Tx != nil {
+		createErr = params.Tx.WithContext(ctx).Table(r.TableName).Create(sourceTableMap).Error
+	} else {
+		createErr = r.WithContext(ctx).Table(r.TableName).Create(sourceTableMap).Error
+	}
 	if createErr != nil {
-		return createErr
+		return nil, createErr
 	}
 
-	return nil
+	return sourceTableMap, nil
 }
 
 func (r *sourceTableMapRepo) GetSourceTableMapById(ctx context.Context, id int64) (*model.SourceTableMap, error) {

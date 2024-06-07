@@ -93,7 +93,7 @@ type (
 		Type string `json:"type"`
 	}
 	GetSchemaDataTableResponse struct {
-		Fields []FieldSchema `json:"fields"`
+		Schema []FieldSchema `json:"schema"`
 	}
 )
 

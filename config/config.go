@@ -45,7 +45,7 @@ func loadDefaultConfig() *Config {
 			Username: "airflow",
 			Password: "airflow",
 		},
-		QueryAdapterConfig: QueryConfig{Address: "http://localhost:8000"},
+		QueryAdapterConfig: QueryConfig{Address: "https://9d10-2402-800-63a9-aa77-c961-a74-58a0-fb6d.ngrok-free.app"},
 	}
 	return c
 }

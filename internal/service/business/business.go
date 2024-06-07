@@ -38,9 +38,9 @@ func NewBusiness(
 		db:                      db,
 		repository:              repo,
 		AuthBusiness:            auth.NewAuthBusiness(log, repo),
-		DataSourceBusiness:      data_source.NewDataSourceBusiness(log, repo, airflowAdapter, config),
+		DataSourceBusiness:      data_source.NewDataSourceBusiness(db, log, repo, airflowAdapter, config),
 		DataTableBusiness:       data_table.NewDataTableBusiness(log, repo, airflowAdapter, queryAdapter),
 		SegmentBusiness:         segment.NewSegmentBusiness(log, repo, airflowAdapter),
-		DataDestinationBusiness: data_destination.NewDataDestinationBusiness(log, repo, gophishAdapter, queryAdapter),
+		DataDestinationBusiness: data_destination.NewDataDestinationBusiness(db, log, repo, gophishAdapter, queryAdapter, airflowAdapter),
 	}
 }

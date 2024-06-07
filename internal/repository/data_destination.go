@@ -30,7 +30,6 @@ type CreateDataDestinationParams struct {
 	Name          string
 	AccountUuid   uuid.UUID
 	Type          model.DataDestinationType
-	Status        model.DataDestinationStatus
 	Configuration pqtype.NullRawMessage
 	ConnectionId  int64
 }
@@ -39,7 +38,6 @@ func (r *dataDestinationRepo) CreateDataDestination(ctx context.Context, params 
 	dest := &model.DataDestination{
 		Name:           params.Name,
 		Type:           params.Type,
-		Status:         params.Status,
 		Configurations: params.Configuration,
 		AccountUuid:    params.AccountUuid,
 		ConnectionId:   params.ConnectionId,

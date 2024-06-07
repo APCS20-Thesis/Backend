@@ -28,6 +28,7 @@ func NewDataTableRepository(db *gorm.DB) DataTableRepository {
 }
 
 type CreateDataTableParams struct {
+	Tx          *gorm.DB
 	Name        string
 	Schema      pqtype.NullRawMessage
 	AccountUuid uuid.UUID
@@ -41,7 +42,12 @@ func (r *dataTableRepo) CreateDataTable(ctx context.Context, params *CreateDataT
 		Status:      model.DataTableStatus_DRAFT,
 	}
 
-	createErr := r.WithContext(ctx).Table(r.TableName).Create(&dataTable).Error
+	var createErr error
+	if params.Tx != nil {
+		createErr = params.Tx.WithContext(ctx).Table(r.TableName).Create(&dataTable).Error
+	} else {
+		createErr = r.WithContext(ctx).Table(r.TableName).Create(&dataTable).Error
+	}
 	if createErr != nil {
 		return nil, createErr
 	}
@@ -122,5 +128,5 @@ func (r *dataTableRepo) GetDataTableDeltaPath(ctx context.Context, id int64) (st
 		return "", err
 	}
 
-	return "/data/bronze" + dataTable.AccountUuid.String() + "/" + dataTable.Name, err
+	return "/data/bronze/" + dataTable.AccountUuid.String() + "/" + dataTable.Name, err
 }

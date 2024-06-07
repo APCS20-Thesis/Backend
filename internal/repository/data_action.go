@@ -3,11 +3,10 @@ package repository
 import (
 	"context"
 	"errors"
+	"github.com/APCS20-Thesis/Backend/internal/model"
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 	"gorm.io/gorm"
-
-	"github.com/APCS20-Thesis/Backend/internal/model"
 )
 
 type DataActionRepository interface {
@@ -34,18 +33,19 @@ type CreateDataActionParams struct {
 	DagId       string
 	Status      model.DataActionStatus
 	ObjectId    int64
+	Payload     pqtype.NullRawMessage
 }
 
 func (r *dataActionRepo) CreateDataAction(ctx context.Context, params *CreateDataActionParams) (*model.DataAction, error) {
 	dataAction := &model.DataAction{
-		TargetTable: params.TargetTable,
 		ActionType:  params.ActionType,
-		Schedule:    params.Schedule,
-		AccountUuid: params.AccountUuid,
-		DagId:       params.DagId,
-		RunCount:    0,
+		Payload:     params.Payload,
 		Status:      params.Status,
+		Schedule:    params.Schedule,
+		DagId:       params.DagId,
+		TargetTable: params.TargetTable,
 		ObjectId:    params.ObjectId,
+		AccountUuid: params.AccountUuid,
 	}
 
 	createErr := r.WithContext(ctx).Table(r.TableName).Create(&dataAction).Error

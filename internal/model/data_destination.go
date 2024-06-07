@@ -8,21 +8,21 @@ import (
 )
 
 type (
-	DataDestinationType   string
-	DataDestinationStatus string
+	DataDestinationType string
+	//DataDestinationStatus string
 )
 
 const (
 	DataDestinationType_GOPHISH DataDestinationType = "GOPHISH"
+	DataDestinationType_MYSQL   DataDestinationType = "MYSQL"
 
-	DataDestinationStatus_Success DataDestinationStatus = "SUCCESS"
+	//DataDestinationStatus_Success DataDestinationStatus = "SUCCESS"
 )
 
 type DataDestination struct {
 	ID             int64 `gorm:"primaryKey"`
 	Name           string
 	Type           DataDestinationType
-	Status         DataDestinationStatus
 	Configurations pqtype.NullRawMessage
 	AccountUuid    uuid.UUID
 	ConnectionId   int64

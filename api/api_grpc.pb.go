@@ -46,6 +46,8 @@ type CDPServiceClient interface {
 	GetListSegments(ctx context.Context, in *GetListSegmentsRequest, opts ...grpc.CallOption) (*GetListSegmentsResponse, error)
 	GetSegmentDetail(ctx context.Context, in *GetSegmentDetailRequest, opts ...grpc.CallOption) (*GetSegmentDetailResponse, error)
 	CreateGophishUserGroupFromSegment(ctx context.Context, in *CreateGophishUserGroupFromSegmentRequest, opts ...grpc.CallOption) (*CreateGophishUserGroupFromSegmentResponse, error)
+	ImportFromMySQLSource(ctx context.Context, in *ImportFromMySQLSourceRequest, opts ...grpc.CallOption) (*ImportFromMySQLSourceResponse, error)
+	ExportToMySQLDestination(ctx context.Context, in *ExportToMySQLDestinationRequest, opts ...grpc.CallOption) (*ExportToMySQLDestinationResponse, error)
 }
 
 type cDPServiceClient struct {
@@ -272,6 +274,24 @@ func (c *cDPServiceClient) CreateGophishUserGroupFromSegment(ctx context.Context
 	return out, nil
 }
 
+func (c *cDPServiceClient) ImportFromMySQLSource(ctx context.Context, in *ImportFromMySQLSourceRequest, opts ...grpc.CallOption) (*ImportFromMySQLSourceResponse, error) {
+	out := new(ImportFromMySQLSourceResponse)
+	err := c.cc.Invoke(ctx, "/api.CDPService/ImportFromMySQLSource", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cDPServiceClient) ExportToMySQLDestination(ctx context.Context, in *ExportToMySQLDestinationRequest, opts ...grpc.CallOption) (*ExportToMySQLDestinationResponse, error) {
+	out := new(ExportToMySQLDestinationResponse)
+	err := c.cc.Invoke(ctx, "/api.CDPService/ExportToMySQLDestination", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CDPServiceServer is the server API for CDPService service.
 // All implementations must embed UnimplementedCDPServiceServer
 // for forward compatibility
@@ -300,6 +320,8 @@ type CDPServiceServer interface {
 	GetListSegments(context.Context, *GetListSegmentsRequest) (*GetListSegmentsResponse, error)
 	GetSegmentDetail(context.Context, *GetSegmentDetailRequest) (*GetSegmentDetailResponse, error)
 	CreateGophishUserGroupFromSegment(context.Context, *CreateGophishUserGroupFromSegmentRequest) (*CreateGophishUserGroupFromSegmentResponse, error)
+	ImportFromMySQLSource(context.Context, *ImportFromMySQLSourceRequest) (*ImportFromMySQLSourceResponse, error)
+	ExportToMySQLDestination(context.Context, *ExportToMySQLDestinationRequest) (*ExportToMySQLDestinationResponse, error)
 	mustEmbedUnimplementedCDPServiceServer()
 }
 
@@ -378,6 +400,12 @@ func (UnimplementedCDPServiceServer) GetSegmentDetail(context.Context, *GetSegme
 }
 func (UnimplementedCDPServiceServer) CreateGophishUserGroupFromSegment(context.Context, *CreateGophishUserGroupFromSegmentRequest) (*CreateGophishUserGroupFromSegmentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateGophishUserGroupFromSegment not implemented")
+}
+func (UnimplementedCDPServiceServer) ImportFromMySQLSource(context.Context, *ImportFromMySQLSourceRequest) (*ImportFromMySQLSourceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ImportFromMySQLSource not implemented")
+}
+func (UnimplementedCDPServiceServer) ExportToMySQLDestination(context.Context, *ExportToMySQLDestinationRequest) (*ExportToMySQLDestinationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ExportToMySQLDestination not implemented")
 }
 func (UnimplementedCDPServiceServer) mustEmbedUnimplementedCDPServiceServer() {}
 
@@ -824,6 +852,42 @@ func _CDPService_CreateGophishUserGroupFromSegment_Handler(srv interface{}, ctx 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CDPService_ImportFromMySQLSource_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ImportFromMySQLSourceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDPServiceServer).ImportFromMySQLSource(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.CDPService/ImportFromMySQLSource",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDPServiceServer).ImportFromMySQLSource(ctx, req.(*ImportFromMySQLSourceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CDPService_ExportToMySQLDestination_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExportToMySQLDestinationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDPServiceServer).ExportToMySQLDestination(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.CDPService/ExportToMySQLDestination",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDPServiceServer).ExportToMySQLDestination(ctx, req.(*ExportToMySQLDestinationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CDPService_ServiceDesc is the grpc.ServiceDesc for CDPService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -926,6 +990,14 @@ var CDPService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateGophishUserGroupFromSegment",
 			Handler:    _CDPService_CreateGophishUserGroupFromSegment_Handler,
+		},
+		{
+			MethodName: "ImportFromMySQLSource",
+			Handler:    _CDPService_ImportFromMySQLSource_Handler,
+		},
+		{
+			MethodName: "ExportToMySQLDestination",
+			Handler:    _CDPService_ExportToMySQLDestination_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

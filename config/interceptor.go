@@ -27,5 +27,7 @@ func AccessibleRoles() map[string][]string {
 		rootServicePath + "GetQueryDataTable":                 {"admin", "user"},
 		rootServicePath + "GetSegmentDetail":                  {"admin", "user"},
 		rootServicePath + "CreateGophishUserGroupFromSegment": {"admin", "user"},
+		rootServicePath + "ImportFromMySQLSource":             {"admin", "user"},
+		rootServicePath + "ExportToMySQLDestination":          {"admin", "user"},
 	}
 }
