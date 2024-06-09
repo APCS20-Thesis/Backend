@@ -159,3 +159,17 @@ message MappingGophishProfile {
   string last_name = 3;
   string position = 4;
 }
+
+message DataDestination {
+  // id
+  int64 id = 1;
+  // name
+  string name = 2;
+  // type
+  string type = 3;
+  // created_at
+  string created_at = 4;
+  // updated_at
+  string updated_at = 5;
+}
+

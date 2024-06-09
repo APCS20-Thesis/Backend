@@ -38,3 +38,13 @@ func (s *Service) ExportToMySQLDestination(ctx context.Context, request *api.Exp
 		Message: "Success",
 	}, nil
 }
+
+func (s *Service) GetListDataDestinations(ctx context.Context, request *api.GetListDataDestinationsRequest) (*api.GetListDataDestinationsResponse, error) {
+	accountUuid, err := GetAccountUuidFromCtx(ctx)
+	if err != nil {
+		s.log.WithName("GetListDataDestinations").Error(err, "Cannot get account_uuid from context")
+		return nil, err
+	}
+
+	return s.business.DataDestinationBusiness.ProcessGetListDataDestinations(ctx, request, accountUuid)
+}

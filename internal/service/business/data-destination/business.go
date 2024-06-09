@@ -14,6 +14,8 @@ import (
 type Business interface {
 	CreateGophishUserGroupFromSegment(ctx context.Context, accountUuid string, request *api.CreateGophishUserGroupFromSegmentRequest) error
 	ProcessExportToMySQLDestination(ctx context.Context, request *api.ExportToMySQLDestinationRequest, accountUuid string) error
+
+	ProcessGetListDataDestinations(ctx context.Context, request *api.GetListDataDestinationsRequest, accountUuid string) (*api.GetListDataDestinationsResponse, error)
 }
 
 type business struct {

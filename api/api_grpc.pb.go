@@ -48,6 +48,7 @@ type CDPServiceClient interface {
 	CreateGophishUserGroupFromSegment(ctx context.Context, in *CreateGophishUserGroupFromSegmentRequest, opts ...grpc.CallOption) (*CreateGophishUserGroupFromSegmentResponse, error)
 	ImportFromMySQLSource(ctx context.Context, in *ImportFromMySQLSourceRequest, opts ...grpc.CallOption) (*ImportFromMySQLSourceResponse, error)
 	ExportToMySQLDestination(ctx context.Context, in *ExportToMySQLDestinationRequest, opts ...grpc.CallOption) (*ExportToMySQLDestinationResponse, error)
+	GetListDataDestinations(ctx context.Context, in *GetListDataDestinationsRequest, opts ...grpc.CallOption) (*GetListDataDestinationsResponse, error)
 }
 
 type cDPServiceClient struct {
@@ -292,6 +293,15 @@ func (c *cDPServiceClient) ExportToMySQLDestination(ctx context.Context, in *Exp
 	return out, nil
 }
 
+func (c *cDPServiceClient) GetListDataDestinations(ctx context.Context, in *GetListDataDestinationsRequest, opts ...grpc.CallOption) (*GetListDataDestinationsResponse, error) {
+	out := new(GetListDataDestinationsResponse)
+	err := c.cc.Invoke(ctx, "/api.CDPService/GetListDataDestinations", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CDPServiceServer is the server API for CDPService service.
 // All implementations must embed UnimplementedCDPServiceServer
 // for forward compatibility
@@ -322,6 +332,7 @@ type CDPServiceServer interface {
 	CreateGophishUserGroupFromSegment(context.Context, *CreateGophishUserGroupFromSegmentRequest) (*CreateGophishUserGroupFromSegmentResponse, error)
 	ImportFromMySQLSource(context.Context, *ImportFromMySQLSourceRequest) (*ImportFromMySQLSourceResponse, error)
 	ExportToMySQLDestination(context.Context, *ExportToMySQLDestinationRequest) (*ExportToMySQLDestinationResponse, error)
+	GetListDataDestinations(context.Context, *GetListDataDestinationsRequest) (*GetListDataDestinationsResponse, error)
 	mustEmbedUnimplementedCDPServiceServer()
 }
 
@@ -406,6 +417,9 @@ func (UnimplementedCDPServiceServer) ImportFromMySQLSource(context.Context, *Imp
 }
 func (UnimplementedCDPServiceServer) ExportToMySQLDestination(context.Context, *ExportToMySQLDestinationRequest) (*ExportToMySQLDestinationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ExportToMySQLDestination not implemented")
+}
+func (UnimplementedCDPServiceServer) GetListDataDestinations(context.Context, *GetListDataDestinationsRequest) (*GetListDataDestinationsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetListDataDestinations not implemented")
 }
 func (UnimplementedCDPServiceServer) mustEmbedUnimplementedCDPServiceServer() {}
 
@@ -888,6 +902,24 @@ func _CDPService_ExportToMySQLDestination_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CDPService_GetListDataDestinations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetListDataDestinationsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDPServiceServer).GetListDataDestinations(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.CDPService/GetListDataDestinations",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDPServiceServer).GetListDataDestinations(ctx, req.(*GetListDataDestinationsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CDPService_ServiceDesc is the grpc.ServiceDesc for CDPService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -998,6 +1030,10 @@ var CDPService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ExportToMySQLDestination",
 			Handler:    _CDPService_ExportToMySQLDestination_Handler,
+		},
+		{
+			MethodName: "GetListDataDestinations",
+			Handler:    _CDPService_GetListDataDestinations_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
