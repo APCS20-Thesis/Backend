@@ -82,7 +82,6 @@ func (b business) CreateGophishUserGroupFromSegment(ctx context.Context, account
 		Name:          request.Name,
 		AccountUuid:   uuid.MustParse(accountUuid),
 		Type:          model.DataDestinationType_GOPHISH,
-		Status:        "DONE",
 		Configuration: pqtype.NullRawMessage{RawMessage: config, Valid: config != nil},
 		ConnectionId:  0,
 	})

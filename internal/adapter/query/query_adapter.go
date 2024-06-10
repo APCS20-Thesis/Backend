@@ -7,10 +7,10 @@ import (
 )
 
 const (
-	Endpoint_GET_DATA_TABLE    string = "/data-table"
-	Endpoint_GET_SCHEMA_TABLE  string = "/schema-table"
-	Endpoint_GET_DATA_TABLE_V2 string = "/v2/data-table"
-	Endpoint_QUERY_SQL         string = "/delta-query"
+	Endpoint_GET_DATA_TABLE    string = "/api/data-table"
+	Endpoint_GET_SCHEMA_TABLE  string = "/api/schema-table"
+	Endpoint_GET_DATA_TABLE_V2 string = "/api/v2/data-table"
+	Endpoint_QUERY_SQL         string = "/api/delta-query"
 )
 
 type QueryAdapter interface {
@@ -93,7 +93,7 @@ type (
 		Type string `json:"type"`
 	}
 	GetSchemaDataTableResponse struct {
-		Fields []FieldSchema `json:"fields"`
+		Schema []FieldSchema `json:"schema"`
 	}
 )
 

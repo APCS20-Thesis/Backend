@@ -26,11 +26,13 @@ func NewDataSourceRepository(db *gorm.DB) DataSourceRepository {
 }
 
 type CreateDataSourceParams struct {
+	Tx             *gorm.DB
 	Name           string
 	Description    string
 	Type           model.DataSourceType
 	Configurations pqtype.NullRawMessage
 	AccountUuid    uuid.UUID
+	ConnectionId   int64
 }
 
 func (r *dataSourceRepo) CreateDataSource(ctx context.Context, params *CreateDataSourceParams) (*model.DataSource, error) {
@@ -39,7 +41,13 @@ func (r *dataSourceRepo) CreateDataSource(ctx context.Context, params *CreateDat
 		Description:    params.Description,
 		Type:           params.Type,
 		Configurations: params.Configurations,
+		ConnectionId:   params.ConnectionId,
 		AccountUuid:    params.AccountUuid,
+	}
+
+	if params.Tx != nil {
+		createErr := params.Tx.WithContext(ctx).Table(r.TableName).Create(&dataSource).Error
+		return dataSource, createErr
 	}
 
 	createErr := r.WithContext(ctx).Table(r.TableName).Create(&dataSource).Error

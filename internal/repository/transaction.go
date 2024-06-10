@@ -109,21 +109,21 @@ func (r transactionRepo) ImportCsvTransaction(ctx context.Context, params *Impor
 		tx.Rollback()
 		return err
 	}
-	//_, err = airflowAdapter.TriggerGenerateDagImportCsv(ctx, &airflow.TriggerGenerateDagImportCsvRequest{
-	//	Config: airflow.ImportCsvRequestConfig{
-	//		DagId:            params.DagId,
-	//		AccountUuid:      params.AccountUuid.String(),
-	//		DeltaTableName:   dataTable.Name,
-	//		S3Configurations: params.S3Configurations,
-	//		WriteMode:        params.WriteMode,
-	//		CsvReadOptions:   params.CsvReadOptions,
-	//		Headers:          params.Headers,
-	//	},
-	//})
-	//if err != nil {
-	//	tx.Rollback()
-	//	return err
-	//}
+	_, err = airflowAdapter.TriggerGenerateDagImportCsv(ctx, &airflow.TriggerGenerateDagImportCsvRequest{
+		Config: airflow.ImportCsvRequestConfig{
+			DagId:            params.DagId,
+			AccountUuid:      params.AccountUuid.String(),
+			DeltaTableName:   dataTable.Name,
+			S3Configurations: params.S3Configurations,
+			WriteMode:        params.WriteMode,
+			CsvReadOptions:   params.CsvReadOptions,
+			Headers:          params.Headers,
+		},
+	})
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
 	dataAction := &model.DataAction{
 		TargetTable: model.TargetTable_SourceTableMap,
 		ActionType:  params.DataActionType,

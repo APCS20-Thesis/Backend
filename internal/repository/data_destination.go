@@ -14,7 +14,7 @@ import (
 type DataDestinationRepository interface {
 	CreateDataDestination(ctx context.Context, params *CreateDataDestinationParams) (*model.DataDestination, error)
 	GetDataDestination(ctx context.Context, id int64) (*model.DataDestination, error)
-	//ListDataDestinations(ctx context.Context, params *ListDataDestinationFilters) ([]model.DataDestination, error)
+	ListDataDestinations(ctx context.Context, params *ListDataDestinationsParams) (*ListDataDestinationsResult, error)
 }
 
 type dataDestinationRepo struct {
@@ -30,7 +30,6 @@ type CreateDataDestinationParams struct {
 	Name          string
 	AccountUuid   uuid.UUID
 	Type          model.DataDestinationType
-	Status        model.DataDestinationStatus
 	Configuration pqtype.NullRawMessage
 	ConnectionId  int64
 }
@@ -39,7 +38,6 @@ func (r *dataDestinationRepo) CreateDataDestination(ctx context.Context, params 
 	dest := &model.DataDestination{
 		Name:           params.Name,
 		Type:           params.Type,
-		Status:         params.Status,
 		Configurations: params.Configuration,
 		AccountUuid:    params.AccountUuid,
 		ConnectionId:   params.ConnectionId,
@@ -64,4 +62,37 @@ func (r *dataDestinationRepo) GetDataDestination(ctx context.Context, id int64) 
 	}
 
 	return &destination, nil
+}
+
+type ListDataDestinationsParams struct {
+	Page        int
+	PageSize    int
+	Type        model.DataDestinationType
+	AccountUuid string
+}
+
+type ListDataDestinationsResult struct {
+	Destinations []model.DataDestination
+	Count        int64
+}
+
+func (r *dataDestinationRepo) ListDataDestinations(ctx context.Context, params *ListDataDestinationsParams) (*ListDataDestinationsResult, error) {
+	var (
+		destinations []model.DataDestination
+		count        int64
+	)
+
+	query := r.WithContext(ctx).Table(r.TableName).Where("account_uuid = ?", params.AccountUuid)
+	if params.Type != "" {
+		query.Where("type = ?", params.Type)
+	}
+	err := query.Count(&count).Scopes(Paginate(params.Page, params.PageSize)).Find(&destinations).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &ListDataDestinationsResult{
+		Destinations: destinations,
+		Count:        count,
+	}, nil
 }

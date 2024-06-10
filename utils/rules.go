@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"fmt"
+	"github.com/APCS20-Thesis/Backend/internal/model"
 	"strconv"
 	"strings"
 	"time"
@@ -52,36 +54,20 @@ func GenerateDeltaAudiencePath(masterSegmentId int64) string {
 		strconv.FormatInt(masterSegmentId, 10), 2)
 }
 
-//func BuildSQLCondition(condition []*api.CreateSegmentRequest_GroupCondition) string {
-//	if len(condition) == 0 {
-//		return ""
-//	}
-//
-//	sqlCondition := ""
-//	for _, each := range condition {
-//		clause := fmt.Sprintf("%s %s %s", each.Condition.ColumnName, each.Condition.Operator, each.Condition.Value)
-//		if len(each.Condition.Condition) > 0 {
-//			for _, alternateCondition := range each.Condition.Condition {
-//				clause += fmt.Sprintf(" %s %s %s %s",
-//					alternateCondition.Combinator,
-//					alternateCondition.Condition.ColumnName,
-//					alternateCondition.Condition.Operator,
-//					alternateCondition.Condition.Value,
-//				)
-//			}
-//			if each.Combinator == "" {
-//				sqlCondition += fmt.Sprintf("(%s)", clause)
-//				continue
-//			}
-//			sqlCondition += fmt.Sprintf(" %s (%s)", each.Combinator, clause)
-//		} else {
-//			if each.Combinator == "" {
-//				sqlCondition += fmt.Sprintf("%s", clause)
-//				continue
-//			}
-//			sqlCondition += fmt.Sprintf(" %s %s", each.Combinator, clause)
-//		}
-//	}
-//
-//	return sqlCondition
-//}
+func GenerateDagId(accountUuid string, dataActionType model.ActionType) string {
+	dateTime := strconv.FormatInt(time.Now().Unix(), 10)
+	var prefix string
+	switch dataActionType {
+	case model.ActionType_ImportDataFromS3:
+		prefix = "import_csv_s3"
+	case model.ActionType_ImportDataFromMySQL:
+		prefix = "import_mysql"
+	case model.ActionType_ImportDataFromFile:
+		prefix = "import_csv"
+	case model.ActionType_ExportToMySQL:
+		prefix = "export_mysql"
+	default:
+		return ""
+	}
+	return fmt.Sprintf("%s_%s_%s", prefix, accountUuid, dateTime)
+}
