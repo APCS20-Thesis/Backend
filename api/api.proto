@@ -72,25 +72,25 @@ service CDPService {
   }
   rpc GetListConnections(GetListConnectionsRequest) returns (GetListConnectionsResponse){
     option (google.api.http) = {
-      get: "/api/v1/data-source/connections"
+      get: "/api/v1/connections"
     };
   }
 
   rpc CreateConnection(CreateConnectionRequest) returns (CreateConnectionResponse){
     option (google.api.http) = {
-      post: "/api/v1/data-source/connection"
+      post: "/api/v1/connection"
       body: "*"
     };
   }
   rpc UpdateConnection(UpdateConnectionRequest) returns (UpdateConnectionResponse){
     option (google.api.http) = {
-      post: "/api/v1/data-source/connection/{id}"
+      post: "/api/v1/connection/{id}"
       body: "*"
     };
   }
   rpc DeleteConnection(DeleteConnectionRequest) returns (DeleteConnectionResponse){
     option (google.api.http) = {
-      delete: "/api/v1/data-source/connection/{id}"
+      delete: "/api/v1/connection/{id}"
     };
   }
 
@@ -435,6 +435,10 @@ message GetListConnectionsRequest {
   string type = 1 [(validate.rules).string.min_len = 1];
   // name
   string name = 2 [(validate.rules).string.min_len = 1];
+  // page
+  int32 page = 3;
+  // page_size
+  int32 page_size = 4;
 }
 
 // GetListConnections Response
@@ -451,8 +455,15 @@ message GetListConnectionsResponse {
     int64 id = 1;
     // name
     string name = 2;
+    // type
+    string type = 3;
     // updated_at
-    string updated_at = 3;
+    string updated_at = 4;
+
+    // data source
+    repeated EnrichedDataSource data_sources = 5;
+    // data destination
+    repeated EnrichedDataDestination data_destinations = 6;
   }
 }
 

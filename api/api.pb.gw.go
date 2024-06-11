@@ -2294,13 +2294,13 @@ var (
 
 	pattern_CDPService_GetConnection_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "v1", "data-source", "connection", "id"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_CDPService_GetListConnections_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "data-source", "connections"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_CDPService_GetListConnections_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "connections"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_CDPService_CreateConnection_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "data-source", "connection"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_CDPService_CreateConnection_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "connection"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_CDPService_UpdateConnection_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "v1", "data-source", "connection", "id"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_CDPService_UpdateConnection_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"api", "v1", "connection", "id"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_CDPService_DeleteConnection_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "v1", "data-source", "connection", "id"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_CDPService_DeleteConnection_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"api", "v1", "connection", "id"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_CDPService_ExportDataTableToFile_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"api", "v1", "data-table", "id", "export"}, "", runtime.AssumeColonVerbOpt(true)))
 

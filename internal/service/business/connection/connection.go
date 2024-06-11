@@ -1,4 +1,4 @@
-package data_source
+package connection
 
 import (
 	"context"
@@ -73,8 +73,8 @@ func (b business) UpdateConnection(ctx context.Context, params *repository.Updat
 	return nil
 }
 
-func (b business) GetListConnections(ctx context.Context, request *api.GetListConnectionsRequest, accountUuid string) ([]*api.GetListConnectionsResponse_Connection, error) {
-	Connections, err := b.repository.ConnectionRepository.ListConnections(ctx,
+func (b business) GetListConnections(ctx context.Context, request *api.GetListConnectionsRequest, accountUuid string) ([]*api.GetListConnectionsResponse_Connection, int64, error) {
+	connections, count, err := b.repository.ConnectionRepository.ListConnections(ctx,
 		&repository.FilterConnection{
 			Name:        request.Name,
 			Type:        model.ConnectionType(request.Type),
@@ -82,19 +82,21 @@ func (b business) GetListConnections(ctx context.Context, request *api.GetListCo
 		})
 	if err != nil {
 		b.log.WithName("GetListConnections").
-			WithValues("Context", ctx).
 			Error(err, "Cannot get list connection")
-		return nil, err
+		return nil, 0, err
 	}
 	var response []*api.GetListConnectionsResponse_Connection
-	for _, connection := range Connections {
+	for _, connection := range connections {
 		response = append(response, &api.GetListConnectionsResponse_Connection{
-			Id:        connection.ID,
-			Name:      connection.Name,
-			UpdatedAt: connection.UpdatedAt.String(),
+			Id:               connection.ID,
+			Name:             connection.Name,
+			Type:             string(connection.Type),
+			UpdatedAt:        connection.UpdatedAt.String(),
+			DataSources:      nil,
+			DataDestinations: nil,
 		})
 	}
-	return response, nil
+	return response, count, nil
 }
 
 func (b business) GetConnection(ctx context.Context, request *api.GetConnectionRequest, accountUuid string) (*api.GetConnectionResponse, error) {
@@ -103,15 +105,11 @@ func (b business) GetConnection(ctx context.Context, request *api.GetConnectionR
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "Not found connection with id "+strconv.FormatInt(request.Id, 10))
 		}
-		b.log.WithName("GetConnection").
-			WithValues("Context", ctx).
-			Error(err, "Cannot get connection")
+		b.log.WithName("GetConnection").Error(err, "Cannot get connection")
 		return nil, err
 	}
 	if connection.AccountUuid != uuid.MustParse(accountUuid) {
-		b.log.WithName("GetConnection").
-			WithValues("Context", ctx).
-			Info("Only owner can get connection")
+		b.log.WithName("GetConnection").Info("Only owner can get connection")
 		return nil, status.Error(codes.PermissionDenied, "Only owner can get connection")
 	}
 	var configurations map[string]string
@@ -151,9 +149,7 @@ func (b business) DeleteConnection(ctx context.Context, request *api.DeleteConne
 	}
 	err = b.repository.ConnectionRepository.DeleteConnection(ctx, request.Id)
 	if err != nil {
-		b.log.WithName("DeleteConnection").
-			WithValues("Context", ctx).
-			Error(err, "Cannot delete connection")
+		b.log.WithName("DeleteConnection").Error(err, "Cannot delete connection")
 		return err
 	}
 	return nil

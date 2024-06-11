@@ -7,6 +7,7 @@ import (
 	"github.com/APCS20-Thesis/Backend/internal/adapter/query"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
 	"github.com/APCS20-Thesis/Backend/internal/service/business/auth"
+	"github.com/APCS20-Thesis/Backend/internal/service/business/connection"
 	data_destination "github.com/APCS20-Thesis/Backend/internal/service/business/data-destination"
 	data_source "github.com/APCS20-Thesis/Backend/internal/service/business/data-source"
 	data_table "github.com/APCS20-Thesis/Backend/internal/service/business/data-table"
@@ -23,6 +24,7 @@ type Business struct {
 	DataTableBusiness       data_table.Business
 	SegmentBusiness         segment.Business
 	DataDestinationBusiness data_destination.Business
+	ConnectionBusiness      connection.Business
 }
 
 func NewBusiness(
@@ -42,5 +44,6 @@ func NewBusiness(
 		DataTableBusiness:       data_table.NewDataTableBusiness(log, repo, airflowAdapter, queryAdapter),
 		SegmentBusiness:         segment.NewSegmentBusiness(log, repo, airflowAdapter),
 		DataDestinationBusiness: data_destination.NewDataDestinationBusiness(db, log, repo, gophishAdapter, queryAdapter, airflowAdapter),
+		ConnectionBusiness:      connection.NewConnectionBusiness(log, repo),
 	}
 }
