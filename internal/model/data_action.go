@@ -21,6 +21,7 @@ type DataActionTargetTable string
 
 const (
 	TargetTable_SourceTableMap DataActionTargetTable = "source_table_map"
+	TargetTable_DestTableMap   DataActionTargetTable = "dest_table_map"
 	TargetTable_DataTable      DataActionTargetTable = "data_table"
 )
 
