@@ -14,7 +14,7 @@ type ConnectionRepository interface {
 	CreateConnection(ctx context.Context, params *CreateConnectionParams) (*model.Connection, error)
 	GetConnection(ctx context.Context, id int64) (*model.Connection, error)
 	UpdateConnection(ctx context.Context, params *UpdateConnectionParams) error
-	ListConnections(ctx context.Context, filter *FilterConnection) ([]model.Connection, error)
+	ListConnections(ctx context.Context, filter *FilterConnection) ([]model.Connection, int64, error)
 	DeleteConnection(ctx context.Context, id int64) error
 }
 
@@ -102,10 +102,15 @@ type FilterConnection struct {
 	Name        string
 	Type        model.ConnectionType
 	AccountUuid uuid.UUID
+	Page        int
+	PageSize    int
 }
 
-func (r *ConnectionRepo) ListConnections(ctx context.Context, filter *FilterConnection) ([]model.Connection, error) {
-	var connections []model.Connection
+func (r *ConnectionRepo) ListConnections(ctx context.Context, filter *FilterConnection) ([]model.Connection, int64, error) {
+	var (
+		connections []model.Connection
+		count       int64
+	)
 	query := r.WithContext(ctx).Table(r.TableName)
 	if filter.Type != "" {
 		query = query.Where("type = ?", filter.Type)
@@ -116,11 +121,11 @@ func (r *ConnectionRepo) ListConnections(ctx context.Context, filter *FilterConn
 	if filter.AccountUuid.String() != "" {
 		query = query.Where("account_uuid = ?", filter.AccountUuid)
 	}
-	err := query.Find(&connections).Error
+	err := query.Count(&count).Scopes(Paginate(filter.Page, filter.PageSize)).Find(&connections).Error
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	return connections, nil
+	return connections, count, nil
 }
 
 func (r *ConnectionRepo) DeleteConnection(ctx context.Context, id int64) error {

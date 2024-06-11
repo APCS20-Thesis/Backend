@@ -173,3 +173,41 @@ message DataDestination {
   string updated_at = 5;
 }
 
+message DataSource {
+
+}
+
+message DataSourceDetail {
+  // id
+  int64 id = 1;
+  // name
+  string name = 2;
+  // description
+  string description = 3;
+  // type
+  string type = 4;
+  // created_at
+  string created_at = 5;
+  // updated_at
+  string updated_at = 6;
+  // connection_id
+  int64 connection_id = 7;
+}
+
+message EnrichedDataSource {
+  // id
+  int64 id = 1;
+  // name
+  string name = 2;
+  // type
+  string type = 4;
+}
+
+message EnrichedDataDestination {
+  // id
+  int64 id = 1;
+  // name
+  string name = 2;
+  // type
+  string type = 4;
+}

@@ -21,14 +21,17 @@ type DataActionTargetTable string
 
 const (
 	TargetTable_SourceTableMap DataActionTargetTable = "source_table_map"
+	TargetTable_DestTableMap   DataActionTargetTable = "dest_table_map"
 	TargetTable_DataTable      DataActionTargetTable = "data_table"
 )
 
 type DataActionStatus string
 
 const (
-	DataActionStatus_Triggered DataActionStatus = "TRIGGERED"
-	DataActionStatus_Pending   DataActionStatus = "PENDING"
+	DataActionStatus_Pending    DataActionStatus = "PENDING"
+	DataActionStatus_Processing DataActionStatus = "PROCESSING"
+	DataActionStatus_Success    DataActionStatus = "SUCCESS"
+	DataActionStatus_Failed     DataActionStatus = "FAILED"
 )
 
 type DataAction struct {

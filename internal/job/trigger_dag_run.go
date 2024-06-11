@@ -39,7 +39,7 @@ func (j *job) TriggerDagRuns(ctx context.Context) {
 		// - Update DataAction status
 		tx := j.db.Begin()
 		// update data action status
-		tx.WithContext(ctx).Table("data_action").Where("id = ?", dataAction.ID).Update("status", model.DataActionStatus_Triggered)
+		tx.WithContext(ctx).Table("data_action").Where("id = ?", dataAction.ID).Update("status", model.DataActionStatus_Processing)
 
 		// - Gọi airflow trigger DagRun
 		triggerDagRunResponse, err := j.airflowAdapter.TriggerNewDagRun(ctx, dataAction.DagId, &airflow.TriggerNewDagRunRequest{})
