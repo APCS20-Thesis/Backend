@@ -38,28 +38,61 @@ func (b business) UpdateDataTable(ctx context.Context, params *repository.Update
 	return nil
 }
 
-func (b business) GetListDataTables(ctx context.Context, request *api.GetListDataTablesRequest, accountUuid string) ([]*api.GetListDataTablesResponse_DataTable, error) {
-	dataTables, err := b.repository.DataTableRepository.ListDataTables(ctx,
+func (b business) GetListDataTables(ctx context.Context, request *api.GetListDataTablesRequest, accountUuid string) ([]*api.GetListDataTablesResponse_DataTable, int64, error) {
+	logger := b.log.WithName("GetListDataTables").WithValues("request", request)
+
+	queryResult, err := b.repository.DataTableRepository.ListDataTables(ctx,
 		&repository.ListDataTablesFilters{
 			Name:        request.Name,
 			AccountUuid: accountUuid,
+			Page:        int(request.Page),
+			PageSize:    int(request.PageSize),
 		})
 	if err != nil {
-		b.log.WithName("GetListDataTables").
-			WithValues("Context", ctx).
-			Error(err, "Cannot get list data_Tables")
-		return nil, err
+		logger.Error(err, "Cannot get list data_Tables")
+		return nil, 0, err
 	}
+
+	tableIds := utils.Map(queryResult.DataTables, func(table model.DataTable) int64 { return table.ID })
+	enrichedSources, err := b.repository.DataTableRepository.GetSourcesOfDataTables(ctx, tableIds)
+	if err != nil {
+		logger.Error(err, "cannot enrich data sources", "table ids", tableIds)
+		return nil, 0, err
+	}
+
+	enrichedDestinations, err := b.repository.DataTableRepository.GetDestinationsOfDataTables(ctx, tableIds)
+	if err != nil {
+		logger.Error(err, "cannot enrich data destinations", "table ids", tableIds)
+		return nil, 0, err
+	}
+
 	var response []*api.GetListDataTablesResponse_DataTable
-	for _, dataTable := range dataTables {
+	for _, dataTable := range queryResult.DataTables {
+		sources := enrichedSources[dataTable.ID]
+		destinations := enrichedDestinations[dataTable.ID]
 		response = append(response, &api.GetListDataTablesResponse_DataTable{
 			Id:        dataTable.ID,
 			Name:      dataTable.Name,
 			CreatedAt: dataTable.CreatedAt.String(),
 			UpdatedAt: dataTable.UpdatedAt.String(),
+			DataSources: utils.Map(sources, func(dataSource model.DataSource) *api.EnrichedDataSource {
+				return &api.EnrichedDataSource{
+					Id:   dataSource.ID,
+					Name: dataSource.Name,
+					Type: string(dataSource.Type),
+				}
+			}),
+			DataDestinations: utils.Map(destinations, func(dataDestination model.DataDestination) *api.EnrichedDataDestination {
+				return &api.EnrichedDataDestination{
+					Id:   dataDestination.ID,
+					Name: dataDestination.Name,
+					Type: string(dataDestination.Type),
+				}
+			}),
 		})
 	}
-	return response, nil
+
+	return response, queryResult.Count, nil
 }
 
 func (b business) GetDataTable(ctx context.Context, request *api.GetDataTableRequest, accountUuid string) (*api.GetDataTableResponse, error) {

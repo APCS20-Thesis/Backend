@@ -13,9 +13,11 @@ type DataTableRepository interface {
 	CreateDataTable(ctx context.Context, params *CreateDataTableParams) (*model.DataTable, error)
 	GetDataTable(ctx context.Context, id int64) (*model.DataTable, error)
 	UpdateDataTable(ctx context.Context, params *UpdateDataTableParams) error
-	ListDataTables(ctx context.Context, filter *ListDataTablesFilters) ([]model.DataTable, error)
+	ListDataTables(ctx context.Context, filter *ListDataTablesFilters) (*ListDataTablesResult, error)
 	UpdateStatusDataTable(ctx context.Context, id int64, status model.DataTableStatus) error
 	GetDataTableDeltaPath(ctx context.Context, id int64) (string, error)
+	GetSourcesOfDataTables(ctx context.Context, tableIds []int64) (map[int64][]model.DataSource, error)
+	GetDestinationsOfDataTables(ctx context.Context, tableIds []int64) (map[int64][]model.DataDestination, error)
 }
 
 type dataTableRepo struct {
@@ -92,10 +94,20 @@ type ListDataTablesFilters struct {
 	Name         string
 	AccountUuid  string
 	DataTableIds []int64
+	Page         int
+	PageSize     int
 }
 
-func (r *dataTableRepo) ListDataTables(ctx context.Context, filter *ListDataTablesFilters) ([]model.DataTable, error) {
-	var dataTables []model.DataTable
+type ListDataTablesResult struct {
+	Count      int64
+	DataTables []model.DataTable
+}
+
+func (r *dataTableRepo) ListDataTables(ctx context.Context, filter *ListDataTablesFilters) (*ListDataTablesResult, error) {
+	var (
+		dataTables []model.DataTable
+		count      int64
+	)
 	query := r.WithContext(ctx).Table(r.TableName)
 	if filter.Name != "" {
 		query = query.Where("name LIKE ?", "%"+filter.Name+"%")
@@ -106,7 +118,7 @@ func (r *dataTableRepo) ListDataTables(ctx context.Context, filter *ListDataTabl
 	if len(filter.DataTableIds) > 0 {
 		query = query.Where("id IN ?", filter.DataTableIds)
 	}
-	err := query.Find(&dataTables).Error
+	err := query.Count(&count).Scopes(Paginate(filter.Page, filter.PageSize)).Find(&dataTables).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
@@ -114,7 +126,10 @@ func (r *dataTableRepo) ListDataTables(ctx context.Context, filter *ListDataTabl
 		return nil, err
 	}
 
-	return dataTables, nil
+	return &ListDataTablesResult{
+		Count:      count,
+		DataTables: dataTables,
+	}, nil
 }
 
 func (r *dataTableRepo) UpdateStatusDataTable(ctx context.Context, id int64, status model.DataTableStatus) error {
@@ -129,4 +144,86 @@ func (r *dataTableRepo) GetDataTableDeltaPath(ctx context.Context, id int64) (st
 	}
 
 	return "/data/bronze/" + dataTable.AccountUuid.String() + "/" + dataTable.Name, err
+}
+
+type DataTableDataSource struct {
+	TableId    int64
+	SourceId   int64
+	SourceName string
+	SourceType model.DataSourceType
+}
+
+func (r *dataTableRepo) GetSourcesOfDataTables(ctx context.Context, tableIds []int64) (map[int64][]model.DataSource, error) {
+	if len(tableIds) <= 0 {
+		return nil, nil
+	}
+
+	query := r.WithContext(ctx).Table(r.TableName).
+		Where("data_table.id IN ?", tableIds).
+		Joins("JOIN source_table_map ON data_table.id = source_table_map.table_id").
+		Joins("LEFT JOIN data_source ON source_table_map.source_id = data_source.id").
+		Select("data_table.id AS table_id, " +
+			"data_source.id AS source_id, " +
+			"data_source.name AS source_name, " +
+			"data_source.type AS source_type")
+
+	var results []DataTableDataSource
+	err := query.Scan(&results).Error
+	if err != nil {
+		return nil, err
+	}
+
+	tableSourceMap := make(map[int64][]model.DataSource)
+	for _, each := range results {
+		if each.SourceId > 0 {
+			tableSourceMap[each.TableId] = append(tableSourceMap[each.TableId], model.DataSource{
+				ID:   each.SourceId,
+				Name: each.SourceName,
+				Type: each.SourceType,
+			})
+		}
+	}
+
+	return tableSourceMap, nil
+}
+
+type DataTableDataDestination struct {
+	TableId         int64
+	DestinationId   int64
+	DestinationName string
+	DestinationType model.DataDestinationType
+}
+
+func (r *dataTableRepo) GetDestinationsOfDataTables(ctx context.Context, tableIds []int64) (map[int64][]model.DataDestination, error) {
+	if len(tableIds) <= 0 {
+		return nil, nil
+	}
+
+	query := r.WithContext(ctx).Table(r.TableName).
+		Where("data_table.id IN ?", tableIds).
+		Joins("JOIN dest_table_map ON data_table.id = dest_table_map.table_id").
+		Joins("LEFT JOIN data_destination ON dest_table_map.destination_id = data_destination.id").
+		Select("data_table.id AS table_id, " +
+			"data_destination.id AS destination_id, " +
+			"data_destination.name AS destination_name, " +
+			"data_destination.type AS destination_type")
+
+	var results []DataTableDataDestination
+	err := query.Scan(&results).Error
+	if err != nil {
+		return nil, err
+	}
+
+	tableDestinationMap := make(map[int64][]model.DataDestination)
+	for _, each := range results {
+		if each.DestinationId > 0 {
+			tableDestinationMap[each.TableId] = append(tableDestinationMap[each.TableId], model.DataDestination{
+				ID:   each.DestinationId,
+				Name: each.DestinationName,
+				Type: each.DestinationType,
+			})
+		}
+	}
+
+	return tableDestinationMap, nil
 }

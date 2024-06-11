@@ -128,10 +128,10 @@ func (b business) GetMasterSegmentDetail(ctx context.Context, request *api.GetMa
 	for _, table := range behaviorTables {
 		enrichDataTableIds = append(enrichDataTableIds, table.DataTableId)
 	}
-	dataTables, err := b.repository.DataTableRepository.ListDataTables(ctx, &repository.ListDataTablesFilters{
+	listTablesResult, err := b.repository.DataTableRepository.ListDataTables(ctx, &repository.ListDataTablesFilters{
 		DataTableIds: enrichDataTableIds,
 	})
-	for _, table := range dataTables {
+	for _, table := range listTablesResult.DataTables {
 		mapDataTableIdToName[table.ID] = table.Name
 	}
 

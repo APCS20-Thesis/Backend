@@ -9,19 +9,18 @@ import (
 func (s *Service) GetListDataTables(ctx context.Context, request *api.GetListDataTablesRequest) (*api.GetListDataTablesResponse, error) {
 	accountUuid, err := GetAccountUuidFromCtx(ctx)
 	if err != nil {
-		s.log.WithName("GetListDataTables").
-			WithValues("Context", ctx).
-			Error(err, "Cannot get account_uuid from context")
+		s.log.WithName("GetListDataTables").Error(err, "Cannot get account_uuid from context")
 		return nil, err
 	}
-	dataTables, err := s.business.DataTableBusiness.GetListDataTables(ctx, request, accountUuid)
+	dataTables, count, err := s.business.DataTableBusiness.GetListDataTables(ctx, request, accountUuid)
 	if err != nil {
-		s.log.WithName("GetListDataTables").
-			WithValues("Context", ctx).
-			Error(err, "Failed to process list data tables")
 		return nil, err
 	}
-	return &api.GetListDataTablesResponse{Code: int32(codes.OK), Count: int64(len(dataTables)), Results: dataTables}, nil
+	return &api.GetListDataTablesResponse{
+		Code:    int32(codes.OK),
+		Count:   count,
+		Results: dataTables,
+	}, nil
 }
 
 func (s *Service) GetDataTable(ctx context.Context, request *api.GetDataTableRequest) (*api.GetDataTableResponse, error) {

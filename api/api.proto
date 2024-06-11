@@ -340,6 +340,10 @@ message GetDataSourceResponse {
 message GetListDataTablesRequest {
   // name
   string name = 1;
+  // page
+  int32 page = 2;
+  // page_size
+  int32 page_size = 3;
 }
 
 // GetListDataSource Response
@@ -360,6 +364,10 @@ message GetListDataTablesResponse {
     string created_at = 3;
     // updated_at
     string updated_at = 4;
+    // sources
+    repeated EnrichedDataSource data_sources = 5;
+    // destinations
+    repeated EnrichedDataDestination data_destinations = 6;
   }
 }
 

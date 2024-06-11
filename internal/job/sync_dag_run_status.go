@@ -36,10 +36,26 @@ func (j *job) SyncDagRunStatus(ctx context.Context) {
 		switch response.State {
 		case "success":
 			err = j.repository.DataActionRunRepository.UpdateDataActionRunStatus(ctx, dataActionRun.ID, model.DataActionRunStatus_Success)
+			if err != nil {
+				jobLog.Error(err, "cannot update data action run status", "data action run id", dataActionRun.ID)
+				break
+			}
+			err = j.repository.DataActionRepository.UpdateDataAction(ctx, &repository.UpdateDataActionParams{
+				ID:     dataActionRun.ActionId,
+				Status: model.DataActionStatus_Success,
+			})
 			// additional handling
 			go j.SyncRelatedStatusFromDataActionRunStatus(ctx, dataActionRun.ActionId)
 		case "failed":
 			err = j.repository.DataActionRunRepository.UpdateDataActionRunStatus(ctx, dataActionRun.ID, model.DataActionRunStatus_Failed)
+			if err != nil {
+				jobLog.Error(err, "cannot update data action run status", "data action run id", dataActionRun.ID)
+				break
+			}
+			err = j.repository.DataActionRepository.UpdateDataAction(ctx, &repository.UpdateDataActionParams{
+				ID:     dataActionRun.ActionId,
+				Status: model.DataActionStatus_Failed,
+			})
 		default:
 		}
 		if err != nil {
