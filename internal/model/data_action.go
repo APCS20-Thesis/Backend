@@ -28,7 +28,6 @@ const (
 type DataActionStatus string
 
 const (
-	DataActionStatus_Triggered  DataActionStatus = "TRIGGERED"
 	DataActionStatus_Pending    DataActionStatus = "PENDING"
 	DataActionStatus_Processing DataActionStatus = "PROCESSING"
 	DataActionStatus_Success    DataActionStatus = "SUCCESS"
