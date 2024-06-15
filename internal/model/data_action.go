@@ -12,7 +12,7 @@ const (
 	ActionType_ImportDataFromFile  ActionType = "IMPORT_DATA_FROM_FILE"
 	ActionType_ImportDataFromS3    ActionType = "IMPORT_DATA_FROM_S3"
 	ActionType_ImportDataFromMySQL ActionType = "IMPORT_DATA_FROM_MYSQL"
-	ActionType_ExportDataToCSV     ActionType = "EXPORT_DATA_TO_CSV"
+	ActionType_ExportDataToS3CSV   ActionType = "EXPORT_DATA_TO_S3_CSV"
 	ActionType_ExportToMySQL       ActionType = "EXPORT_TABLE_TO_MYSQL"
 	ActionType_CreateMasterSegment ActionType = "CREATE_MS_SEGMENT"
 )
@@ -20,9 +20,11 @@ const (
 type DataActionTargetTable string
 
 const (
-	TargetTable_SourceTableMap DataActionTargetTable = "source_table_map"
-	TargetTable_DestTableMap   DataActionTargetTable = "dest_table_map"
-	TargetTable_DataTable      DataActionTargetTable = "data_table"
+	TargetTable_SourceTableMap       DataActionTargetTable = "source_table_map"
+	TargetTable_DestTableMap         DataActionTargetTable = "dest_table_map"
+	TargetTable_DestSegmentMap       DataActionTargetTable = "dest_segment_map"
+	TargetTable_DestMasterSegmentMap DataActionTargetTable = "dest_ms_segment_map"
+	TargetTable_DataTable            DataActionTargetTable = "data_table"
 )
 
 type DataActionStatus string

@@ -27,6 +27,7 @@ func NewDataDestinationRepository(db *gorm.DB) DataDestinationRepository {
 }
 
 type CreateDataDestinationParams struct {
+	Tx            *gorm.DB
 	Name          string
 	AccountUuid   uuid.UUID
 	Type          model.DataDestinationType
@@ -43,7 +44,12 @@ func (r *dataDestinationRepo) CreateDataDestination(ctx context.Context, params 
 		ConnectionId:   params.ConnectionId,
 	}
 
-	createErr := r.WithContext(ctx).Table(r.TableName).Create(&dest).Error
+	var createErr error
+	if params.Tx != nil {
+		createErr = params.Tx.WithContext(ctx).Table(r.TableName).Create(&dest).Error
+	} else {
+		createErr = r.WithContext(ctx).Table(r.TableName).Create(&dest).Error
+	}
 	if createErr != nil {
 		return nil, createErr
 	}
