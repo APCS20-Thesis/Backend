@@ -42,7 +42,7 @@ func NewBusiness(
 		AuthBusiness:            auth.NewAuthBusiness(log, repo),
 		DataSourceBusiness:      data_source.NewDataSourceBusiness(db, log, repo, airflowAdapter, config),
 		DataTableBusiness:       data_table.NewDataTableBusiness(log, repo, airflowAdapter, queryAdapter),
-		SegmentBusiness:         segment.NewSegmentBusiness(log, repo, airflowAdapter),
+		SegmentBusiness:         segment.NewSegmentBusiness(db, log, repo, airflowAdapter),
 		DataDestinationBusiness: data_destination.NewDataDestinationBusiness(db, log, repo, gophishAdapter, queryAdapter, airflowAdapter),
 		ConnectionBusiness:      connection.NewConnectionBusiness(log, repo),
 	}

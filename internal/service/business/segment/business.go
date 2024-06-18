@@ -6,6 +6,7 @@ import (
 	"github.com/APCS20-Thesis/Backend/internal/adapter/airflow"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
 	"github.com/go-logr/logr"
+	"gorm.io/gorm"
 )
 
 type Business interface {
@@ -20,13 +21,15 @@ type Business interface {
 }
 
 type business struct {
+	db             *gorm.DB
 	log            logr.Logger
 	repository     *repository.Repository
 	airflowAdapter airflow.AirflowAdapter
 }
 
-func NewSegmentBusiness(log logr.Logger, repository *repository.Repository, airflowAdapter airflow.AirflowAdapter) Business {
+func NewSegmentBusiness(db *gorm.DB, log logr.Logger, repository *repository.Repository, airflowAdapter airflow.AirflowAdapter) Business {
 	return &business{
+		db:             db,
 		log:            log.WithName("SegmentBiz"),
 		repository:     repository,
 		airflowAdapter: airflowAdapter,

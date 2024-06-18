@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/APCS20-Thesis/Backend/api"
+	"github.com/APCS20-Thesis/Backend/internal/model"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
 	"github.com/APCS20-Thesis/Backend/utils"
 	"github.com/google/uuid"
@@ -12,7 +13,12 @@ import (
 )
 
 func (b business) CreateSegment(ctx context.Context, request *api.CreateSegmentRequest, accountUuid string) error {
-	jsonCondition, err := json.Marshal(request.Condition)
+	condition := model.SegmentBuildConditions{
+		AudienceCondition:  request.Condition,
+		BehaviorConditions: request.BehaviorConditions,
+	}
+
+	jsonCondition, err := json.Marshal(condition)
 	if err != nil {
 		b.log.Error(err, "cannot parse condition into json", "condition", request.Condition)
 		return err
@@ -30,6 +36,26 @@ func (b business) CreateSegment(ctx context.Context, request *api.CreateSegmentR
 		b.log.Error(err, "cannot create segment")
 		return err
 	}
+
+	//tx := b.db.Begin()
+
+	// 1. Save Segment
+	//err = b.repository.SegmentRepository.CreateSegment(ctx, &repository.CreateSegmentParams{
+	//	Tx:              tx,
+	//	Name:            request.Name,
+	//	Description:     request.Description,
+	//	MasterSegmentId: request.MasterSegmentId,
+	//	Condition:       pqtype.NullRawMessage{RawMessage: jsonCondition, Valid: true},
+	//	SqlCondition:    request.SqlCondition,
+	//	AccountUuid:     uuid.MustParse(accountUuid),
+	//})
+	//if err != nil {
+	//	b.log.Error(err, "cannot create segment")
+	//	tx.Rollback()
+	//	return err
+	//}
+
+	// 2. Airflow generate segment
 
 	return nil
 }

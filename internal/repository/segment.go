@@ -117,6 +117,7 @@ func (r *segmentRepo) CreateBehaviorTable(ctx context.Context, params *CreateBeh
 }
 
 type CreateSegmentParams struct {
+	Tx              *gorm.DB
 	Name            string
 	Description     string
 	MasterSegmentId int64
@@ -126,16 +127,23 @@ type CreateSegmentParams struct {
 }
 
 func (r *segmentRepo) CreateSegment(ctx context.Context, params *CreateSegmentParams) error {
-	err := r.WithContext(ctx).Table(r.SegmentTableName).Create(&model.Segment{
+	segment := &model.Segment{
 		MasterSegmentId: params.MasterSegmentId,
 		Condition:       params.Condition,
 		SqlCondition:    params.SqlCondition,
 		Description:     params.Description,
 		Name:            params.Name,
 		AccountUuid:     params.AccountUuid,
-	}).Error
-	if err != nil {
-		return err
+	}
+
+	var createErr error
+	if params.Tx != nil {
+		createErr = params.Tx.WithContext(ctx).Table(r.SegmentTableName).Create(segment).Error
+	} else {
+		createErr = r.WithContext(ctx).Table(r.SegmentTableName).Create(segment).Error
+	}
+	if createErr != nil {
+		return createErr
 	}
 
 	return nil
