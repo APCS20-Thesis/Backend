@@ -635,8 +635,8 @@ func local_request_CDPService_DeleteConnection_0(ctx context.Context, marshaler 
 
 }
 
-func request_CDPService_ExportDataTableToFile_0(ctx context.Context, marshaler runtime.Marshaler, client CDPServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ExportDataTableToFileRequest
+func request_CDPService_ExportDataToFile_0(ctx context.Context, marshaler runtime.Marshaler, client CDPServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ExportDataToFileRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -647,31 +647,13 @@ func request_CDPService_ExportDataTableToFile_0(ctx context.Context, marshaler r
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["id"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
-	}
-
-	protoReq.Id, err = runtime.Int64(val)
-
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
-	}
-
-	msg, err := client.ExportDataTableToFile(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.ExportDataToFile(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_CDPService_ExportDataTableToFile_0(ctx context.Context, marshaler runtime.Marshaler, server CDPServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ExportDataTableToFileRequest
+func local_request_CDPService_ExportDataToFile_0(ctx context.Context, marshaler runtime.Marshaler, server CDPServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ExportDataToFileRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -682,25 +664,7 @@ func local_request_CDPService_ExportDataTableToFile_0(ctx context.Context, marsh
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["id"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
-	}
-
-	protoReq.Id, err = runtime.Int64(val)
-
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
-	}
-
-	msg, err := server.ExportDataTableToFile(ctx, &protoReq)
+	msg, err := server.ExportDataToFile(ctx, &protoReq)
 	return msg, metadata, err
 
 }
@@ -1447,7 +1411,7 @@ func RegisterCDPServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 
 	})
 
-	mux.Handle("POST", pattern_CDPService_ExportDataTableToFile_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_CDPService_ExportDataToFile_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -1456,14 +1420,14 @@ func RegisterCDPServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_CDPService_ExportDataTableToFile_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_CDPService_ExportDataToFile_0(rctx, inboundMarshaler, server, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_CDPService_ExportDataTableToFile_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_CDPService_ExportDataToFile_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -2028,7 +1992,7 @@ func RegisterCDPServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 
 	})
 
-	mux.Handle("POST", pattern_CDPService_ExportDataTableToFile_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_CDPService_ExportDataToFile_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -2037,14 +2001,14 @@ func RegisterCDPServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_CDPService_ExportDataTableToFile_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_CDPService_ExportDataToFile_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_CDPService_ExportDataTableToFile_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_CDPService_ExportDataToFile_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -2320,7 +2284,7 @@ var (
 
 	pattern_CDPService_DeleteConnection_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"api", "v1", "connection", "id"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_CDPService_ExportDataTableToFile_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"api", "v1", "data-table", "id", "export"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_CDPService_ExportDataToFile_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"api", "v1", "data-destination", "s3", "file"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_CDPService_ImportCsvFromS3_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"api", "v1", "data-source", "s3", "import-csv"}, "", runtime.AssumeColonVerbOpt(true)))
 
@@ -2376,7 +2340,7 @@ var (
 
 	forward_CDPService_DeleteConnection_0 = runtime.ForwardResponseMessage
 
-	forward_CDPService_ExportDataTableToFile_0 = runtime.ForwardResponseMessage
+	forward_CDPService_ExportDataToFile_0 = runtime.ForwardResponseMessage
 
 	forward_CDPService_ImportCsvFromS3_0 = runtime.ForwardResponseMessage
 

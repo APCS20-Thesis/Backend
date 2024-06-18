@@ -130,30 +130,6 @@ func (b business) GetDataTable(ctx context.Context, request *api.GetDataTableReq
 	}, nil
 }
 
-func (b business) ExportDataTableToFile(ctx context.Context, request *api.ExportDataTableToFileRequest, accountUuid string) (*api.ExportDataTableToFileResponse, error) {
-	dataTable, err := b.repository.DataTableRepository.GetDataTable(ctx, request.GetId())
-	if err != nil {
-		b.log.WithName("ExportDataTableToFile").Error(err, "cannot get data table info", "id", request.Id)
-		return nil, err
-	}
-
-	if request.FileType == "CSV" {
-		err = b.repository.TransactionRepository.ExportDataToCSVTransaction(ctx, &repository.ExportDataToCSVTransactionParams{
-			AccountUuid: uuid.MustParse(accountUuid),
-			TableId:     request.Id,
-			S3Key:       utils.GenerateExportDataFileLocation(accountUuid, dataTable.Name, "csv"),
-		}, b.airflowAdapter)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return &api.ExportDataTableToFileResponse{
-		Code:    int32(code.Code_OK),
-		Message: "Success",
-	}, nil
-}
-
 func (b business) GetListFileExportRecords(ctx context.Context, request *api.GetListFileExportRecordsRequest, accountUuid string) ([]*api.GetListFileExportRecordsResponse_FileExportRecord, error) {
 	records, err := b.repository.FileExportRecordRepository.ListFileExportRecords(ctx, request.Id, accountUuid)
 	if err != nil {

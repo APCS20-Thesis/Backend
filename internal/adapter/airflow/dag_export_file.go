@@ -11,10 +11,10 @@ type (
 	}
 
 	ExportFileRequestConfig struct {
-		DagId          string `json:"dag_id"`
-		AccountUuid    string `json:"account_uuid"`
-		DeltaTableName string `json:"delta_table_name"`
-		SavedS3Path    string `json:"saved_s3_path"`
+		DagId            string           `json:"dag_id"`
+		Key              string           `json:"key"`
+		Condition        string           `json:"condition"`
+		S3Configurations S3Configurations `json:"s3_configurations"`
 	}
 )
 

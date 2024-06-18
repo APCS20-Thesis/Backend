@@ -167,7 +167,7 @@ func (r transactionRepo) ExportDataToCSVTransaction(ctx context.Context, params 
 
 	var dataAction model.DataAction
 	err := r.WithContext(ctx).Table(string(model.TargetTable_DataTable)).
-		Where("id = ? AND action_type = ?", params.TableId, string(model.ActionType_ExportDataToCSV)).
+		Where("id = ? AND action_type = ?", params.TableId, string(model.ActionType_ExportDataToS3CSV)).
 		First(&dataAction).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return r.NewExportFileCSVTransaction(ctx, params, airflowAdapter)
@@ -239,10 +239,10 @@ func (r transactionRepo) NewExportFileCSVTransaction(ctx context.Context, params
 	// trigger new dag run
 	_, err = airflowAdapter.TriggerGenerateDagExportFile(ctx, &airflow.TriggerGenerateDagExportFileRequest{
 		Config: airflow.ExportFileRequestConfig{
-			DagId:          dagId,
-			AccountUuid:    params.AccountUuid.String(),
-			DeltaTableName: dataTable.TableName(),
-			SavedS3Path:    params.S3Key,
+			DagId:            dagId,
+			Key:              "",
+			Condition:        "",
+			S3Configurations: airflow.S3Configurations{},
 		}})
 	if err != nil {
 		tx.Rollback()
@@ -251,7 +251,7 @@ func (r transactionRepo) NewExportFileCSVTransaction(ctx context.Context, params
 
 	dataAction := model.DataAction{
 		TargetTable: model.TargetTable_DataTable,
-		ActionType:  model.ActionType_ExportDataToCSV,
+		ActionType:  model.ActionType_ExportDataToS3CSV,
 		Status:      model.DataActionStatus_Pending,
 		RunCount:    1,
 		DagId:       dagId,

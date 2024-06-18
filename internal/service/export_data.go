@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (s *Service) ExportDataTableToFile(ctx context.Context, request *api.ExportDataTableToFileRequest) (*api.ExportDataTableToFileResponse, error) {
+func (s *Service) ExportDataToFile(ctx context.Context, request *api.ExportDataToFileRequest) (*api.ExportDataToFileResponse, error) {
 	availableFileTypes := []string{string(model.FileType_CSV), string(model.FileType_PARQUET)}
 	if !slices.Contains(availableFileTypes, request.GetFileType()) {
 		return nil, status.Error(codes.InvalidArgument, "Invalid file type, file type can only be csv or parquet")
@@ -21,7 +21,7 @@ func (s *Service) ExportDataTableToFile(ctx context.Context, request *api.Export
 		return nil, err
 	}
 
-	return s.business.DataTableBusiness.ExportDataTableToFile(ctx, request, accountUuid)
+	return s.business.DataDestinationBusiness.ProcessExportDataToFile(ctx, request, accountUuid)
 }
 
 func (s *Service) GetListFileExportRecords(ctx context.Context, request *api.GetListFileExportRecordsRequest) (*api.GetListFileExportRecordsResponse, error) {

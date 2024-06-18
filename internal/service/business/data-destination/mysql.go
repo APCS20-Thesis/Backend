@@ -80,33 +80,61 @@ func (b business) ExportDataTableToMySQL(ctx context.Context, request *api.Expor
 		logger.Error(err, "cannot marshal payload")
 		return err
 	}
+
+	mySQLDesConfig := model.MySQLDestinationConfiguration{
+		TableName: request.DestinationTableName,
+	}
+	jsonMySQLDesConfig, err := json.Marshal(mySQLDesConfig)
+	if err != nil {
+		logger.Error(err, "cannot marshal config ")
+	}
+
+	tx := b.db.Begin()
+	// 1. Create destination
+	destination, err := b.repository.DataDestinationRepository.CreateDataDestination(ctx, &repository.CreateDataDestinationParams{
+		Name:          "MySQL - " + request.DestinationTableName,
+		AccountUuid:   uuid.MustParse(accountUuid),
+		Type:          model.DataDestinationType_MYSQL,
+		Configuration: pqtype.NullRawMessage{RawMessage: jsonMySQLDesConfig, Valid: jsonMySQLDesConfig != nil},
+		ConnectionId:  request.ConnectionId,
+	})
+	if err != nil {
+		logger.Error(err, "cannot create data destination")
+		tx.Rollback()
+		return err
+	}
+
+	// 2. Create dest table map
+	dstTableMap, err := b.repository.DestTableMapRepository.CreateDestinationTableMap(ctx, &repository.CreateDestinationTableMapParams{
+		Tx:            tx,
+		TableId:       request.DataTableId,
+		DestinationId: destination.ID,
+		//MappingOptions:  pqtype.NullRawMessage{},
+	})
+	if err != nil {
+		logger.Error(err, "cannot create destination table mapping")
+		tx.Rollback()
+		return err
+	}
+
+	// 3. Create data action
 	_, err = b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
-		TargetTable: model.TargetTable_DataTable,
+		TargetTable: model.TargetTable_DestTableMap,
 		ActionType:  model.ActionType_ExportToMySQL,
 		Schedule:    "",
 		AccountUuid: uuid.MustParse(accountUuid),
 		DagId:       dagId,
 		Status:      model.DataActionStatus_Pending,
-		ObjectId:    request.DataTableId,
+		ObjectId:    dstTableMap.ID,
 		Payload:     pqtype.NullRawMessage{RawMessage: jsonPayload, Valid: jsonPayload != nil},
 	})
 	if err != nil {
 		logger.Error(err, "cannot create data action")
+		tx.Rollback()
 		return err
 	}
 
-	config, err := json.Marshal(request)
-	_, err = b.repository.DataDestinationRepository.CreateDataDestination(ctx, &repository.CreateDataDestinationParams{
-		Name:          "MySQL - " + request.DestinationTableName,
-		AccountUuid:   uuid.MustParse(accountUuid),
-		Type:          model.DataDestinationType_MYSQL,
-		Configuration: pqtype.NullRawMessage{RawMessage: config, Valid: config != nil},
-		ConnectionId:  request.ConnectionId,
-	})
-	if err != nil {
-		logger.Error(err, "cannot create data destination")
-		return err
-	}
+	tx.Commit()
 
 	return nil
 }
@@ -156,33 +184,61 @@ func (b business) ExportMasterSegmentAudienceToMySQL(ctx context.Context, reques
 		logger.Error(err, "cannot marshal payload")
 		return err
 	}
+
+	mySQLDesConfig := model.MySQLDestinationConfiguration{
+		TableName: request.DestinationTableName,
+	}
+	jsonMySQLDesConfig, err := json.Marshal(mySQLDesConfig)
+	if err != nil {
+		logger.Error(err, "cannot marshal config ")
+	}
+
+	tx := b.db.Begin()
+	// 1. Create destination
+	destination, err := b.repository.DataDestinationRepository.CreateDataDestination(ctx, &repository.CreateDataDestinationParams{
+		Name:          "MySQL - " + request.DestinationTableName,
+		AccountUuid:   uuid.MustParse(accountUuid),
+		Type:          model.DataDestinationType_MYSQL,
+		Configuration: pqtype.NullRawMessage{RawMessage: jsonMySQLDesConfig, Valid: jsonMySQLDesConfig != nil},
+		ConnectionId:  request.ConnectionId,
+	})
+	if err != nil {
+		logger.Error(err, "cannot create data destination")
+		tx.Rollback()
+		return err
+	}
+
+	// 2. Create dest ms segment map
+	dstMsSegmentMap, err := b.repository.DestMasterSegmentMapRepository.CreateDestinationMasterSegmentMap(ctx, &repository.CreateDestinationMasterSegmentMapParams{
+		Tx:              tx,
+		MasterSegmentId: request.MasterSegmentId,
+		DestinationId:   destination.ID,
+		//MappingOptions:  pqtype.NullRawMessage{},
+	})
+	if err != nil {
+		logger.Error(err, "cannot create destination master segment mapping")
+		tx.Rollback()
+		return err
+	}
+
+	// 3. Create data action
 	_, err = b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
-		TargetTable: model.TargetTable_DataTable,
+		TargetTable: model.TargetTable_DestMasterSegmentMap,
 		ActionType:  model.ActionType_ExportToMySQL,
 		Schedule:    "",
 		AccountUuid: uuid.MustParse(accountUuid),
 		DagId:       dagId,
 		Status:      model.DataActionStatus_Pending,
-		ObjectId:    request.DataTableId,
+		ObjectId:    dstMsSegmentMap.ID,
 		Payload:     pqtype.NullRawMessage{RawMessage: jsonPayload, Valid: jsonPayload != nil},
 	})
 	if err != nil {
 		logger.Error(err, "cannot create data action")
+		tx.Rollback()
 		return err
 	}
 
-	config, err := json.Marshal(request)
-	_, err = b.repository.DataDestinationRepository.CreateDataDestination(ctx, &repository.CreateDataDestinationParams{
-		Name:          "MySQL - " + request.DestinationTableName,
-		AccountUuid:   uuid.MustParse(accountUuid),
-		Type:          model.DataDestinationType_MYSQL,
-		Configuration: pqtype.NullRawMessage{RawMessage: config, Valid: config != nil},
-		ConnectionId:  request.ConnectionId,
-	})
-	if err != nil {
-		logger.Error(err, "cannot create data destination")
-		return err
-	}
+	tx.Commit()
 
 	return nil
 }
@@ -238,33 +294,61 @@ func (b business) ExportSegmentToMySQL(ctx context.Context, request *api.ExportT
 		logger.Error(err, "cannot marshal payload")
 		return err
 	}
+
+	mySQLDesConfig := model.MySQLDestinationConfiguration{
+		TableName: request.DestinationTableName,
+	}
+	jsonMySQLDesConfig, err := json.Marshal(mySQLDesConfig)
+	if err != nil {
+		logger.Error(err, "cannot marshal config ")
+	}
+
+	tx := b.db.Begin()
+	// 1. Create destination
+	destination, err := b.repository.DataDestinationRepository.CreateDataDestination(ctx, &repository.CreateDataDestinationParams{
+		Name:          "MySQL - " + request.DestinationTableName,
+		AccountUuid:   uuid.MustParse(accountUuid),
+		Type:          model.DataDestinationType_MYSQL,
+		Configuration: pqtype.NullRawMessage{RawMessage: jsonMySQLDesConfig, Valid: jsonMySQLDesConfig != nil},
+		ConnectionId:  request.ConnectionId,
+	})
+	if err != nil {
+		logger.Error(err, "cannot create data destination")
+		tx.Rollback()
+		return err
+	}
+
+	// 2. Create dest segment map
+	dstSegmentMap, err := b.repository.DestSegmentMapRepository.CreateDestinationSegmentMap(ctx, &repository.CreateDestinationSegmentMapParams{
+		Tx:            tx,
+		SegmentId:     request.SegmentId,
+		DestinationId: destination.ID,
+		//MappingOptions:  pqtype.NullRawMessage{},
+	})
+	if err != nil {
+		logger.Error(err, "cannot create destination segment mapping")
+		tx.Rollback()
+		return err
+	}
+
+	// 3. Create data action
 	_, err = b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
-		TargetTable: model.TargetTable_DataTable,
+		TargetTable: model.TargetTable_DestSegmentMap,
 		ActionType:  model.ActionType_ExportToMySQL,
 		Schedule:    "",
 		AccountUuid: uuid.MustParse(accountUuid),
 		DagId:       dagId,
 		Status:      model.DataActionStatus_Pending,
-		ObjectId:    request.DataTableId,
+		ObjectId:    dstSegmentMap.ID,
 		Payload:     pqtype.NullRawMessage{RawMessage: jsonPayload, Valid: jsonPayload != nil},
 	})
 	if err != nil {
 		logger.Error(err, "cannot create data action")
+		tx.Rollback()
 		return err
 	}
 
-	config, err := json.Marshal(request)
-	_, err = b.repository.DataDestinationRepository.CreateDataDestination(ctx, &repository.CreateDataDestinationParams{
-		Name:          "MySQL - " + request.DestinationTableName,
-		AccountUuid:   uuid.MustParse(accountUuid),
-		Type:          model.DataDestinationType_MYSQL,
-		Configuration: pqtype.NullRawMessage{RawMessage: config, Valid: config != nil},
-		ConnectionId:  request.ConnectionId,
-	})
-	if err != nil {
-		logger.Error(err, "cannot create data destination")
-		return err
-	}
+	tx.Commit()
 
 	return nil
 }

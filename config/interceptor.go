@@ -16,7 +16,7 @@ func AccessibleRoles() map[string][]string {
 		rootServicePath + "CreateConnection":                  {"admin", "user"},
 		rootServicePath + "UpdateConnection":                  {"admin", "user"},
 		rootServicePath + "DeleteConnection":                  {"admin", "user"},
-		rootServicePath + "ExportDataTableToFile":             {"admin", "user"},
+		rootServicePath + "ExportDataToFile":                  {"admin", "user"},
 		rootServicePath + "GetListFileExportRecords":          {"admin", "user"},
 		rootServicePath + "ImportCsvFromS3":                   {"admin", "user"},
 		rootServicePath + "CreateMasterSegment":               {"admin", "user"},

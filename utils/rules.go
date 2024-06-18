@@ -66,6 +66,8 @@ func GenerateDagId(accountUuid string, dataActionType model.ActionType) string {
 		prefix = "import_csv"
 	case model.ActionType_ExportToMySQL:
 		prefix = "export_mysql"
+	case model.ActionType_ExportDataToS3CSV:
+		prefix = "export_csv"
 	default:
 		return ""
 	}
