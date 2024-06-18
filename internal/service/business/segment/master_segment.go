@@ -156,6 +156,14 @@ func (b business) GetMasterSegmentDetail(ctx context.Context, request *api.GetMa
 			}
 		}),
 		BehaviorTables: utils.Map(behaviorTables, func(table model.BehaviorTable) *api.MasterSegmentDetail_BehaviorTable {
+			var behaviorSchema []*api.SchemaColumn
+			if table.Schema.RawMessage != nil && table.Schema.Valid {
+				err = json.Unmarshal(audienceTable.Schema.RawMessage, &behaviorSchema)
+				if err != nil {
+					b.log.WithName("GetMasterSegmentDetail").Error(err, "cannot parse audience schema")
+					return nil
+				}
+			}
 			return &api.MasterSegmentDetail_BehaviorTable{
 				Id:           table.ID,
 				Name:         table.Name,
@@ -163,6 +171,7 @@ func (b business) GetMasterSegmentDetail(ctx context.Context, request *api.GetMa
 				RawTableName: mapDataTableIdToName[table.DataTableId],
 				ForeignKey:   table.ForeignKey,
 				JoinKey:      table.JoinKey,
+				Schema:       behaviorSchema,
 			}
 		}),
 	}, nil

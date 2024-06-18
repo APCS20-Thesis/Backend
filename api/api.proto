@@ -748,6 +748,7 @@ message CreateSegmentRequest {
     repeated Rule rules = 4;
     string combinator = 5;
   }
+
 }
 
 message CreateSegmentResponse {
@@ -757,7 +758,9 @@ message CreateSegmentResponse {
   string message = 2;
 }
 
-message GetListSegmentsRequest {}
+message GetListSegmentsRequest {
+  repeated int64 master_segment_ids = 1;
+}
 
 message GetListSegmentsResponse {
   // code

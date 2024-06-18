@@ -23,7 +23,7 @@ type SegmentRepository interface {
 	ListBehaviorTables(ctx context.Context, params ListBehaviorTablesParams) ([]model.BehaviorTable, error)
 
 	CreateSegment(ctx context.Context, params *CreateSegmentParams) error
-	ListSegments(ctx context.Context, accountUuid string) ([]SegmentListItem, error)
+	ListSegments(ctx context.Context, filter *ListSegmentFilter) ([]SegmentListItem, error)
 	GetSegment(ctx context.Context, segmentId int64, accountUuid string) (model.Segment, error)
 }
 
@@ -210,10 +210,21 @@ type SegmentListItem struct {
 	UpdatedAt         time.Time
 }
 
-func (r *segmentRepo) ListSegments(ctx context.Context, accountUuid string) ([]SegmentListItem, error) {
+type ListSegmentFilter struct {
+	AccountUuid      string
+	MasterSegmentIds []int64
+}
+
+func (r *segmentRepo) ListSegments(ctx context.Context, filter *ListSegmentFilter) ([]SegmentListItem, error) {
 	var segments []SegmentListItem
-	err := r.WithContext(ctx).Table(r.SegmentTableName).
-		Where("segment.account_uuid = ?", accountUuid).
+	query := r.WithContext(ctx).Table(r.SegmentTableName)
+	if len(filter.MasterSegmentIds) > 0 {
+		query = query.Where("segment.master_segment_id IN ?", filter.MasterSegmentIds)
+	}
+	if filter.AccountUuid != "" {
+		query = query.Where("segment.account_uuid = ?", filter.AccountUuid)
+	}
+	err := query.
 		Joins("LEFT JOIN master_segment ON segment.master_segment_id = master_segment.id").
 		Select("segment.id AS id," +
 			"segment.name AS name, " +
