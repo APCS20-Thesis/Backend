@@ -35,7 +35,10 @@ func (b business) CreateSegment(ctx context.Context, request *api.CreateSegmentR
 }
 
 func (b business) ListSegments(ctx context.Context, request *api.GetListSegmentsRequest, accountUuid string) ([]*api.Segment, error) {
-	segments, err := b.repository.SegmentRepository.ListSegments(ctx, accountUuid)
+	segments, err := b.repository.SegmentRepository.ListSegments(ctx, &repository.ListSegmentFilter{
+		AccountUuid:      accountUuid,
+		MasterSegmentIds: request.MasterSegmentIds,
+	})
 	if err != nil {
 		b.log.WithName("ListSegments").Error(err, "cannot get list segments")
 		return nil, err
