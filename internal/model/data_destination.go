@@ -13,8 +13,9 @@ type (
 )
 
 const (
-	DataDestinationType_GOPHISH DataDestinationType = "GOPHISH"
-	DataDestinationType_MYSQL   DataDestinationType = "MYSQL"
+	DataDestinationType_GOPHISH   DataDestinationType = "GOPHISH"
+	DataDestinationType_MYSQL     DataDestinationType = "MYSQL"
+	DataDestinationType_S3FileCSV DataDestinationType = "S3-CSV"
 
 	//DataDestinationStatus_Success DataDestinationStatus = "SUCCESS"
 )
@@ -38,5 +39,15 @@ type (
 	GophishDestinationConfiguration struct {
 		UserGroupName string                     `json:"user_group_name"`
 		Mapping       *api.MappingGophishProfile `json:"mapping"`
+	}
+
+	S3FileDestinationConfiguration struct {
+		FileName string `json:"file_name"`
+		FileType string `json:"file_type"`
+		FilePath string `json:"file_path"`
+	}
+
+	MySQLDestinationConfiguration struct {
+		TableName string `json:"table_name"`
 	}
 )

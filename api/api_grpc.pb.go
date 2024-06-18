@@ -36,7 +36,7 @@ type CDPServiceClient interface {
 	CreateConnection(ctx context.Context, in *CreateConnectionRequest, opts ...grpc.CallOption) (*CreateConnectionResponse, error)
 	UpdateConnection(ctx context.Context, in *UpdateConnectionRequest, opts ...grpc.CallOption) (*UpdateConnectionResponse, error)
 	DeleteConnection(ctx context.Context, in *DeleteConnectionRequest, opts ...grpc.CallOption) (*DeleteConnectionResponse, error)
-	ExportDataTableToFile(ctx context.Context, in *ExportDataTableToFileRequest, opts ...grpc.CallOption) (*ExportDataTableToFileResponse, error)
+	ExportDataToFile(ctx context.Context, in *ExportDataToFileRequest, opts ...grpc.CallOption) (*ExportDataToFileResponse, error)
 	ImportCsvFromS3(ctx context.Context, in *ImportCsvFromS3Request, opts ...grpc.CallOption) (*ImportCsvFromS3Response, error)
 	GetListFileExportRecords(ctx context.Context, in *GetListFileExportRecordsRequest, opts ...grpc.CallOption) (*GetListFileExportRecordsResponse, error)
 	CreateMasterSegment(ctx context.Context, in *CreateMasterSegmentRequest, opts ...grpc.CallOption) (*CreateMasterSegmentResponse, error)
@@ -185,9 +185,9 @@ func (c *cDPServiceClient) DeleteConnection(ctx context.Context, in *DeleteConne
 	return out, nil
 }
 
-func (c *cDPServiceClient) ExportDataTableToFile(ctx context.Context, in *ExportDataTableToFileRequest, opts ...grpc.CallOption) (*ExportDataTableToFileResponse, error) {
-	out := new(ExportDataTableToFileResponse)
-	err := c.cc.Invoke(ctx, "/api.CDPService/ExportDataTableToFile", in, out, opts...)
+func (c *cDPServiceClient) ExportDataToFile(ctx context.Context, in *ExportDataToFileRequest, opts ...grpc.CallOption) (*ExportDataToFileResponse, error) {
+	out := new(ExportDataToFileResponse)
+	err := c.cc.Invoke(ctx, "/api.CDPService/ExportDataToFile", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -320,7 +320,7 @@ type CDPServiceServer interface {
 	CreateConnection(context.Context, *CreateConnectionRequest) (*CreateConnectionResponse, error)
 	UpdateConnection(context.Context, *UpdateConnectionRequest) (*UpdateConnectionResponse, error)
 	DeleteConnection(context.Context, *DeleteConnectionRequest) (*DeleteConnectionResponse, error)
-	ExportDataTableToFile(context.Context, *ExportDataTableToFileRequest) (*ExportDataTableToFileResponse, error)
+	ExportDataToFile(context.Context, *ExportDataToFileRequest) (*ExportDataToFileResponse, error)
 	ImportCsvFromS3(context.Context, *ImportCsvFromS3Request) (*ImportCsvFromS3Response, error)
 	GetListFileExportRecords(context.Context, *GetListFileExportRecordsRequest) (*GetListFileExportRecordsResponse, error)
 	CreateMasterSegment(context.Context, *CreateMasterSegmentRequest) (*CreateMasterSegmentResponse, error)
@@ -382,8 +382,8 @@ func (UnimplementedCDPServiceServer) UpdateConnection(context.Context, *UpdateCo
 func (UnimplementedCDPServiceServer) DeleteConnection(context.Context, *DeleteConnectionRequest) (*DeleteConnectionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteConnection not implemented")
 }
-func (UnimplementedCDPServiceServer) ExportDataTableToFile(context.Context, *ExportDataTableToFileRequest) (*ExportDataTableToFileResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ExportDataTableToFile not implemented")
+func (UnimplementedCDPServiceServer) ExportDataToFile(context.Context, *ExportDataToFileRequest) (*ExportDataToFileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ExportDataToFile not implemented")
 }
 func (UnimplementedCDPServiceServer) ImportCsvFromS3(context.Context, *ImportCsvFromS3Request) (*ImportCsvFromS3Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ImportCsvFromS3 not implemented")
@@ -686,20 +686,20 @@ func _CDPService_DeleteConnection_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _CDPService_ExportDataTableToFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ExportDataTableToFileRequest)
+func _CDPService_ExportDataToFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExportDataToFileRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CDPServiceServer).ExportDataTableToFile(ctx, in)
+		return srv.(CDPServiceServer).ExportDataToFile(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/api.CDPService/ExportDataTableToFile",
+		FullMethod: "/api.CDPService/ExportDataToFile",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CDPServiceServer).ExportDataTableToFile(ctx, req.(*ExportDataTableToFileRequest))
+		return srv.(CDPServiceServer).ExportDataToFile(ctx, req.(*ExportDataToFileRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -984,8 +984,8 @@ var CDPService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _CDPService_DeleteConnection_Handler,
 		},
 		{
-			MethodName: "ExportDataTableToFile",
-			Handler:    _CDPService_ExportDataTableToFile_Handler,
+			MethodName: "ExportDataToFile",
+			Handler:    _CDPService_ExportDataToFile_Handler,
 		},
 		{
 			MethodName: "ImportCsvFromS3",
