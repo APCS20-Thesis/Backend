@@ -35,6 +35,20 @@ service CDPService {
     };
   }
 
+  rpc UpdateAccountInfo(UpdateAccountInfoRequest) returns (UpdateAccountInfoResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/auth/info"
+      body: "*"
+    };
+  }
+
+  rpc UpdateAccountSetting(UpdateAccountSettingRequest) returns (UpdateAccountSettingResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/auth/setting"
+      body: "*"
+    };
+  }
+
   rpc GetListDataSources(GetListDataSourcesRequest) returns (GetListDataSourcesResponse){
     option (google.api.http) = {
       get: "/api/v1/data-source/data-sources"
@@ -209,8 +223,6 @@ message LoginResponse {
   string message = 2;
   // access_token
   string access_token = 3;
-  // account
-  Account account = 4;
 }
 
 // Signup Request
@@ -238,6 +250,55 @@ message GetAccountInfoResponse {
   string message = 2;
   // account
   Account account = 3;
+  // setting
+  Setting setting = 4;
+}
+
+// UpdateAccountInfo Request
+message UpdateAccountInfoRequest {
+  // phone
+  string phone = 1;
+  // country
+  string country = 2 [(validate.rules).string.max_len = 1];
+  // company
+  string company = 3;
+  // position
+  string position = 4;
+  // first_name
+  string first_name = 5;
+  // last_name
+  string last_name = 6;
+}
+
+// UpdateAccountInfo Response
+message UpdateAccountInfoResponse {
+  // code
+  int32 code = 1;
+  // message
+  string message = 2;
+  // account
+  Account account = 3;
+}
+
+// UpdateAccountSetting Request
+message UpdateAccountSettingRequest {
+  // notify_create_source
+  Bool notify_create_source = 1;
+  // notify_create_destination
+  Bool notify_create_destination = 2;
+  // notify_create_master_segment
+  Bool notify_create_master_segment = 3;
+  // notify_create_segment
+  Bool notify_create_segment = 4;
+}
+
+// UpdateAccountSetting Response
+message UpdateAccountSettingResponse {
+  int32 code = 1;
+  // message
+  string message = 2;
+  // setting
+  Setting setting = 3;
 }
 
 // Common Response

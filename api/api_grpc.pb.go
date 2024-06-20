@@ -18,6 +18,38 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
+const (
+	CDPService_CheckHealth_FullMethodName                       = "/api.CDPService/CheckHealth"
+	CDPService_Login_FullMethodName                             = "/api.CDPService/Login"
+	CDPService_SignUp_FullMethodName                            = "/api.CDPService/SignUp"
+	CDPService_GetAccountInfo_FullMethodName                    = "/api.CDPService/GetAccountInfo"
+	CDPService_UpdateAccountInfo_FullMethodName                 = "/api.CDPService/UpdateAccountInfo"
+	CDPService_UpdateAccountSetting_FullMethodName              = "/api.CDPService/UpdateAccountSetting"
+	CDPService_GetListDataSources_FullMethodName                = "/api.CDPService/GetListDataSources"
+	CDPService_GetDataSource_FullMethodName                     = "/api.CDPService/GetDataSource"
+	CDPService_GetListDataTables_FullMethodName                 = "/api.CDPService/GetListDataTables"
+	CDPService_GetDataTable_FullMethodName                      = "/api.CDPService/GetDataTable"
+	CDPService_GetQueryDataTable_FullMethodName                 = "/api.CDPService/GetQueryDataTable"
+	CDPService_GetConnection_FullMethodName                     = "/api.CDPService/GetConnection"
+	CDPService_GetListConnections_FullMethodName                = "/api.CDPService/GetListConnections"
+	CDPService_CreateConnection_FullMethodName                  = "/api.CDPService/CreateConnection"
+	CDPService_UpdateConnection_FullMethodName                  = "/api.CDPService/UpdateConnection"
+	CDPService_DeleteConnection_FullMethodName                  = "/api.CDPService/DeleteConnection"
+	CDPService_ExportDataToFile_FullMethodName                  = "/api.CDPService/ExportDataToFile"
+	CDPService_ImportCsvFromS3_FullMethodName                   = "/api.CDPService/ImportCsvFromS3"
+	CDPService_GetListFileExportRecords_FullMethodName          = "/api.CDPService/GetListFileExportRecords"
+	CDPService_CreateMasterSegment_FullMethodName               = "/api.CDPService/CreateMasterSegment"
+	CDPService_GetListMasterSegments_FullMethodName             = "/api.CDPService/GetListMasterSegments"
+	CDPService_GetMasterSegmentDetail_FullMethodName            = "/api.CDPService/GetMasterSegmentDetail"
+	CDPService_CreateSegment_FullMethodName                     = "/api.CDPService/CreateSegment"
+	CDPService_GetListSegments_FullMethodName                   = "/api.CDPService/GetListSegments"
+	CDPService_GetSegmentDetail_FullMethodName                  = "/api.CDPService/GetSegmentDetail"
+	CDPService_CreateGophishUserGroupFromSegment_FullMethodName = "/api.CDPService/CreateGophishUserGroupFromSegment"
+	CDPService_ImportFromMySQLSource_FullMethodName             = "/api.CDPService/ImportFromMySQLSource"
+	CDPService_ExportToMySQLDestination_FullMethodName          = "/api.CDPService/ExportToMySQLDestination"
+	CDPService_GetListDataDestinations_FullMethodName           = "/api.CDPService/GetListDataDestinations"
+)
+
 // CDPServiceClient is the client API for CDPService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
@@ -26,6 +58,8 @@ type CDPServiceClient interface {
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	SignUp(ctx context.Context, in *SignUpRequest, opts ...grpc.CallOption) (*CommonResponse, error)
 	GetAccountInfo(ctx context.Context, in *GetAccountInfoRequest, opts ...grpc.CallOption) (*GetAccountInfoResponse, error)
+	UpdateAccountInfo(ctx context.Context, in *UpdateAccountInfoRequest, opts ...grpc.CallOption) (*UpdateAccountInfoResponse, error)
+	UpdateAccountSetting(ctx context.Context, in *UpdateAccountSettingRequest, opts ...grpc.CallOption) (*UpdateAccountSettingResponse, error)
 	GetListDataSources(ctx context.Context, in *GetListDataSourcesRequest, opts ...grpc.CallOption) (*GetListDataSourcesResponse, error)
 	GetDataSource(ctx context.Context, in *GetDataSourceRequest, opts ...grpc.CallOption) (*GetDataSourceResponse, error)
 	GetListDataTables(ctx context.Context, in *GetListDataTablesRequest, opts ...grpc.CallOption) (*GetListDataTablesResponse, error)
@@ -89,7 +123,25 @@ func (c *cDPServiceClient) SignUp(ctx context.Context, in *SignUpRequest, opts .
 
 func (c *cDPServiceClient) GetAccountInfo(ctx context.Context, in *GetAccountInfoRequest, opts ...grpc.CallOption) (*GetAccountInfoResponse, error) {
 	out := new(GetAccountInfoResponse)
-	err := c.cc.Invoke(ctx, "/api.CDPService/GetAccountInfo", in, out, opts...)
+	err := c.cc.Invoke(ctx, CDPService_GetAccountInfo_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cDPServiceClient) UpdateAccountInfo(ctx context.Context, in *UpdateAccountInfoRequest, opts ...grpc.CallOption) (*UpdateAccountInfoResponse, error) {
+	out := new(UpdateAccountInfoResponse)
+	err := c.cc.Invoke(ctx, CDPService_UpdateAccountInfo_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cDPServiceClient) UpdateAccountSetting(ctx context.Context, in *UpdateAccountSettingRequest, opts ...grpc.CallOption) (*UpdateAccountSettingResponse, error) {
+	out := new(UpdateAccountSettingResponse)
+	err := c.cc.Invoke(ctx, CDPService_UpdateAccountSetting_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -320,6 +372,8 @@ type CDPServiceServer interface {
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 	SignUp(context.Context, *SignUpRequest) (*CommonResponse, error)
 	GetAccountInfo(context.Context, *GetAccountInfoRequest) (*GetAccountInfoResponse, error)
+	UpdateAccountInfo(context.Context, *UpdateAccountInfoRequest) (*UpdateAccountInfoResponse, error)
+	UpdateAccountSetting(context.Context, *UpdateAccountSettingRequest) (*UpdateAccountSettingResponse, error)
 	GetListDataSources(context.Context, *GetListDataSourcesRequest) (*GetListDataSourcesResponse, error)
 	GetDataSource(context.Context, *GetDataSourceRequest) (*GetDataSourceResponse, error)
 	GetListDataTables(context.Context, *GetListDataTablesRequest) (*GetListDataTablesResponse, error)
@@ -362,6 +416,12 @@ func (UnimplementedCDPServiceServer) SignUp(context.Context, *SignUpRequest) (*C
 }
 func (UnimplementedCDPServiceServer) GetAccountInfo(context.Context, *GetAccountInfoRequest) (*GetAccountInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAccountInfo not implemented")
+}
+func (UnimplementedCDPServiceServer) UpdateAccountInfo(context.Context, *UpdateAccountInfoRequest) (*UpdateAccountInfoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateAccountInfo not implemented")
+}
+func (UnimplementedCDPServiceServer) UpdateAccountSetting(context.Context, *UpdateAccountSettingRequest) (*UpdateAccountSettingResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateAccountSetting not implemented")
 }
 func (UnimplementedCDPServiceServer) GetListDataSources(context.Context, *GetListDataSourcesRequest) (*GetListDataSourcesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetListDataSources not implemented")
@@ -516,6 +576,42 @@ func _CDPService_GetAccountInfo_Handler(srv interface{}, ctx context.Context, de
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CDPServiceServer).GetAccountInfo(ctx, req.(*GetAccountInfoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CDPService_UpdateAccountInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateAccountInfoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDPServiceServer).UpdateAccountInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CDPService_UpdateAccountInfo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDPServiceServer).UpdateAccountInfo(ctx, req.(*UpdateAccountInfoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CDPService_UpdateAccountSetting_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateAccountSettingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDPServiceServer).UpdateAccountSetting(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CDPService_UpdateAccountSetting_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDPServiceServer).UpdateAccountSetting(ctx, req.(*UpdateAccountSettingRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -974,6 +1070,14 @@ var CDPService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAccountInfo",
 			Handler:    _CDPService_GetAccountInfo_Handler,
+		},
+		{
+			MethodName: "UpdateAccountInfo",
+			Handler:    _CDPService_UpdateAccountInfo_Handler,
+		},
+		{
+			MethodName: "UpdateAccountSetting",
+			Handler:    _CDPService_UpdateAccountSetting_Handler,
 		},
 		{
 			MethodName: "GetListDataSources",

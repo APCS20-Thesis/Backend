@@ -4,14 +4,19 @@ import (
 	"context"
 	"github.com/APCS20-Thesis/Backend/api"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
+	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc/codes"
 )
 
 func (b *business) ProcessSignUp(ctx context.Context, request *api.SignUpRequest) (*api.CommonResponse, error) {
-	err := b.repository.AccountRepository.
+	hashPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), 14)
+	if err != nil {
+		return nil, err
+	}
+	err = b.repository.AccountRepository.
 		CreateAccount(ctx, &repository.CreateAccountParams{
 			Username:  request.Username,
-			Password:  request.Password,
+			Password:  string(hashPassword),
 			FirstName: request.FirstName,
 			LastName:  request.LastName,
 			Email:     request.Email,

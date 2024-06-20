@@ -1,6 +1,7 @@
 package model
 
 import (
+	"github.com/APCS20-Thesis/Backend/api"
 	"github.com/google/uuid"
 	"time"
 )
@@ -14,10 +15,31 @@ type Account struct {
 	LastName  string
 	Email     string `gorm:"not null"`
 
+	Phone    string
+	Country  string
+	Company  string
+	Position string
+
 	CreatedAt time.Time `gorm:"autoCreateTime"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime"`
 }
 
 func (Account) TableName() string {
 	return "account"
+}
+
+type Setting struct {
+	NotifyCreateSource        api.Bool
+	NotifyCreateDestination   api.Bool
+	NotifyCreateMasterSegment api.Bool
+	NotifyCreateSegment       api.Bool
+
+	AccountUuid uuid.UUID
+
+	CreatedAt time.Time `gorm:"autoCreateTime"`
+	UpdatedAt time.Time `gorm:"autoUpdateTime"`
+}
+
+func (Setting) TableName() string {
+	return "setting"
 }
