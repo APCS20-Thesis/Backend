@@ -22,4 +22,4 @@ CREATE TRIGGER set_timestamp_setting
 
 
 INSERT INTO setting(account_uuid)
-SELECT uuid  FROM account WHERE uuid NOT IN (SELECT account_uuid FROM setting)
+SELECT uuid  FROM account WHERE uuid NOT IN (SELECT account_uuid FROM setting);
