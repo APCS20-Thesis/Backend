@@ -178,6 +178,12 @@ service CDPService {
       get: "/api/v1/data-destinations"
     };
   }
+
+  rpc GetListDataActions(GetListDataActionsRequest) returns (GetListDataActionsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/data-actions"
+    };
+  }
 }
 
 // CheckHealthRequest
@@ -888,4 +894,18 @@ message GetListDataDestinationsResponse {
   string message = 2;
   int64 count = 3;
   repeated DataDestination results = 4;
+}
+
+message GetListDataActionsRequest {
+  // page
+  int32 page = 1;
+  // page_size
+  int32 page_size = 2;
+}
+
+message GetListDataActionsResponse {
+  int32 code = 1;
+  string message = 2;
+  int64 count = 3;
+  repeated DataAction results = 4;
 }

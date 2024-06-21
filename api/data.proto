@@ -237,3 +237,11 @@ message Rule {
   repeated Rule rules = 4;
   string combinator = 5;
 }
+
+message DataAction {
+  int64 id = 1;
+  string action_type = 2;
+  string status = 3;
+  string created_at = 4;
+  string updated_at = 5;
+}

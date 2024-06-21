@@ -468,10 +468,10 @@ func (r transactionRepo) TriggerAirflowCreateMasterSegment(ctx context.Context, 
 			BehaviorTables:  string(jsonBehaviorTables),
 		},
 	}
-	//err = airflowAdapter.TriggerGenerateDagCreateMasterSegment(ctx, &request)
-	//if err != nil {
-	//	return err
-	//}
+	err = airflowAdapter.TriggerGenerateDagCreateMasterSegment(ctx, &request)
+	if err != nil {
+		return err
+	}
 
 	payload, err := json.Marshal(request)
 	if err != nil {

@@ -22,7 +22,7 @@ type SegmentRepository interface {
 	CreateBehaviorTable(ctx context.Context, params *CreateBehaviorTableParams) error
 	ListBehaviorTables(ctx context.Context, params ListBehaviorTablesParams) ([]model.BehaviorTable, error)
 
-	CreateSegment(ctx context.Context, params *CreateSegmentParams) error
+	CreateSegment(ctx context.Context, params *CreateSegmentParams) (*model.Segment, error)
 	ListSegments(ctx context.Context, filter *ListSegmentFilter) ([]SegmentListItem, error)
 	GetSegment(ctx context.Context, segmentId int64, accountUuid string) (model.Segment, error)
 }
@@ -126,7 +126,7 @@ type CreateSegmentParams struct {
 	AccountUuid     uuid.UUID
 }
 
-func (r *segmentRepo) CreateSegment(ctx context.Context, params *CreateSegmentParams) error {
+func (r *segmentRepo) CreateSegment(ctx context.Context, params *CreateSegmentParams) (*model.Segment, error) {
 	segment := &model.Segment{
 		MasterSegmentId: params.MasterSegmentId,
 		Condition:       params.Condition,
@@ -143,10 +143,10 @@ func (r *segmentRepo) CreateSegment(ctx context.Context, params *CreateSegmentPa
 		createErr = r.WithContext(ctx).Table(r.SegmentTableName).Create(segment).Error
 	}
 	if createErr != nil {
-		return createErr
+		return nil, createErr
 	}
 
-	return nil
+	return segment, nil
 }
 
 type ListMasterSegmentsParams struct {

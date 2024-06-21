@@ -176,5 +176,8 @@ func (b business) GetQueryDataTable(ctx context.Context, request *api.GetQueryDa
 		return nil, err
 	}
 
-	return &api.GetQueryDataTableResponse{Code: int32(codes.OK), Count: res.Count, Data: res.Data}, nil
+	return &api.GetQueryDataTableResponse{Code: int32(codes.OK),
+		Count: res.Count,
+		Data:  res.Data,
+	}, nil
 }

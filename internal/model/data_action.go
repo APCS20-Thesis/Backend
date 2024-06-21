@@ -15,6 +15,7 @@ const (
 	ActionType_ExportDataToS3CSV   ActionType = "EXPORT_DATA_TO_S3_CSV"
 	ActionType_ExportToMySQL       ActionType = "EXPORT_TABLE_TO_MYSQL"
 	ActionType_CreateMasterSegment ActionType = "CREATE_MS_SEGMENT"
+	ActionType_CreateSegment       ActionType = "CREATE_SEGMENT"
 )
 
 type DataActionTargetTable string
@@ -25,6 +26,7 @@ const (
 	TargetTable_DestSegmentMap       DataActionTargetTable = "dest_segment_map"
 	TargetTable_DestMasterSegmentMap DataActionTargetTable = "dest_ms_segment_map"
 	TargetTable_DataTable            DataActionTargetTable = "data_table"
+	TargetTable_Segment              DataActionTargetTable = "segment"
 )
 
 type DataActionStatus string
