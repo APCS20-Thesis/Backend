@@ -26,6 +26,8 @@ type CDPServiceClient interface {
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	SignUp(ctx context.Context, in *SignUpRequest, opts ...grpc.CallOption) (*CommonResponse, error)
 	GetAccountInfo(ctx context.Context, in *GetAccountInfoRequest, opts ...grpc.CallOption) (*GetAccountInfoResponse, error)
+	UpdateAccountInfo(ctx context.Context, in *UpdateAccountInfoRequest, opts ...grpc.CallOption) (*UpdateAccountInfoResponse, error)
+	UpdateAccountSetting(ctx context.Context, in *UpdateAccountSettingRequest, opts ...grpc.CallOption) (*UpdateAccountSettingResponse, error)
 	GetListDataSources(ctx context.Context, in *GetListDataSourcesRequest, opts ...grpc.CallOption) (*GetListDataSourcesResponse, error)
 	GetDataSource(ctx context.Context, in *GetDataSourceRequest, opts ...grpc.CallOption) (*GetDataSourceResponse, error)
 	GetListDataTables(ctx context.Context, in *GetListDataTablesRequest, opts ...grpc.CallOption) (*GetListDataTablesResponse, error)
@@ -90,6 +92,24 @@ func (c *cDPServiceClient) SignUp(ctx context.Context, in *SignUpRequest, opts .
 func (c *cDPServiceClient) GetAccountInfo(ctx context.Context, in *GetAccountInfoRequest, opts ...grpc.CallOption) (*GetAccountInfoResponse, error) {
 	out := new(GetAccountInfoResponse)
 	err := c.cc.Invoke(ctx, "/api.CDPService/GetAccountInfo", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cDPServiceClient) UpdateAccountInfo(ctx context.Context, in *UpdateAccountInfoRequest, opts ...grpc.CallOption) (*UpdateAccountInfoResponse, error) {
+	out := new(UpdateAccountInfoResponse)
+	err := c.cc.Invoke(ctx, "/api.CDPService/UpdateAccountInfo", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cDPServiceClient) UpdateAccountSetting(ctx context.Context, in *UpdateAccountSettingRequest, opts ...grpc.CallOption) (*UpdateAccountSettingResponse, error) {
+	out := new(UpdateAccountSettingResponse)
+	err := c.cc.Invoke(ctx, "/api.CDPService/UpdateAccountSetting", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -320,6 +340,8 @@ type CDPServiceServer interface {
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 	SignUp(context.Context, *SignUpRequest) (*CommonResponse, error)
 	GetAccountInfo(context.Context, *GetAccountInfoRequest) (*GetAccountInfoResponse, error)
+	UpdateAccountInfo(context.Context, *UpdateAccountInfoRequest) (*UpdateAccountInfoResponse, error)
+	UpdateAccountSetting(context.Context, *UpdateAccountSettingRequest) (*UpdateAccountSettingResponse, error)
 	GetListDataSources(context.Context, *GetListDataSourcesRequest) (*GetListDataSourcesResponse, error)
 	GetDataSource(context.Context, *GetDataSourceRequest) (*GetDataSourceResponse, error)
 	GetListDataTables(context.Context, *GetListDataTablesRequest) (*GetListDataTablesResponse, error)
@@ -362,6 +384,12 @@ func (UnimplementedCDPServiceServer) SignUp(context.Context, *SignUpRequest) (*C
 }
 func (UnimplementedCDPServiceServer) GetAccountInfo(context.Context, *GetAccountInfoRequest) (*GetAccountInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAccountInfo not implemented")
+}
+func (UnimplementedCDPServiceServer) UpdateAccountInfo(context.Context, *UpdateAccountInfoRequest) (*UpdateAccountInfoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateAccountInfo not implemented")
+}
+func (UnimplementedCDPServiceServer) UpdateAccountSetting(context.Context, *UpdateAccountSettingRequest) (*UpdateAccountSettingResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateAccountSetting not implemented")
 }
 func (UnimplementedCDPServiceServer) GetListDataSources(context.Context, *GetListDataSourcesRequest) (*GetListDataSourcesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetListDataSources not implemented")
@@ -516,6 +544,42 @@ func _CDPService_GetAccountInfo_Handler(srv interface{}, ctx context.Context, de
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CDPServiceServer).GetAccountInfo(ctx, req.(*GetAccountInfoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CDPService_UpdateAccountInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateAccountInfoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDPServiceServer).UpdateAccountInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.CDPService/UpdateAccountInfo",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDPServiceServer).UpdateAccountInfo(ctx, req.(*UpdateAccountInfoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CDPService_UpdateAccountSetting_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateAccountSettingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDPServiceServer).UpdateAccountSetting(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.CDPService/UpdateAccountSetting",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDPServiceServer).UpdateAccountSetting(ctx, req.(*UpdateAccountSettingRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -974,6 +1038,14 @@ var CDPService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAccountInfo",
 			Handler:    _CDPService_GetAccountInfo_Handler,
+		},
+		{
+			MethodName: "UpdateAccountInfo",
+			Handler:    _CDPService_UpdateAccountInfo_Handler,
+		},
+		{
+			MethodName: "UpdateAccountSetting",
+			Handler:    _CDPService_UpdateAccountSetting_Handler,
 		},
 		{
 			MethodName: "GetListDataSources",

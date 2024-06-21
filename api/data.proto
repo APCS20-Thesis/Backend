@@ -23,6 +23,25 @@ message Account {
   string last_name = 4;
   // email
   string email = 5;
+  // phone
+  string phone = 6;
+  // country
+  string country = 7;
+  // company
+  string company = 8;
+  // position
+  string position = 9;
+}
+
+message Setting {
+  // notify_create_source
+  bool notify_create_source = 1;
+  // notify_create_destination
+  bool notify_create_destination = 2;
+  // notify_create_master_segment
+  bool notify_create_master_segment = 3;
+  // notify_create_segment
+  bool notify_create_segment = 4;
 }
 
 //*****************************************//

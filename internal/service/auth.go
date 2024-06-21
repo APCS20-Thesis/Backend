@@ -22,7 +22,6 @@ func (s *Service) Login(ctx context.Context, request *api.LoginRequest) (*api.Lo
 		Code:        int32(codes.OK),
 		Message:     "Login success",
 		AccessToken: token,
-		Account:     account,
 	}, nil
 }
 
@@ -38,14 +37,54 @@ func (s *Service) GetAccountInfo(ctx context.Context, request *api.GetAccountInf
 			Error(err, "Cannot get account_uuid from context")
 		return nil, err
 	}
-	account, err := s.business.AuthBusiness.ProcessGetAccountInfo(ctx, accountUuid)
+	account, setting, err := s.business.AuthBusiness.ProcessGetAccountInfo(ctx, accountUuid)
 	if err != nil {
 		return nil, err
 	}
+
 	return &api.GetAccountInfoResponse{
 		Code:    int32(codes.OK),
 		Message: "Get account info success",
 		Account: account,
+		Setting: setting,
+	}, nil
+}
+
+func (s *Service) UpdateAccountInfo(ctx context.Context, request *api.UpdateAccountInfoRequest) (*api.UpdateAccountInfoResponse, error) {
+	accountUuid, err := GetAccountUuidFromCtx(ctx)
+	if err != nil {
+		s.log.WithName("GetAccountInfo").
+			WithValues("Context", ctx).
+			Error(err, "Cannot get account_uuid from context")
+		return nil, err
+	}
+	account, err := s.business.AuthBusiness.ProcessUpdateAccountInfo(ctx, request, accountUuid)
+	if err != nil {
+		return nil, err
+	}
+	return &api.UpdateAccountInfoResponse{
+		Code:    int32(codes.OK),
+		Message: "Get account info success",
+		Account: account,
+	}, nil
+}
+
+func (s *Service) UpdateAccountSetting(ctx context.Context, request *api.UpdateAccountSettingRequest) (*api.UpdateAccountSettingResponse, error) {
+	accountUuid, err := GetAccountUuidFromCtx(ctx)
+	if err != nil {
+		s.log.WithName("GetAccountInfo").
+			WithValues("Context", ctx).
+			Error(err, "Cannot get account_uuid from context")
+		return nil, err
+	}
+	setting, err := s.business.AuthBusiness.ProcessUpdateAccountSetting(ctx, request, accountUuid)
+	if err != nil {
+		return nil, err
+	}
+	return &api.UpdateAccountSettingResponse{
+		Code:    int32(codes.OK),
+		Message: "Get account info success",
+		Setting: setting,
 	}, nil
 }
 

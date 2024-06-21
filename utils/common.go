@@ -1,6 +1,9 @@
 package utils
 
-import "time"
+import (
+	"google.golang.org/protobuf/types/known/wrapperspb"
+	"time"
+)
 
 func ToTimeString(t time.Time) string {
 	defaultTime := time.Time{}
@@ -16,4 +19,12 @@ func Map[T, V any](ts []T, fn func(T) V) []V {
 		result[i] = fn(t)
 	}
 	return result
+}
+
+func ConvertWrappersBoolToBoolAdd(val *wrapperspb.BoolValue) *bool {
+	if val == nil {
+		return nil
+	}
+	value := val.GetValue()
+	return &value
 }

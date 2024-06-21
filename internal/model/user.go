@@ -14,10 +14,31 @@ type Account struct {
 	LastName  string
 	Email     string `gorm:"not null"`
 
+	Phone    string
+	Country  string
+	Company  string
+	Position string
+
 	CreatedAt time.Time `gorm:"autoCreateTime"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime"`
 }
 
 func (Account) TableName() string {
 	return "account"
+}
+
+type Setting struct {
+	NotifyCreateSource        bool
+	NotifyCreateDestination   bool
+	NotifyCreateMasterSegment bool
+	NotifyCreateSegment       bool
+
+	AccountUuid uuid.UUID
+
+	CreatedAt time.Time `gorm:"autoCreateTime"`
+	UpdatedAt time.Time `gorm:"autoUpdateTime"`
+}
+
+func (Setting) TableName() string {
+	return "setting"
 }
