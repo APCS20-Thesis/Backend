@@ -18,38 +18,6 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-const (
-	CDPService_CheckHealth_FullMethodName                       = "/api.CDPService/CheckHealth"
-	CDPService_Login_FullMethodName                             = "/api.CDPService/Login"
-	CDPService_SignUp_FullMethodName                            = "/api.CDPService/SignUp"
-	CDPService_GetAccountInfo_FullMethodName                    = "/api.CDPService/GetAccountInfo"
-	CDPService_UpdateAccountInfo_FullMethodName                 = "/api.CDPService/UpdateAccountInfo"
-	CDPService_UpdateAccountSetting_FullMethodName              = "/api.CDPService/UpdateAccountSetting"
-	CDPService_GetListDataSources_FullMethodName                = "/api.CDPService/GetListDataSources"
-	CDPService_GetDataSource_FullMethodName                     = "/api.CDPService/GetDataSource"
-	CDPService_GetListDataTables_FullMethodName                 = "/api.CDPService/GetListDataTables"
-	CDPService_GetDataTable_FullMethodName                      = "/api.CDPService/GetDataTable"
-	CDPService_GetQueryDataTable_FullMethodName                 = "/api.CDPService/GetQueryDataTable"
-	CDPService_GetConnection_FullMethodName                     = "/api.CDPService/GetConnection"
-	CDPService_GetListConnections_FullMethodName                = "/api.CDPService/GetListConnections"
-	CDPService_CreateConnection_FullMethodName                  = "/api.CDPService/CreateConnection"
-	CDPService_UpdateConnection_FullMethodName                  = "/api.CDPService/UpdateConnection"
-	CDPService_DeleteConnection_FullMethodName                  = "/api.CDPService/DeleteConnection"
-	CDPService_ExportDataToFile_FullMethodName                  = "/api.CDPService/ExportDataToFile"
-	CDPService_ImportCsvFromS3_FullMethodName                   = "/api.CDPService/ImportCsvFromS3"
-	CDPService_GetListFileExportRecords_FullMethodName          = "/api.CDPService/GetListFileExportRecords"
-	CDPService_CreateMasterSegment_FullMethodName               = "/api.CDPService/CreateMasterSegment"
-	CDPService_GetListMasterSegments_FullMethodName             = "/api.CDPService/GetListMasterSegments"
-	CDPService_GetMasterSegmentDetail_FullMethodName            = "/api.CDPService/GetMasterSegmentDetail"
-	CDPService_CreateSegment_FullMethodName                     = "/api.CDPService/CreateSegment"
-	CDPService_GetListSegments_FullMethodName                   = "/api.CDPService/GetListSegments"
-	CDPService_GetSegmentDetail_FullMethodName                  = "/api.CDPService/GetSegmentDetail"
-	CDPService_CreateGophishUserGroupFromSegment_FullMethodName = "/api.CDPService/CreateGophishUserGroupFromSegment"
-	CDPService_ImportFromMySQLSource_FullMethodName             = "/api.CDPService/ImportFromMySQLSource"
-	CDPService_ExportToMySQLDestination_FullMethodName          = "/api.CDPService/ExportToMySQLDestination"
-	CDPService_GetListDataDestinations_FullMethodName           = "/api.CDPService/GetListDataDestinations"
-)
-
 // CDPServiceClient is the client API for CDPService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
@@ -123,7 +91,7 @@ func (c *cDPServiceClient) SignUp(ctx context.Context, in *SignUpRequest, opts .
 
 func (c *cDPServiceClient) GetAccountInfo(ctx context.Context, in *GetAccountInfoRequest, opts ...grpc.CallOption) (*GetAccountInfoResponse, error) {
 	out := new(GetAccountInfoResponse)
-	err := c.cc.Invoke(ctx, CDPService_GetAccountInfo_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.CDPService/GetAccountInfo", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -132,7 +100,7 @@ func (c *cDPServiceClient) GetAccountInfo(ctx context.Context, in *GetAccountInf
 
 func (c *cDPServiceClient) UpdateAccountInfo(ctx context.Context, in *UpdateAccountInfoRequest, opts ...grpc.CallOption) (*UpdateAccountInfoResponse, error) {
 	out := new(UpdateAccountInfoResponse)
-	err := c.cc.Invoke(ctx, CDPService_UpdateAccountInfo_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.CDPService/UpdateAccountInfo", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -141,7 +109,7 @@ func (c *cDPServiceClient) UpdateAccountInfo(ctx context.Context, in *UpdateAcco
 
 func (c *cDPServiceClient) UpdateAccountSetting(ctx context.Context, in *UpdateAccountSettingRequest, opts ...grpc.CallOption) (*UpdateAccountSettingResponse, error) {
 	out := new(UpdateAccountSettingResponse)
-	err := c.cc.Invoke(ctx, CDPService_UpdateAccountSetting_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.CDPService/UpdateAccountSetting", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -590,7 +558,7 @@ func _CDPService_UpdateAccountInfo_Handler(srv interface{}, ctx context.Context,
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: CDPService_UpdateAccountInfo_FullMethodName,
+		FullMethod: "/api.CDPService/UpdateAccountInfo",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CDPServiceServer).UpdateAccountInfo(ctx, req.(*UpdateAccountInfoRequest))
@@ -608,7 +576,7 @@ func _CDPService_UpdateAccountSetting_Handler(srv interface{}, ctx context.Conte
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: CDPService_UpdateAccountSetting_FullMethodName,
+		FullMethod: "/api.CDPService/UpdateAccountSetting",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CDPServiceServer).UpdateAccountSetting(ctx, req.(*UpdateAccountSettingRequest))
