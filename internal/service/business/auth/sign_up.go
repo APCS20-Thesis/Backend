@@ -13,14 +13,21 @@ func (b *business) ProcessSignUp(ctx context.Context, request *api.SignUpRequest
 	if err != nil {
 		return nil, err
 	}
-	err = b.repository.AccountRepository.
-		CreateAccount(ctx, &repository.CreateAccountParams{
-			Username:  request.Username,
-			Password:  string(hashPassword),
-			FirstName: request.FirstName,
-			LastName:  request.LastName,
-			Email:     request.Email,
-		})
+
+	if err := b.repository.CheckExistsAccount(ctx, &repository.CheckExistsAccountParams{
+		Email:    request.Email,
+		Username: request.Username,
+	}); err != nil {
+		return nil, err
+	}
+
+	err = b.repository.AccountRepository.CreateAccount(ctx, &repository.CreateAccountParams{
+		Username:  request.Username,
+		Password:  string(hashPassword),
+		FirstName: request.FirstName,
+		LastName:  request.LastName,
+		Email:     request.Email,
+	})
 	if err != nil {
 		b.log.WithName("ProcessSignUp").WithValues("request", request).Error(err, "Fail to create user data")
 		return nil, err

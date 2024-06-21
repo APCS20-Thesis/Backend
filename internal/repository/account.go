@@ -18,6 +18,7 @@ type AccountRepository interface {
 	GetAccountSetting(ctx context.Context, accountUuid string) (*model.Setting, error)
 	UpdateAccountInfo(ctx context.Context, params *UpdateAccountInfoParams, accountUuid string) (*model.Account, error)
 	UpdateAccountSetting(ctx context.Context, params *UpdateAccountSettingParams, accountUuid string) (*model.Setting, error)
+	CheckExistsAccount(ctx context.Context, params *CheckExistsAccountParams) error
 }
 
 type accountRepo struct {
@@ -53,35 +54,32 @@ type CreateAccountParams struct {
 }
 
 func (r *accountRepo) CreateAccount(ctx context.Context, params *CreateAccountParams) error {
-	var account model.Account
-
-	err := r.WithContext(ctx).Table(r.TableName).
-		Where("username = ? OR email = ?", params.Username, params.Email).
-		First(&account).Error
-
-	if err == nil {
-		if account.Username == params.Username {
-			return status.Error(codes.AlreadyExists, "Username is already used")
-		}
-		return status.Error(codes.AlreadyExists, "Email is already used")
+	account := model.Account{
+		Username:  params.Username,
+		Password:  params.Password,
+		Email:     params.Email,
+		FirstName: params.FirstName,
+		LastName:  params.LastName,
 	}
 
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		account := model.Account{
-			Username:  params.Username,
-			Password:  params.Password,
-			Email:     params.Email,
-			FirstName: params.FirstName,
-			LastName:  params.LastName,
+	err := r.Transaction(func(tx *gorm.DB) error {
+		if createErr := tx.WithContext(ctx).Table(r.TableName).Create(&account).Error; createErr != nil {
+			return createErr
 		}
 
-		createErr := r.WithContext(ctx).Table(r.TableName).Create(&account).Error
-		if createErr != nil {
-			return err
+		if createErr := tx.WithContext(ctx).Table(model.Setting{}.TableName()).Create(&model.Setting{
+			AccountUuid: account.Uuid,
+		}).Error; createErr != nil {
+			return createErr
 		}
+
 		return nil
+	})
+	if err != nil {
+		return err
 	}
-	return err
+
+	return nil
 }
 
 func (r *accountRepo) GetAccountInfo(ctx context.Context, accountUuid string) (*model.Account, error) {
@@ -162,4 +160,26 @@ func (r *accountRepo) UpdateAccountSetting(ctx context.Context, params *UpdateAc
 		return nil, updateErr
 	}
 	return &settingModel, nil
+}
+
+type CheckExistsAccountParams struct {
+	Email    string
+	Username string
+}
+
+func (r *accountRepo) CheckExistsAccount(ctx context.Context, params *CheckExistsAccountParams) error {
+	var account model.Account
+	err := r.WithContext(ctx).Table(r.TableName).
+		Where("username = ? OR email = ?", params.Username, params.Email).
+		First(&account).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil
+	} else if err != nil {
+		return err
+	}
+
+	if account.Username == params.Username {
+		return status.Error(codes.AlreadyExists, "Username is already used")
+	}
+	return status.Error(codes.AlreadyExists, "Email is already used")
 }

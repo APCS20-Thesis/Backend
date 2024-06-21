@@ -259,7 +259,7 @@ message UpdateAccountInfoRequest {
   // phone
   string phone = 1;
   // country
-  string country = 2 [(validate.rules).string.max_len = 1];
+  string country = 2 [(validate.rules).string.len = 2];
   // company
   string company = 3;
   // position
