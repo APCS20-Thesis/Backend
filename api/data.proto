@@ -33,20 +33,15 @@ message Account {
   string position = 9;
 }
 
-enum Bool {
-  FALSE = 0;
-  TRUE = 1;
-}
-
 message Setting {
   // notify_create_source
-  Bool notify_create_source = 1;
+  bool notify_create_source = 1;
   // notify_create_destination
-  Bool notify_create_destination = 2;
+  bool notify_create_destination = 2;
   // notify_create_master_segment
-  Bool notify_create_master_segment = 3;
+  bool notify_create_master_segment = 3;
   // notify_create_segment
-  Bool notify_create_segment = 4;
+  bool notify_create_segment = 4;
 }
 
 //*****************************************//

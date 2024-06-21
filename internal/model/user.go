@@ -1,7 +1,6 @@
 package model
 
 import (
-	"github.com/APCS20-Thesis/Backend/api"
 	"github.com/google/uuid"
 	"time"
 )
@@ -29,10 +28,10 @@ func (Account) TableName() string {
 }
 
 type Setting struct {
-	NotifyCreateSource        api.Bool
-	NotifyCreateDestination   api.Bool
-	NotifyCreateMasterSegment api.Bool
-	NotifyCreateSegment       api.Bool
+	NotifyCreateSource        bool
+	NotifyCreateDestination   bool
+	NotifyCreateMasterSegment bool
+	NotifyCreateSegment       bool
 
 	AccountUuid uuid.UUID
 

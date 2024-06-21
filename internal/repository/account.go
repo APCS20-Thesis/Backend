@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"errors"
-	"github.com/APCS20-Thesis/Backend/api"
 	"github.com/APCS20-Thesis/Backend/internal/model"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc/codes"
@@ -136,23 +135,31 @@ func (r *accountRepo) UpdateAccountInfo(ctx context.Context, params *UpdateAccou
 }
 
 type UpdateAccountSettingParams struct {
-	NotifyCreateSource        api.Bool
-	NotifyCreateDestination   api.Bool
-	NotifyCreateMasterSegment api.Bool
-	NotifyCreateSegment       api.Bool
+	NotifyCreateSource        *bool
+	NotifyCreateDestination   *bool
+	NotifyCreateMasterSegment *bool
+	NotifyCreateSegment       *bool
 }
 
 func (r *accountRepo) UpdateAccountSetting(ctx context.Context, params *UpdateAccountSettingParams, accountUuid string) (*model.Setting, error) {
-	setting := &model.Setting{
-		NotifyCreateSource:        params.NotifyCreateSource,
-		NotifyCreateDestination:   params.NotifyCreateDestination,
-		NotifyCreateMasterSegment: params.NotifyCreateMasterSegment,
-		NotifyCreateSegment:       params.NotifyCreateMasterSegment,
+	settingModel := model.Setting{}
+	settingUpdate := make(map[string]interface{})
+	if params.NotifyCreateMasterSegment != nil {
+		settingUpdate["notify_create_master_segment"] = params.NotifyCreateMasterSegment
+	}
+	if params.NotifyCreateSegment != nil {
+		settingUpdate["notify_create_segment"] = params.NotifyCreateSegment
+	}
+	if params.NotifyCreateDestination != nil {
+		settingUpdate["notify_create_destination"] = params.NotifyCreateDestination
+	}
+	if params.NotifyCreateSource != nil {
+		settingUpdate["notify_create_source"] = params.NotifyCreateSource
 	}
 
-	updateErr := r.WithContext(ctx).Table(model.Setting{}.TableName()).Clauses(clause.Returning{}).Where("account_uuid = ?", accountUuid).Updates(&setting).Error
+	updateErr := r.WithContext(ctx).Table(settingModel.TableName()).Model(&settingModel).Clauses(clause.Returning{}).Where("account_uuid = ?", accountUuid).Updates(settingUpdate).Error
 	if updateErr != nil {
 		return nil, updateErr
 	}
-	return setting, nil
+	return &settingModel, nil
 }

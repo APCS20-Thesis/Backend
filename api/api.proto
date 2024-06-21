@@ -283,13 +283,13 @@ message UpdateAccountInfoResponse {
 // UpdateAccountSetting Request
 message UpdateAccountSettingRequest {
   // notify_create_source
-  Bool notify_create_source = 1;
+  google.protobuf.BoolValue notify_create_source = 1;
   // notify_create_destination
-  Bool notify_create_destination = 2;
+  google.protobuf.BoolValue notify_create_destination = 2;
   // notify_create_master_segment
-  Bool notify_create_master_segment = 3;
+  google.protobuf.BoolValue notify_create_master_segment = 3;
   // notify_create_segment
-  Bool notify_create_segment = 4;
+  google.protobuf.BoolValue notify_create_segment = 4;
 }
 
 // UpdateAccountSetting Response

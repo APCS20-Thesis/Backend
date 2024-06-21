@@ -21,3 +21,6 @@ AIRFLOW_ADAPTER_CONFIG:
   ADDRESS: https://c275-113-161-84-248.ngrok-free.app
   USERNAME: airflow
   PASSWORD: airflow
+
+QUERY_ADAPTER_CONFIG:
+  ADDRESS: http://103.109.43.33

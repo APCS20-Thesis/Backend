@@ -5,10 +5,10 @@ ALTER TABLE account ADD COLUMN position varchar(50);
 
 CREATE TABLE IF NOT EXISTS setting (
     id bigserial not null constraint setting_pk primary key,
-    notify_create_source int default 1,
-    notify_create_destination int default 1,
-    notify_create_master_segment int default 1,
-    notify_create_segment int default 1,
+    notify_create_source boolean default true,
+    notify_create_destination boolean default true,
+    notify_create_master_segment boolean default true,
+    notify_create_segment boolean default true,
     account_uuid uuid not null,
     created_at timestamptz default (NOW () AT TIME ZONE 'UTC') not null,
     updated_at timestamptz default (NOW () AT TIME ZONE 'UTC') not null
