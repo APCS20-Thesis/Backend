@@ -1,6 +1,7 @@
 package model
 
 import (
+	"github.com/APCS20-Thesis/Backend/api"
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 	"time"
@@ -20,4 +21,9 @@ type Segment struct {
 
 func (Segment) TableName() string {
 	return "segment"
+}
+
+type SegmentBuildConditions struct {
+	AudienceCondition  *api.Rule
+	BehaviorConditions []*api.BehaviorCondition
 }

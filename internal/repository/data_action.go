@@ -102,6 +102,8 @@ type GetListDataActionsParams struct {
 	Statuses    []model.DataActionStatus
 	AccountUuid uuid.UUID
 	DagId       string
+	Page        int
+	PageSize    int
 }
 
 func (r *dataActionRepo) GetListDataActions(ctx context.Context, params *GetListDataActionsParams) ([]model.DataAction, error) {
@@ -125,7 +127,7 @@ func (r *dataActionRepo) GetListDataActions(ctx context.Context, params *GetList
 	}
 
 	var dataActions []model.DataAction
-	err := query.Find(&dataActions).Error
+	err := query.Order("updated_at desc").Scopes(Paginate(params.Page, params.PageSize)).Find(&dataActions).Error
 	if err != nil {
 		return nil, err
 	}

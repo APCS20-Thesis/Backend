@@ -211,3 +211,37 @@ message EnrichedDataDestination {
   // type
   string type = 4;
 }
+
+message BehaviorCondition {
+  // behavior_table_id - Behavior table id
+  int64 behavior_table_id = 1;
+  // where_condition - condition filter
+  Rule where_condition = 2;
+  // where_sql_condition - condition filter in sql string (higher priority than where_condition)
+  string where_sql_condition = 3;
+  // group_by_keys - List of columns in group by clause, the order is important
+  repeated string group_by_keys = 4;
+  // having_conditions - Group of aggregate conditions in having clause
+  repeated HavingCondition having_conditions = 5;
+
+  message HavingCondition {
+    string combinator = 1;
+    repeated string condition_clause = 2;
+  }
+}
+
+message Rule {
+  string field = 1;
+  string operator = 2;
+  string value = 3;
+  repeated Rule rules = 4;
+  string combinator = 5;
+}
+
+message DataAction {
+  int64 id = 1;
+  string action_type = 2;
+  string status = 3;
+  string created_at = 4;
+  string updated_at = 5;
+}

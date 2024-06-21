@@ -18,6 +18,7 @@ const (
 	Endpoint_TRIGGER_GENERATE_DAG_EXPORT_CSV            string = "/api/v1/dags/generate_export_csv/dagRuns"
 	Endpoint_TRIGGER_GENERATE_DAG_EXPORT_MYSQL          string = "/api/v1/dags/generate_export_mysql/dagRuns"
 	Endpoint_TRIGGER_GENERATE_DAG_CREATE_MASTER_SEGMENT string = "/api/v1/dags/generate_create_master_segment/dagRuns"
+	Endpoint_TRIGGER_GENERATE_DAG_CREATE_SEGMENT        string = "/api/v1/dags/generate_create_segment/dagRuns"
 
 	WriteMode_Append    DeltaWriteMode = "append"
 	WriteMode_Overwrite DeltaWriteMode = "overwrite"
@@ -30,6 +31,7 @@ type AirflowAdapter interface {
 	TriggerGenerateDagExportMySQL(ctx context.Context, request *TriggerGenerateDagExportMySQLRequest) (*TriggerNewDagRunResponse, error)
 	TriggerNewDagRun(ctx context.Context, dagId string, request *TriggerNewDagRunRequest) (*TriggerNewDagRunResponse, error)
 	TriggerGenerateDagCreateMasterSegment(ctx context.Context, request *TriggerGenerateDagCreateMasterSegmentRequest) error
+	TriggerGenerateDagCreateSegment(ctx context.Context, request *TriggerGenerateDagCreateSegmentRequest) error
 
 	ListDags(ctx context.Context, request *ListDagsParams) (*ListDagsResponse, error)
 	UpdateDag(ctx context.Context, dagId string, request *UpdateDagRequest) (*UpdateDagResponse, error)

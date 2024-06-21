@@ -158,7 +158,7 @@ func (b business) GetMasterSegmentDetail(ctx context.Context, request *api.GetMa
 		BehaviorTables: utils.Map(behaviorTables, func(table model.BehaviorTable) *api.MasterSegmentDetail_BehaviorTable {
 			var behaviorSchema []*api.SchemaColumn
 			if table.Schema.RawMessage != nil && table.Schema.Valid {
-				err = json.Unmarshal(audienceTable.Schema.RawMessage, &behaviorSchema)
+				err = json.Unmarshal(table.Schema.RawMessage, &behaviorSchema)
 				if err != nil {
 					b.log.WithName("GetMasterSegmentDetail").Error(err, "cannot parse audience schema")
 					return nil

@@ -24,6 +24,10 @@ const (
 
 	DeltaAudience_Path            = "segments/id/id_audience"
 	DeltaAudience_MasterSegmentId = "id"
+
+	DeltaBehavior_Path            = "segments/id/id_name"
+	DeltaBehavior_MasterSegmentId = "id"
+	DeltaBehavior_TableName       = "name"
 )
 
 func GenerateExportDataFileLocation(accountUuid string, fileName string, fileFormat string) string {
@@ -45,13 +49,20 @@ func GenerateDagIdForCreateMasterSegment(accountUuid string, masterSegmentId int
 
 func GenerateDeltaTablePath(accountUuid string, tableName string) string {
 	path := strings.Replace(QueryDeltaTable_Path, Common_AccountUuid, accountUuid, 1)
-	path = strings.Replace(QueryDeltaTable_Path, QueryDeltaTable_TableName, tableName, 1)
+	path = strings.Replace(path, QueryDeltaTable_TableName, tableName, 1)
 	return path
 }
 
 func GenerateDeltaAudiencePath(masterSegmentId int64) string {
 	return strings.Replace(DeltaAudience_Path, DeltaAudience_MasterSegmentId,
 		strconv.FormatInt(masterSegmentId, 10), 2)
+}
+
+func GenerateDeltaBehaviorPath(masterSegmentId int64, behaviorTableName string) string {
+	path := strings.Replace(DeltaBehavior_Path, DeltaBehavior_MasterSegmentId,
+		strconv.FormatInt(masterSegmentId, 10), 2)
+	path = strings.Replace(path, DeltaBehavior_TableName, behaviorTableName, 1)
+	return path
 }
 
 func GenerateDagId(accountUuid string, dataActionType model.ActionType) string {
@@ -68,8 +79,14 @@ func GenerateDagId(accountUuid string, dataActionType model.ActionType) string {
 		prefix = "export_mysql"
 	case model.ActionType_ExportDataToS3CSV:
 		prefix = "export_csv"
+	case model.ActionType_CreateSegment:
+		prefix = "create_segment"
 	default:
 		return ""
 	}
 	return fmt.Sprintf("%s_%s_%s", prefix, accountUuid, dateTime)
+}
+
+func GenerateDeltaSegmentPath(masterSegmentId int64, segmentId int64) string {
+	return fmt.Sprintf("segments/%d/%d_segment", masterSegmentId, segmentId)
 }

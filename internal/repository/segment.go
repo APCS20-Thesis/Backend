@@ -22,7 +22,7 @@ type SegmentRepository interface {
 	CreateBehaviorTable(ctx context.Context, params *CreateBehaviorTableParams) error
 	ListBehaviorTables(ctx context.Context, params ListBehaviorTablesParams) ([]model.BehaviorTable, error)
 
-	CreateSegment(ctx context.Context, params *CreateSegmentParams) error
+	CreateSegment(ctx context.Context, params *CreateSegmentParams) (*model.Segment, error)
 	ListSegments(ctx context.Context, filter *ListSegmentFilter) ([]SegmentListItem, error)
 	GetSegment(ctx context.Context, segmentId int64, accountUuid string) (model.Segment, error)
 }
@@ -117,6 +117,7 @@ func (r *segmentRepo) CreateBehaviorTable(ctx context.Context, params *CreateBeh
 }
 
 type CreateSegmentParams struct {
+	Tx              *gorm.DB
 	Name            string
 	Description     string
 	MasterSegmentId int64
@@ -125,20 +126,27 @@ type CreateSegmentParams struct {
 	AccountUuid     uuid.UUID
 }
 
-func (r *segmentRepo) CreateSegment(ctx context.Context, params *CreateSegmentParams) error {
-	err := r.WithContext(ctx).Table(r.SegmentTableName).Create(&model.Segment{
+func (r *segmentRepo) CreateSegment(ctx context.Context, params *CreateSegmentParams) (*model.Segment, error) {
+	segment := &model.Segment{
 		MasterSegmentId: params.MasterSegmentId,
 		Condition:       params.Condition,
 		SqlCondition:    params.SqlCondition,
 		Description:     params.Description,
 		Name:            params.Name,
 		AccountUuid:     params.AccountUuid,
-	}).Error
-	if err != nil {
-		return err
 	}
 
-	return nil
+	var createErr error
+	if params.Tx != nil {
+		createErr = params.Tx.WithContext(ctx).Table(r.SegmentTableName).Create(segment).Error
+	} else {
+		createErr = r.WithContext(ctx).Table(r.SegmentTableName).Create(segment).Error
+	}
+	if createErr != nil {
+		return nil, createErr
+	}
+
+	return segment, nil
 }
 
 type ListMasterSegmentsParams struct {
