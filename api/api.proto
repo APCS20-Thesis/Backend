@@ -198,6 +198,13 @@ service CDPService {
       get: "/api/v1/data-actions"
     };
   }
+
+  rpc TrainPredictModel(TrainPredictModelRequest) returns (TrainPredictModelResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/predict-model"
+      body: "*"
+    };
+  }
 }
 
 // CheckHealthRequest
@@ -969,4 +976,24 @@ message GetListDataActionsResponse {
   string message = 2;
   int64 count = 3;
   repeated DataAction results = 4;
+}
+
+message TrainPredictModelRequest {
+  // name
+  string name = 1;
+  // master_segment_id
+  int64 master_segment_id = 2 [(validate.rules).int64.gt = 0];
+  // segment1_id - id of first segment for train data
+  repeated int64 train_segment_ids = 3;
+  // labels - Labels for categories
+  repeated string labels = 4;
+  // selected_attributes
+  repeated string selected_attributes = 5;
+}
+
+message TrainPredictModelResponse {
+  // code
+  int32 code = 1;
+  // message
+  string message = 2;
 }

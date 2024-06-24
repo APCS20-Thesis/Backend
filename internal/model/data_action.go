@@ -16,6 +16,7 @@ const (
 	ActionType_ExportToMySQL       ActionType = "EXPORT_TABLE_TO_MYSQL"
 	ActionType_CreateMasterSegment ActionType = "CREATE_MS_SEGMENT"
 	ActionType_CreateSegment       ActionType = "CREATE_SEGMENT"
+	ActionType_TrainPredictModel   ActionType = "TRAIN_PREDICT_MODEL"
 )
 
 type DataActionTargetTable string
@@ -27,6 +28,7 @@ const (
 	TargetTable_DestMasterSegmentMap DataActionTargetTable = "dest_ms_segment_map"
 	TargetTable_DataTable            DataActionTargetTable = "data_table"
 	TargetTable_Segment              DataActionTargetTable = "segment"
+	TargetTable_PredictModel         DataActionTargetTable = "predict_model"
 )
 
 type DataActionStatus string

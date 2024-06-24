@@ -52,6 +52,7 @@ type CDPServiceClient interface {
 	ExportToMySQLDestination(ctx context.Context, in *ExportToMySQLDestinationRequest, opts ...grpc.CallOption) (*ExportToMySQLDestinationResponse, error)
 	GetListDataDestinations(ctx context.Context, in *GetListDataDestinationsRequest, opts ...grpc.CallOption) (*GetListDataDestinationsResponse, error)
 	GetListDataActions(ctx context.Context, in *GetListDataActionsRequest, opts ...grpc.CallOption) (*GetListDataActionsResponse, error)
+	TrainPredictModel(ctx context.Context, in *TrainPredictModelRequest, opts ...grpc.CallOption) (*TrainPredictModelResponse, error)
 }
 
 type cDPServiceClient struct {
@@ -332,6 +333,15 @@ func (c *cDPServiceClient) GetListDataActions(ctx context.Context, in *GetListDa
 	return out, nil
 }
 
+func (c *cDPServiceClient) TrainPredictModel(ctx context.Context, in *TrainPredictModelRequest, opts ...grpc.CallOption) (*TrainPredictModelResponse, error) {
+	out := new(TrainPredictModelResponse)
+	err := c.cc.Invoke(ctx, "/api.CDPService/TrainPredictModel", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CDPServiceServer is the server API for CDPService service.
 // All implementations must embed UnimplementedCDPServiceServer
 // for forward compatibility
@@ -366,6 +376,7 @@ type CDPServiceServer interface {
 	ExportToMySQLDestination(context.Context, *ExportToMySQLDestinationRequest) (*ExportToMySQLDestinationResponse, error)
 	GetListDataDestinations(context.Context, *GetListDataDestinationsRequest) (*GetListDataDestinationsResponse, error)
 	GetListDataActions(context.Context, *GetListDataActionsRequest) (*GetListDataActionsResponse, error)
+	TrainPredictModel(context.Context, *TrainPredictModelRequest) (*TrainPredictModelResponse, error)
 	mustEmbedUnimplementedCDPServiceServer()
 }
 
@@ -462,6 +473,9 @@ func (UnimplementedCDPServiceServer) GetListDataDestinations(context.Context, *G
 }
 func (UnimplementedCDPServiceServer) GetListDataActions(context.Context, *GetListDataActionsRequest) (*GetListDataActionsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetListDataActions not implemented")
+}
+func (UnimplementedCDPServiceServer) TrainPredictModel(context.Context, *TrainPredictModelRequest) (*TrainPredictModelResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TrainPredictModel not implemented")
 }
 func (UnimplementedCDPServiceServer) mustEmbedUnimplementedCDPServiceServer() {}
 
@@ -1016,6 +1030,24 @@ func _CDPService_GetListDataActions_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CDPService_TrainPredictModel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TrainPredictModelRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDPServiceServer).TrainPredictModel(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.CDPService/TrainPredictModel",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDPServiceServer).TrainPredictModel(ctx, req.(*TrainPredictModelRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CDPService_ServiceDesc is the grpc.ServiceDesc for CDPService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1142,6 +1174,10 @@ var CDPService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetListDataActions",
 			Handler:    _CDPService_GetListDataActions_Handler,
+		},
+		{
+			MethodName: "TrainPredictModel",
+			Handler:    _CDPService_TrainPredictModel_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

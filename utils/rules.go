@@ -81,6 +81,8 @@ func GenerateDagId(accountUuid string, dataActionType model.ActionType) string {
 		prefix = "export_csv"
 	case model.ActionType_CreateSegment:
 		prefix = "create_segment"
+	case model.ActionType_TrainPredictModel:
+		prefix = "train_predict_model"
 	default:
 		return ""
 	}
@@ -89,4 +91,8 @@ func GenerateDagId(accountUuid string, dataActionType model.ActionType) string {
 
 func GenerateDeltaSegmentPath(masterSegmentId int64, segmentId int64) string {
 	return fmt.Sprintf("segments/%d/%d_segment", masterSegmentId, segmentId)
+}
+
+func GenerateDeltaPredictModelFilePath(masterSegmentId int64, predictModelId int64) string {
+	return fmt.Sprintf("segments/%d/%d_model", masterSegmentId, predictModelId)
 }
