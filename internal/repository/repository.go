@@ -19,6 +19,7 @@ type Repository struct {
 	DestTableMapRepository
 	DestSegmentMapRepository
 	DestMasterSegmentMapRepository
+	PredictModelRepository
 }
 
 func NewRepository(db *gorm.DB) *Repository {
@@ -37,6 +38,7 @@ func NewRepository(db *gorm.DB) *Repository {
 		DestTableMapRepository:         NewDestTableMapRepository(db),
 		DestSegmentMapRepository:       NewDestSegmentMapRepository(db),
 		DestMasterSegmentMapRepository: NewDestMasterSegmentMapRepository(db),
+		PredictModelRepository:         NewPredictModelRepository(db),
 	}
 }
 

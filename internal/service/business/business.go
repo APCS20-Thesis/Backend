@@ -11,6 +11,7 @@ import (
 	data_destination "github.com/APCS20-Thesis/Backend/internal/service/business/data-destination"
 	data_source "github.com/APCS20-Thesis/Backend/internal/service/business/data-source"
 	data_table "github.com/APCS20-Thesis/Backend/internal/service/business/data-table"
+	predict_model "github.com/APCS20-Thesis/Backend/internal/service/business/predict-model"
 	"github.com/APCS20-Thesis/Backend/internal/service/business/segment"
 	"github.com/go-logr/logr"
 	"gorm.io/gorm"
@@ -25,6 +26,7 @@ type Business struct {
 	SegmentBusiness         segment.Business
 	DataDestinationBusiness data_destination.Business
 	ConnectionBusiness      connection.Business
+	PredictModelBusiness    predict_model.Business
 }
 
 func NewBusiness(
@@ -45,5 +47,6 @@ func NewBusiness(
 		SegmentBusiness:         segment.NewSegmentBusiness(db, log, repo, airflowAdapter),
 		DataDestinationBusiness: data_destination.NewDataDestinationBusiness(db, log, repo, gophishAdapter, queryAdapter, airflowAdapter),
 		ConnectionBusiness:      connection.NewConnectionBusiness(log, repo),
+		PredictModelBusiness:    predict_model.NewPredictModelBusiness(db, log, repo, airflowAdapter),
 	}
 }

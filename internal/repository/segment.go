@@ -15,12 +15,15 @@ type SegmentRepository interface {
 	CreateMasterSegment(ctx context.Context, params *model.MasterSegment) error
 	ListMasterSegments(ctx context.Context, params *ListMasterSegmentsParams) ([]model.MasterSegment, error)
 	GetMasterSegment(ctx context.Context, masterSegmentId int64, accountUuid string) (model.MasterSegment, error)
+	UpdateMasterSegment(ctx context.Context, params *UpdateMasterSegmentParams) error
 
 	CreateAudienceTable(ctx context.Context, params *CreateAudienceTableParams) error
 	GetAudienceTable(ctx context.Context, params GetAudienceTableParams) (model.AudienceTable, error)
+	UpdateAudienceTable(ctx context.Context, params *UpdateAudienceTableParams) error
 
 	CreateBehaviorTable(ctx context.Context, params *CreateBehaviorTableParams) error
 	ListBehaviorTables(ctx context.Context, params ListBehaviorTablesParams) ([]model.BehaviorTable, error)
+	UpdateBehaviorTable(ctx context.Context, params *UpdateBehaviorTableParams) error
 
 	CreateSegment(ctx context.Context, params *CreateSegmentParams) (*model.Segment, error)
 	ListSegments(ctx context.Context, filter *ListSegmentFilter) ([]SegmentListItem, error)
@@ -165,6 +168,23 @@ func (r *segmentRepo) ListMasterSegments(ctx context.Context, params *ListMaster
 	return masterSegments, nil
 }
 
+type UpdateMasterSegmentParams struct {
+	Id     int64
+	Status model.MasterSegmentStatus
+}
+
+func (r *segmentRepo) UpdateMasterSegment(ctx context.Context, params *UpdateMasterSegmentParams) error {
+	masterSegment := model.MasterSegment{
+		ID:     params.Id,
+		Status: params.Status,
+	}
+	updateErr := r.WithContext(ctx).Table(r.MasterSegmentTableName).Where("id = ?", params.Id).Updates(&masterSegment).Error
+	if updateErr != nil {
+		return updateErr
+	}
+	return nil
+}
+
 type ListBehaviorTablesParams struct {
 	MasterSegmentId int64
 }
@@ -181,6 +201,23 @@ func (r *segmentRepo) ListBehaviorTables(ctx context.Context, params ListBehavio
 	return behaviorTables, nil
 }
 
+type UpdateBehaviorTableParams struct {
+	Id     int64
+	Schema pqtype.NullRawMessage
+}
+
+func (r *segmentRepo) UpdateBehaviorTable(ctx context.Context, params *UpdateBehaviorTableParams) error {
+	behaviorTable := model.BehaviorTable{
+		ID:     params.Id,
+		Schema: params.Schema,
+	}
+	updateErr := r.WithContext(ctx).Table(r.AudienceTableName).Where("id = ?", params.Id).Updates(&behaviorTable).Error
+	if updateErr != nil {
+		return updateErr
+	}
+	return nil
+}
+
 type GetAudienceTableParams struct {
 	MasterSegmentId int64
 }
@@ -195,6 +232,23 @@ func (r *segmentRepo) GetAudienceTable(ctx context.Context, params GetAudienceTa
 	}
 
 	return audienceTable, nil
+}
+
+type UpdateAudienceTableParams struct {
+	Id     int64
+	Schema pqtype.NullRawMessage
+}
+
+func (r *segmentRepo) UpdateAudienceTable(ctx context.Context, params *UpdateAudienceTableParams) error {
+	audienceTable := model.AudienceTable{
+		ID:     params.Id,
+		Schema: params.Schema,
+	}
+	updateErr := r.WithContext(ctx).Table(r.AudienceTableName).Where("id = ?", params.Id).Updates(&audienceTable).Error
+	if updateErr != nil {
+		return updateErr
+	}
+	return nil
 }
 
 func (r *segmentRepo) GetMasterSegment(ctx context.Context, masterSegmentId int64, accountUuid string) (model.MasterSegment, error) {
