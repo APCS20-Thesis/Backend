@@ -83,3 +83,32 @@ func (b business) ProcessTrainPredictModel(ctx context.Context, request *api.Tra
 
 	return nil
 }
+
+func (b business) ProcessGetListPredictModels(ctx context.Context, request *api.GetListPredictModelsRequest, accountUuid string) (*api.GetListPredictModelsResponse, error) {
+	queryResult, err := b.repository.PredictModelRepository.ListPredictModels(ctx, &repository.ListPredictModelsParams{
+		Page:            int(request.Page),
+		PageSize:        int(request.PageSize),
+		MasterSegmentId: request.MasterSegmentId,
+	})
+	if err != nil {
+		b.log.WithName("ProcessGetListPredictModels").Error(err, "cannot get list predict models", "request", request)
+		return nil, err
+	}
+
+	return &api.GetListPredictModelsResponse{
+		Code:    0,
+		Message: "Success",
+		Count:   queryResult.Count,
+		Results: utils.Map(queryResult.PredictModels, func(model model.PredictModel) *api.PredictModel {
+			return &api.PredictModel{
+				Id:              model.ID,
+				Name:            model.Name,
+				MasterSegmentId: model.MasterSegmentId,
+				Status:          string(model.Status),
+				Labels:          nil,
+				CreatedAt:       model.CreatedAt.String(),
+				UpdatedAt:       model.UpdatedAt.String(),
+			}
+		}),
+	}, nil
+}

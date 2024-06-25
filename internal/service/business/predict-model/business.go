@@ -11,6 +11,7 @@ import (
 
 type Business interface {
 	ProcessTrainPredictModel(ctx context.Context, request *api.TrainPredictModelRequest, accountUuid string) error
+	ProcessGetListPredictModels(ctx context.Context, request *api.GetListPredictModelsRequest, accountUuid string) (*api.GetListPredictModelsResponse, error)
 }
 
 type business struct {

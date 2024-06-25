@@ -1456,6 +1456,106 @@ func (x *DataAction) GetUpdatedAt() string {
 	return ""
 }
 
+type PredictModel struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// id
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	// name
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// master_segment_id
+	MasterSegmentId int64 `protobuf:"varint,3,opt,name=master_segment_id,json=masterSegmentId,proto3" json:"master_segment_id,omitempty"`
+	// status - Predict model status
+	Status string `protobuf:"bytes,4,opt,name=status,proto3" json:"status,omitempty"`
+	// labels - Labels for 2 categories
+	Labels    []string `protobuf:"bytes,5,rep,name=labels,proto3" json:"labels,omitempty"`
+	CreatedAt string   `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt string   `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+}
+
+func (x *PredictModel) Reset() {
+	*x = PredictModel{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_data_proto_msgTypes[18]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *PredictModel) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PredictModel) ProtoMessage() {}
+
+func (x *PredictModel) ProtoReflect() protoreflect.Message {
+	mi := &file_data_proto_msgTypes[18]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PredictModel.ProtoReflect.Descriptor instead.
+func (*PredictModel) Descriptor() ([]byte, []int) {
+	return file_data_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *PredictModel) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *PredictModel) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *PredictModel) GetMasterSegmentId() int64 {
+	if x != nil {
+		return x.MasterSegmentId
+	}
+	return 0
+}
+
+func (x *PredictModel) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *PredictModel) GetLabels() []string {
+	if x != nil {
+		return x.Labels
+	}
+	return nil
+}
+
+func (x *PredictModel) GetCreatedAt() string {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return ""
+}
+
+func (x *PredictModel) GetUpdatedAt() string {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return ""
+}
+
 type MasterSegmentDetail_AttributeTable struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -1476,7 +1576,7 @@ type MasterSegmentDetail_AttributeTable struct {
 func (x *MasterSegmentDetail_AttributeTable) Reset() {
 	*x = MasterSegmentDetail_AttributeTable{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_data_proto_msgTypes[18]
+		mi := &file_data_proto_msgTypes[19]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1489,7 +1589,7 @@ func (x *MasterSegmentDetail_AttributeTable) String() string {
 func (*MasterSegmentDetail_AttributeTable) ProtoMessage() {}
 
 func (x *MasterSegmentDetail_AttributeTable) ProtoReflect() protoreflect.Message {
-	mi := &file_data_proto_msgTypes[18]
+	mi := &file_data_proto_msgTypes[19]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1563,7 +1663,7 @@ type MasterSegmentDetail_BehaviorTable struct {
 func (x *MasterSegmentDetail_BehaviorTable) Reset() {
 	*x = MasterSegmentDetail_BehaviorTable{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_data_proto_msgTypes[19]
+		mi := &file_data_proto_msgTypes[20]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1576,7 +1676,7 @@ func (x *MasterSegmentDetail_BehaviorTable) String() string {
 func (*MasterSegmentDetail_BehaviorTable) ProtoMessage() {}
 
 func (x *MasterSegmentDetail_BehaviorTable) ProtoReflect() protoreflect.Message {
-	mi := &file_data_proto_msgTypes[19]
+	mi := &file_data_proto_msgTypes[20]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1653,7 +1753,7 @@ type BehaviorCondition_HavingCondition struct {
 func (x *BehaviorCondition_HavingCondition) Reset() {
 	*x = BehaviorCondition_HavingCondition{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_data_proto_msgTypes[20]
+		mi := &file_data_proto_msgTypes[21]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1666,7 +1766,7 @@ func (x *BehaviorCondition_HavingCondition) String() string {
 func (*BehaviorCondition_HavingCondition) ProtoMessage() {}
 
 func (x *BehaviorCondition_HavingCondition) ProtoReflect() protoreflect.Message {
-	mi := &file_data_proto_msgTypes[20]
+	mi := &file_data_proto_msgTypes[21]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1934,10 +2034,23 @@ var file_data_proto_rawDesc = []byte{
 	0x61, 0x74, 0x65, 0x64, 0x5f, 0x61, 0x74, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x63,
 	0x72, 0x65, 0x61, 0x74, 0x65, 0x64, 0x41, 0x74, 0x12, 0x1d, 0x0a, 0x0a, 0x75, 0x70, 0x64, 0x61,
 	0x74, 0x65, 0x64, 0x5f, 0x61, 0x74, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x75, 0x70,
-	0x64, 0x61, 0x74, 0x65, 0x64, 0x41, 0x74, 0x42, 0x26, 0x5a, 0x24, 0x67, 0x69, 0x74, 0x68, 0x75,
-	0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x41, 0x50, 0x43, 0x53, 0x32, 0x30, 0x2d, 0x54, 0x68, 0x65,
-	0x73, 0x69, 0x73, 0x2f, 0x42, 0x61, 0x63, 0x6b, 0x65, 0x6e, 0x64, 0x2f, 0x61, 0x70, 0x69, 0x62,
-	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x64, 0x61, 0x74, 0x65, 0x64, 0x41, 0x74, 0x22, 0xcc, 0x01, 0x0a, 0x0c, 0x50, 0x72, 0x65, 0x64,
+	0x69, 0x63, 0x74, 0x4d, 0x6f, 0x64, 0x65, 0x6c, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x03, 0x52, 0x02, 0x69, 0x64, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x2a, 0x0a, 0x11,
+	0x6d, 0x61, 0x73, 0x74, 0x65, 0x72, 0x5f, 0x73, 0x65, 0x67, 0x6d, 0x65, 0x6e, 0x74, 0x5f, 0x69,
+	0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x03, 0x52, 0x0f, 0x6d, 0x61, 0x73, 0x74, 0x65, 0x72, 0x53,
+	0x65, 0x67, 0x6d, 0x65, 0x6e, 0x74, 0x49, 0x64, 0x12, 0x16, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74,
+	0x75, 0x73, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73,
+	0x12, 0x16, 0x0a, 0x06, 0x6c, 0x61, 0x62, 0x65, 0x6c, 0x73, 0x18, 0x05, 0x20, 0x03, 0x28, 0x09,
+	0x52, 0x06, 0x6c, 0x61, 0x62, 0x65, 0x6c, 0x73, 0x12, 0x1d, 0x0a, 0x0a, 0x63, 0x72, 0x65, 0x61,
+	0x74, 0x65, 0x64, 0x5f, 0x61, 0x74, 0x18, 0x06, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x63, 0x72,
+	0x65, 0x61, 0x74, 0x65, 0x64, 0x41, 0x74, 0x12, 0x1d, 0x0a, 0x0a, 0x75, 0x70, 0x64, 0x61, 0x74,
+	0x65, 0x64, 0x5f, 0x61, 0x74, 0x18, 0x07, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x75, 0x70, 0x64,
+	0x61, 0x74, 0x65, 0x64, 0x41, 0x74, 0x42, 0x26, 0x5a, 0x24, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62,
+	0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x41, 0x50, 0x43, 0x53, 0x32, 0x30, 0x2d, 0x54, 0x68, 0x65, 0x73,
+	0x69, 0x73, 0x2f, 0x42, 0x61, 0x63, 0x6b, 0x65, 0x6e, 0x64, 0x2f, 0x61, 0x70, 0x69, 0x62, 0x06,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -1952,7 +2065,7 @@ func file_data_proto_rawDescGZIP() []byte {
 	return file_data_proto_rawDescData
 }
 
-var file_data_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
+var file_data_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
 var file_data_proto_goTypes = []interface{}{
 	(*Account)(nil),                            // 0: api.Account
 	(*Setting)(nil),                            // 1: api.Setting
@@ -1972,16 +2085,17 @@ var file_data_proto_goTypes = []interface{}{
 	(*BehaviorCondition)(nil),                  // 15: api.BehaviorCondition
 	(*Rule)(nil),                               // 16: api.Rule
 	(*DataAction)(nil),                         // 17: api.DataAction
-	(*MasterSegmentDetail_AttributeTable)(nil), // 18: api.MasterSegmentDetail.AttributeTable
-	(*MasterSegmentDetail_BehaviorTable)(nil),  // 19: api.MasterSegmentDetail.BehaviorTable
-	(*BehaviorCondition_HavingCondition)(nil),  // 20: api.BehaviorCondition.HavingCondition
+	(*PredictModel)(nil),                       // 18: api.PredictModel
+	(*MasterSegmentDetail_AttributeTable)(nil), // 19: api.MasterSegmentDetail.AttributeTable
+	(*MasterSegmentDetail_BehaviorTable)(nil),  // 20: api.MasterSegmentDetail.BehaviorTable
+	(*BehaviorCondition_HavingCondition)(nil),  // 21: api.BehaviorCondition.HavingCondition
 }
 var file_data_proto_depIdxs = []int32{
-	18, // 0: api.MasterSegmentDetail.attribute_tables:type_name -> api.MasterSegmentDetail.AttributeTable
-	19, // 1: api.MasterSegmentDetail.behavior_tables:type_name -> api.MasterSegmentDetail.BehaviorTable
+	19, // 0: api.MasterSegmentDetail.attribute_tables:type_name -> api.MasterSegmentDetail.AttributeTable
+	20, // 1: api.MasterSegmentDetail.behavior_tables:type_name -> api.MasterSegmentDetail.BehaviorTable
 	5,  // 2: api.MasterSegmentDetail.audience_schema:type_name -> api.SchemaColumn
 	16, // 3: api.BehaviorCondition.where_condition:type_name -> api.Rule
-	20, // 4: api.BehaviorCondition.having_conditions:type_name -> api.BehaviorCondition.HavingCondition
+	21, // 4: api.BehaviorCondition.having_conditions:type_name -> api.BehaviorCondition.HavingCondition
 	16, // 5: api.Rule.rules:type_name -> api.Rule
 	4,  // 6: api.MasterSegmentDetail.AttributeTable.selected_columns:type_name -> api.TransferredColumn
 	5,  // 7: api.MasterSegmentDetail.BehaviorTable.schema:type_name -> api.SchemaColumn
@@ -2215,7 +2329,7 @@ func file_data_proto_init() {
 			}
 		}
 		file_data_proto_msgTypes[18].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*MasterSegmentDetail_AttributeTable); i {
+			switch v := v.(*PredictModel); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2227,7 +2341,7 @@ func file_data_proto_init() {
 			}
 		}
 		file_data_proto_msgTypes[19].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*MasterSegmentDetail_BehaviorTable); i {
+			switch v := v.(*MasterSegmentDetail_AttributeTable); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2239,6 +2353,18 @@ func file_data_proto_init() {
 			}
 		}
 		file_data_proto_msgTypes[20].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*MasterSegmentDetail_BehaviorTable); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_data_proto_msgTypes[21].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*BehaviorCondition_HavingCondition); i {
 			case 0:
 				return &v.state
@@ -2257,7 +2383,7 @@ func file_data_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_data_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   21,
+			NumMessages:   22,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

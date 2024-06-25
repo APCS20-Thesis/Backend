@@ -23,3 +23,13 @@ func (s *Service) TrainPredictModel(ctx context.Context, request *api.TrainPredi
 		Message: "Success",
 	}, nil
 }
+
+func (s *Service) GetListPredictModels(ctx context.Context, request *api.GetListPredictModelsRequest) (*api.GetListPredictModelsResponse, error) {
+	accountUuid, err := GetAccountUuidFromCtx(ctx)
+	if err != nil {
+		s.log.WithName("GetListPredictModels").Error(err, "cannot get account uuid from context")
+		return nil, err
+	}
+
+	return s.business.PredictModelBusiness.ProcessGetListPredictModels(ctx, request, accountUuid)
+}

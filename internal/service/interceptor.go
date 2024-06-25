@@ -54,7 +54,7 @@ func (interceptor *AuthInterceptor) authorize(ctx context.Context, method string
 
 	accessToken, err := GetMetadata(ctx, constants.KeyAuthorization)
 	if err != nil {
-		log.Fatalln("Cannot get accessToken from context", err)
+		log.Println("Cannot get accessToken from context", err)
 		return nil, err
 	}
 

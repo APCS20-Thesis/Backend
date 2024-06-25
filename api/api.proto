@@ -205,6 +205,12 @@ service CDPService {
       body: "*"
     };
   }
+
+  rpc GetListPredictModels(GetListPredictModelsRequest) returns (GetListPredictModelsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/predict-models"
+    };
+  }
 }
 
 // CheckHealthRequest
@@ -996,4 +1002,24 @@ message TrainPredictModelResponse {
   int32 code = 1;
   // message
   string message = 2;
+}
+
+message GetListPredictModelsRequest {
+  // page
+  int32 page = 1;
+  // page_size
+  int32 page_size = 2;
+  // master_segment_id
+  int64 master_segment_id = 3 [(validate.rules).int64.gt = 0];
+}
+
+message GetListPredictModelsResponse {
+  // code
+  int32 code = 1;
+  // message
+  string message = 2;
+  // count
+  int64 count = 3;
+  // results - List of predict models
+  repeated PredictModel results = 4;
 }

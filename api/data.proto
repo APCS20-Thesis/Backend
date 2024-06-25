@@ -264,3 +264,18 @@ message DataAction {
   string created_at = 4;
   string updated_at = 5;
 }
+
+message PredictModel {
+  // id
+  int64 id = 1;
+  // name
+  string name = 2;
+  // master_segment_id
+  int64 master_segment_id = 3;
+  // status - Predict model status
+  string status = 4;
+  // labels - Labels for 2 categories
+  repeated string labels = 5;
+  string created_at = 6;
+  string updated_at = 7;
+}

@@ -9,6 +9,7 @@ import (
 
 type PredictModelRepository interface {
 	CreatePredictModel(ctx context.Context, params *CreatePredictModelParams) (*model.PredictModel, error)
+	ListPredictModels(ctx context.Context, params *ListPredictModelsParams) (*ListPredictModelsResult, error)
 }
 
 type predictModelRepo struct {
@@ -49,4 +50,33 @@ func (r *predictModelRepo) CreatePredictModel(ctx context.Context, params *Creat
 	}
 
 	return &predictModel, nil
+}
+
+type ListPredictModelsParams struct {
+	Page            int
+	PageSize        int
+	MasterSegmentId int64
+}
+
+type ListPredictModelsResult struct {
+	PredictModels []model.PredictModel
+	Count         int64
+}
+
+func (r *predictModelRepo) ListPredictModels(ctx context.Context, params *ListPredictModelsParams) (*ListPredictModelsResult, error) {
+	var (
+		models []model.PredictModel
+		count  int64
+	)
+
+	query := r.WithContext(ctx).Table(r.TableName).Where("master_segment_id = ?", params.MasterSegmentId)
+	err := query.Count(&count).Scopes(Paginate(params.Page, params.PageSize)).Find(&models).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &ListPredictModelsResult{
+		PredictModels: models,
+		Count:         count,
+	}, nil
 }
