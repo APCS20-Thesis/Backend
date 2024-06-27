@@ -9,3 +9,8 @@ type AirflowConfig struct {
 type QueryConfig struct {
 	Address string `json:"address" mapstructure:"address"`
 }
+
+type MqttConfig struct {
+	Host string `json:"host" mapstructure:"host"`
+	Port int32  `json:"port" mapstructure:"port"`
+}

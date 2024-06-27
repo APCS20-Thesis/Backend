@@ -1,0 +1,96 @@
+package mqtt
+
+import (
+	"encoding/json"
+	"fmt"
+	"github.com/APCS20-Thesis/Backend/config"
+	MQTT "github.com/eclipse/paho.mqtt.golang"
+	"github.com/go-logr/logr"
+	"gorm.io/gorm"
+)
+
+type MqttAdapter interface {
+	Connect()
+
+	Publish(topic string, message interface{})
+	Sub(topic string)
+	Disconnect()
+}
+
+var (
+	messagePubHandler MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
+		fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
+	}
+
+	connectHandler MQTT.OnConnectHandler = func(client MQTT.Client) {
+		fmt.Println("Connected")
+	}
+
+	connectLostHandler MQTT.ConnectionLostHandler = func(client MQTT.Client, err error) {
+		fmt.Printf("Connect lost: %v", err)
+	}
+)
+
+type (
+	Notification struct {
+		Status   int32  `json:"status"`
+		Message  string `json:"message"`
+		Severity string `json:"severity"`
+	}
+)
+
+type mqtt struct {
+	log    logr.Logger
+	client MQTT.Client
+	db     *gorm.DB
+}
+
+func (m *mqtt) Sub(topic string) {
+	token := m.client.Subscribe(topic, 1, nil)
+	token.Wait()
+	m.log.Info("Subscribed to topic: %s", topic)
+
+}
+
+func (m *mqtt) Connect() {
+	if token := m.client.Connect(); token.Wait() && token.Error() != nil {
+		panic(token.Error())
+	}
+
+	topic := "main/"
+	token := m.client.Subscribe(topic, 1, nil)
+	token.Wait()
+	m.log.Info("Mqtt Subscribe", "topic", topic)
+}
+
+func (m *mqtt) Publish(topic string, message interface{}) {
+	jsonMessage, err := json.Marshal(message)
+	if err != nil {
+		m.log.Error(err, "Failed to publish message")
+		return
+	}
+	token := m.client.Publish(topic, 0, false, jsonMessage)
+	token.Wait()
+	m.log.Info("Mqtt publish", "topic", topic)
+}
+
+func (m *mqtt) Disconnect() {
+	m.client.Disconnect(250)
+}
+
+func NewMqttAdapter(config *config.Config, log logr.Logger, db *gorm.DB) (MqttAdapter, error) {
+	opts := MQTT.NewClientOptions().AddBroker(fmt.Sprintf("tcp://%s:%d", config.MqttAdapterConfig.Host, config.MqttAdapterConfig.Port))
+	opts.SetClientID("go_mqtt_client")
+	opts.SetUsername("apcs-thesis-cdp")
+	opts.SetPassword("secret")
+	opts.SetDefaultPublishHandler(messagePubHandler)
+	opts.OnConnect = connectHandler
+	opts.OnConnectionLost = connectLostHandler
+	client := MQTT.NewClient(opts)
+
+	return &mqtt{
+		log:    log,
+		client: client,
+		db:     db,
+	}, nil
+}

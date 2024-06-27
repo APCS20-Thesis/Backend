@@ -5,6 +5,7 @@ import (
 	"fmt"
 	pb "github.com/APCS20-Thesis/Backend/api"
 	"github.com/APCS20-Thesis/Backend/config"
+	"github.com/APCS20-Thesis/Backend/internal/adapter/mqtt"
 	"github.com/APCS20-Thesis/Backend/internal/job"
 	"github.com/APCS20-Thesis/Backend/internal/service"
 	"github.com/go-logr/logr"
@@ -120,9 +121,15 @@ func serverAction(cliCtx *cli.Context) error {
 	go func() {
 		log.Fatalln(s.Serve(lis))
 	}()
+	// mqtt
+	mqtt, err := mqtt.NewMqttAdapter(cfg, logger, gormDb)
+	if err != nil {
+		return err
+	}
+	mqtt.Connect()
 
 	// job
-	job, err := job.NewJob(cfg, logger, gormDb)
+	job, err := job.NewJob(cfg, logger, gormDb, mqtt)
 	if err != nil {
 		return err
 	}

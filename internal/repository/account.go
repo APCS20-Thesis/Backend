@@ -68,7 +68,11 @@ func (r *accountRepo) CreateAccount(ctx context.Context, params *CreateAccountPa
 		}
 
 		if createErr := tx.WithContext(ctx).Table(model.Setting{}.TableName()).Create(&model.Setting{
-			AccountUuid: account.Uuid,
+			AccountUuid:               account.Uuid,
+			NotifyCreateSource:        true,
+			NotifyCreateDestination:   true,
+			NotifyCreateSegment:       true,
+			NotifyCreateMasterSegment: true,
 		}).Error; createErr != nil {
 			return createErr
 		}
