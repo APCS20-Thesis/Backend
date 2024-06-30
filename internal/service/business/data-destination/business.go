@@ -17,6 +17,7 @@ type Business interface {
 	ProcessExportDataToFile(ctx context.Context, request *api.ExportDataToFileRequest, accountUuid string) (*api.ExportDataToFileResponse, error)
 
 	ProcessGetListDataDestinations(ctx context.Context, request *api.GetListDataDestinationsRequest, accountUuid string) (*api.GetListDataDestinationsResponse, error)
+	ProcessGetDataDestinationDetail(ctx context.Context, request *api.GetDataDestinationDetailRequest, accountUuid string) (*api.GetDataDestinationDetailResponse, error)
 }
 
 type business struct {

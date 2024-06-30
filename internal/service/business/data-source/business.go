@@ -19,10 +19,12 @@ type Business interface {
 
 	CreateDataSource(ctx context.Context, params *repository.CreateDataSourceParams) (*model.DataSource, error)
 	GetDataSource(ctx context.Context, request *api.GetDataSourceRequest, accountUuid string) (*api.GetDataSourceResponse, error)
-	GetListDataSources(ctx context.Context, request *api.GetListDataSourcesRequest, accountUuid string) ([]*api.GetListDataSourcesResponse_DataSource, error)
+	GetListDataSources(ctx context.Context, request *api.GetListDataSourcesRequest, accountUuid string) (*api.GetListDataSourcesResponse, error)
 
 	ProcessImportCsvFromS3(ctx context.Context, request *api.ImportCsvFromS3Request, accountUuid string, dateTime string) error
 	ProcessImportFromMySQLSource(ctx context.Context, request *api.ImportFromMySQLSourceRequest, accountUuid uuid.UUID) error
+
+	GetListSourceTableMappings(ctx context.Context, request *api.GetListSourceTableMapRequest) (*api.GetListSourceTableMapResponse, error)
 }
 
 type business struct {

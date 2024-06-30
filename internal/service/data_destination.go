@@ -48,3 +48,13 @@ func (s *Service) GetListDataDestinations(ctx context.Context, request *api.GetL
 
 	return s.business.DataDestinationBusiness.ProcessGetListDataDestinations(ctx, request, accountUuid)
 }
+
+func (s *Service) GetDataDestinationDetail(ctx context.Context, request *api.GetDataDestinationDetailRequest) (*api.GetDataDestinationDetailResponse, error) {
+	accountUuid, err := GetAccountUuidFromCtx(ctx)
+	if err != nil {
+		s.log.WithName("GetListDataDestinations").Error(err, "Cannot get account_uuid from context")
+		return nil, err
+	}
+
+	return s.business.DataDestinationBusiness.ProcessGetDataDestinationDetail(ctx, request, accountUuid)
+}

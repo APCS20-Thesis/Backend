@@ -2,6 +2,7 @@ package utils
 
 import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
+	"strings"
 	"time"
 )
 
@@ -27,4 +28,12 @@ func ConvertWrappersBoolToBoolAdd(val *wrapperspb.BoolValue) *bool {
 	}
 	value := val.GetValue()
 	return &value
+}
+
+func TransformPassword(password string) string {
+	if len(password) < 6 {
+		// Handle case where password is less than 6 characters
+		return strings.Repeat("*", len(password))
+	}
+	return strings.Repeat("*", len(password)-6) + password[len(password)-6:]
 }
