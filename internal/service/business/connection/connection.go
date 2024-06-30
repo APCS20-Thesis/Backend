@@ -7,6 +7,7 @@ import (
 	"github.com/APCS20-Thesis/Backend/api"
 	"github.com/APCS20-Thesis/Backend/internal/model"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
+	"github.com/APCS20-Thesis/Backend/utils"
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 	"golang.org/x/exp/slices"
@@ -118,13 +119,24 @@ func (b business) GetConnection(ctx context.Context, request *api.GetConnectionR
 		return nil, err
 	}
 
+	// Transform secret field
+	switch connection.Type {
+	case model.ConnectionType_MySQL:
+		configurations["password"] = utils.TransformPassword(configurations["password"])
+	case model.ConnectionType_Gophish:
+		configurations["api_key"] = utils.TransformPassword(configurations["api_key"])
+	case model.ConnectionType_S3:
+		configurations["secret_access_key"] = utils.TransformPassword(configurations["secret_access_key"])
+	}
+
 	return &api.GetConnectionResponse{
 		Code:           int32(code.Code_OK),
 		Id:             connection.ID,
 		Name:           connection.Name,
+		Type:           string(connection.Type),
+		Configurations: configurations,
 		CreatedAt:      connection.CreatedAt.String(),
 		UpdatedAt:      connection.UpdatedAt.String(),
-		Configurations: configurations,
 	}, nil
 }
 func (b business) DeleteConnection(ctx context.Context, request *api.DeleteConnectionRequest, accountUuid string) error {
@@ -145,7 +157,7 @@ func (b business) DeleteConnection(ctx context.Context, request *api.DeleteConne
 		b.log.WithName("DeleteConnection").
 			WithValues("ConnectionID", request.Id).
 			Info("Only owner can get connection")
-		return status.Error(codes.PermissionDenied, "Only owner can delte connection")
+		return status.Error(codes.PermissionDenied, "Only owner can delete connection")
 	}
 	err = b.repository.ConnectionRepository.DeleteConnection(ctx, request.Id)
 	if err != nil {

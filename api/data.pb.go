@@ -1470,9 +1470,11 @@ type PredictModel struct {
 	// status - Predict model status
 	Status string `protobuf:"bytes,4,opt,name=status,proto3" json:"status,omitempty"`
 	// labels - Labels for 2 categories
-	Labels    []string `protobuf:"bytes,5,rep,name=labels,proto3" json:"labels,omitempty"`
-	CreatedAt string   `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt string   `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	Labels []string `protobuf:"bytes,5,rep,name=labels,proto3" json:"labels,omitempty"`
+	// created_at
+	CreatedAt string `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// updated_at
+	UpdatedAt string `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 }
 
 func (x *PredictModel) Reset() {
@@ -1556,6 +1558,204 @@ func (x *PredictModel) GetUpdatedAt() string {
 	return ""
 }
 
+type EnrichedConnection struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// id
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	// name
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// type
+	Type string `protobuf:"bytes,4,opt,name=type,proto3" json:"type,omitempty"`
+}
+
+func (x *EnrichedConnection) Reset() {
+	*x = EnrichedConnection{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_data_proto_msgTypes[19]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *EnrichedConnection) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EnrichedConnection) ProtoMessage() {}
+
+func (x *EnrichedConnection) ProtoReflect() protoreflect.Message {
+	mi := &file_data_proto_msgTypes[19]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EnrichedConnection.ProtoReflect.Descriptor instead.
+func (*EnrichedConnection) Descriptor() ([]byte, []int) {
+	return file_data_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *EnrichedConnection) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *EnrichedConnection) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *EnrichedConnection) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+type EnrichedTable struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// id
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	// name
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+}
+
+func (x *EnrichedTable) Reset() {
+	*x = EnrichedTable{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_data_proto_msgTypes[20]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *EnrichedTable) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EnrichedTable) ProtoMessage() {}
+
+func (x *EnrichedTable) ProtoReflect() protoreflect.Message {
+	mi := &file_data_proto_msgTypes[20]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EnrichedTable.ProtoReflect.Descriptor instead.
+func (*EnrichedTable) Descriptor() ([]byte, []int) {
+	return file_data_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *EnrichedTable) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *EnrichedTable) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+type SourceTableMap struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// id
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	// table
+	Table *EnrichedTable `protobuf:"bytes,2,opt,name=table,proto3" json:"table,omitempty"`
+	// data_source
+	Source *EnrichedDataSource `protobuf:"bytes,3,opt,name=source,proto3" json:"source,omitempty"`
+	// mappings
+	Mappings []*MappingOptionItem `protobuf:"bytes,4,rep,name=mappings,proto3" json:"mappings,omitempty"`
+}
+
+func (x *SourceTableMap) Reset() {
+	*x = SourceTableMap{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_data_proto_msgTypes[21]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SourceTableMap) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SourceTableMap) ProtoMessage() {}
+
+func (x *SourceTableMap) ProtoReflect() protoreflect.Message {
+	mi := &file_data_proto_msgTypes[21]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SourceTableMap.ProtoReflect.Descriptor instead.
+func (*SourceTableMap) Descriptor() ([]byte, []int) {
+	return file_data_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *SourceTableMap) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *SourceTableMap) GetTable() *EnrichedTable {
+	if x != nil {
+		return x.Table
+	}
+	return nil
+}
+
+func (x *SourceTableMap) GetSource() *EnrichedDataSource {
+	if x != nil {
+		return x.Source
+	}
+	return nil
+}
+
+func (x *SourceTableMap) GetMappings() []*MappingOptionItem {
+	if x != nil {
+		return x.Mappings
+	}
+	return nil
+}
+
 type MasterSegmentDetail_AttributeTable struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -1576,7 +1776,7 @@ type MasterSegmentDetail_AttributeTable struct {
 func (x *MasterSegmentDetail_AttributeTable) Reset() {
 	*x = MasterSegmentDetail_AttributeTable{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_data_proto_msgTypes[19]
+		mi := &file_data_proto_msgTypes[22]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1589,7 +1789,7 @@ func (x *MasterSegmentDetail_AttributeTable) String() string {
 func (*MasterSegmentDetail_AttributeTable) ProtoMessage() {}
 
 func (x *MasterSegmentDetail_AttributeTable) ProtoReflect() protoreflect.Message {
-	mi := &file_data_proto_msgTypes[19]
+	mi := &file_data_proto_msgTypes[22]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1663,7 +1863,7 @@ type MasterSegmentDetail_BehaviorTable struct {
 func (x *MasterSegmentDetail_BehaviorTable) Reset() {
 	*x = MasterSegmentDetail_BehaviorTable{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_data_proto_msgTypes[20]
+		mi := &file_data_proto_msgTypes[23]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1676,7 +1876,7 @@ func (x *MasterSegmentDetail_BehaviorTable) String() string {
 func (*MasterSegmentDetail_BehaviorTable) ProtoMessage() {}
 
 func (x *MasterSegmentDetail_BehaviorTable) ProtoReflect() protoreflect.Message {
-	mi := &file_data_proto_msgTypes[20]
+	mi := &file_data_proto_msgTypes[23]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1753,7 +1953,7 @@ type BehaviorCondition_HavingCondition struct {
 func (x *BehaviorCondition_HavingCondition) Reset() {
 	*x = BehaviorCondition_HavingCondition{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_data_proto_msgTypes[21]
+		mi := &file_data_proto_msgTypes[24]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1766,7 +1966,7 @@ func (x *BehaviorCondition_HavingCondition) String() string {
 func (*BehaviorCondition_HavingCondition) ProtoMessage() {}
 
 func (x *BehaviorCondition_HavingCondition) ProtoReflect() protoreflect.Message {
-	mi := &file_data_proto_msgTypes[21]
+	mi := &file_data_proto_msgTypes[24]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2047,10 +2247,29 @@ var file_data_proto_rawDesc = []byte{
 	0x74, 0x65, 0x64, 0x5f, 0x61, 0x74, 0x18, 0x06, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x63, 0x72,
 	0x65, 0x61, 0x74, 0x65, 0x64, 0x41, 0x74, 0x12, 0x1d, 0x0a, 0x0a, 0x75, 0x70, 0x64, 0x61, 0x74,
 	0x65, 0x64, 0x5f, 0x61, 0x74, 0x18, 0x07, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x75, 0x70, 0x64,
-	0x61, 0x74, 0x65, 0x64, 0x41, 0x74, 0x42, 0x26, 0x5a, 0x24, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62,
-	0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x41, 0x50, 0x43, 0x53, 0x32, 0x30, 0x2d, 0x54, 0x68, 0x65, 0x73,
-	0x69, 0x73, 0x2f, 0x42, 0x61, 0x63, 0x6b, 0x65, 0x6e, 0x64, 0x2f, 0x61, 0x70, 0x69, 0x62, 0x06,
-	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x61, 0x74, 0x65, 0x64, 0x41, 0x74, 0x22, 0x4c, 0x0a, 0x12, 0x45, 0x6e, 0x72, 0x69, 0x63, 0x68,
+	0x65, 0x64, 0x43, 0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x0e, 0x0a, 0x02,
+	0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x02, 0x69, 0x64, 0x12, 0x12, 0x0a, 0x04,
+	0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65,
+	0x12, 0x12, 0x0a, 0x04, 0x74, 0x79, 0x70, 0x65, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04,
+	0x74, 0x79, 0x70, 0x65, 0x22, 0x33, 0x0a, 0x0d, 0x45, 0x6e, 0x72, 0x69, 0x63, 0x68, 0x65, 0x64,
+	0x54, 0x61, 0x62, 0x6c, 0x65, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x03, 0x52, 0x02, 0x69, 0x64, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20,
+	0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x22, 0xaf, 0x01, 0x0a, 0x0e, 0x53, 0x6f,
+	0x75, 0x72, 0x63, 0x65, 0x54, 0x61, 0x62, 0x6c, 0x65, 0x4d, 0x61, 0x70, 0x12, 0x0e, 0x0a, 0x02,
+	0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x02, 0x69, 0x64, 0x12, 0x28, 0x0a, 0x05,
+	0x74, 0x61, 0x62, 0x6c, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x12, 0x2e, 0x61, 0x70,
+	0x69, 0x2e, 0x45, 0x6e, 0x72, 0x69, 0x63, 0x68, 0x65, 0x64, 0x54, 0x61, 0x62, 0x6c, 0x65, 0x52,
+	0x05, 0x74, 0x61, 0x62, 0x6c, 0x65, 0x12, 0x2f, 0x0a, 0x06, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65,
+	0x18, 0x03, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x17, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x45, 0x6e, 0x72,
+	0x69, 0x63, 0x68, 0x65, 0x64, 0x44, 0x61, 0x74, 0x61, 0x53, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x52,
+	0x06, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x12, 0x32, 0x0a, 0x08, 0x6d, 0x61, 0x70, 0x70, 0x69,
+	0x6e, 0x67, 0x73, 0x18, 0x04, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x16, 0x2e, 0x61, 0x70, 0x69, 0x2e,
+	0x4d, 0x61, 0x70, 0x70, 0x69, 0x6e, 0x67, 0x4f, 0x70, 0x74, 0x69, 0x6f, 0x6e, 0x49, 0x74, 0x65,
+	0x6d, 0x52, 0x08, 0x6d, 0x61, 0x70, 0x70, 0x69, 0x6e, 0x67, 0x73, 0x42, 0x26, 0x5a, 0x24, 0x67,
+	0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x41, 0x50, 0x43, 0x53, 0x32, 0x30,
+	0x2d, 0x54, 0x68, 0x65, 0x73, 0x69, 0x73, 0x2f, 0x42, 0x61, 0x63, 0x6b, 0x65, 0x6e, 0x64, 0x2f,
+	0x61, 0x70, 0x69, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -2065,7 +2284,7 @@ func file_data_proto_rawDescGZIP() []byte {
 	return file_data_proto_rawDescData
 }
 
-var file_data_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
+var file_data_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
 var file_data_proto_goTypes = []interface{}{
 	(*Account)(nil),                            // 0: api.Account
 	(*Setting)(nil),                            // 1: api.Setting
@@ -2086,24 +2305,30 @@ var file_data_proto_goTypes = []interface{}{
 	(*Rule)(nil),                               // 16: api.Rule
 	(*DataAction)(nil),                         // 17: api.DataAction
 	(*PredictModel)(nil),                       // 18: api.PredictModel
-	(*MasterSegmentDetail_AttributeTable)(nil), // 19: api.MasterSegmentDetail.AttributeTable
-	(*MasterSegmentDetail_BehaviorTable)(nil),  // 20: api.MasterSegmentDetail.BehaviorTable
-	(*BehaviorCondition_HavingCondition)(nil),  // 21: api.BehaviorCondition.HavingCondition
+	(*EnrichedConnection)(nil),                 // 19: api.EnrichedConnection
+	(*EnrichedTable)(nil),                      // 20: api.EnrichedTable
+	(*SourceTableMap)(nil),                     // 21: api.SourceTableMap
+	(*MasterSegmentDetail_AttributeTable)(nil), // 22: api.MasterSegmentDetail.AttributeTable
+	(*MasterSegmentDetail_BehaviorTable)(nil),  // 23: api.MasterSegmentDetail.BehaviorTable
+	(*BehaviorCondition_HavingCondition)(nil),  // 24: api.BehaviorCondition.HavingCondition
 }
 var file_data_proto_depIdxs = []int32{
-	19, // 0: api.MasterSegmentDetail.attribute_tables:type_name -> api.MasterSegmentDetail.AttributeTable
-	20, // 1: api.MasterSegmentDetail.behavior_tables:type_name -> api.MasterSegmentDetail.BehaviorTable
+	22, // 0: api.MasterSegmentDetail.attribute_tables:type_name -> api.MasterSegmentDetail.AttributeTable
+	23, // 1: api.MasterSegmentDetail.behavior_tables:type_name -> api.MasterSegmentDetail.BehaviorTable
 	5,  // 2: api.MasterSegmentDetail.audience_schema:type_name -> api.SchemaColumn
 	16, // 3: api.BehaviorCondition.where_condition:type_name -> api.Rule
-	21, // 4: api.BehaviorCondition.having_conditions:type_name -> api.BehaviorCondition.HavingCondition
+	24, // 4: api.BehaviorCondition.having_conditions:type_name -> api.BehaviorCondition.HavingCondition
 	16, // 5: api.Rule.rules:type_name -> api.Rule
-	4,  // 6: api.MasterSegmentDetail.AttributeTable.selected_columns:type_name -> api.TransferredColumn
-	5,  // 7: api.MasterSegmentDetail.BehaviorTable.schema:type_name -> api.SchemaColumn
-	8,  // [8:8] is the sub-list for method output_type
-	8,  // [8:8] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	20, // 6: api.SourceTableMap.table:type_name -> api.EnrichedTable
+	13, // 7: api.SourceTableMap.source:type_name -> api.EnrichedDataSource
+	2,  // 8: api.SourceTableMap.mappings:type_name -> api.MappingOptionItem
+	4,  // 9: api.MasterSegmentDetail.AttributeTable.selected_columns:type_name -> api.TransferredColumn
+	5,  // 10: api.MasterSegmentDetail.BehaviorTable.schema:type_name -> api.SchemaColumn
+	11, // [11:11] is the sub-list for method output_type
+	11, // [11:11] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_data_proto_init() }
@@ -2341,7 +2566,7 @@ func file_data_proto_init() {
 			}
 		}
 		file_data_proto_msgTypes[19].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*MasterSegmentDetail_AttributeTable); i {
+			switch v := v.(*EnrichedConnection); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2353,7 +2578,7 @@ func file_data_proto_init() {
 			}
 		}
 		file_data_proto_msgTypes[20].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*MasterSegmentDetail_BehaviorTable); i {
+			switch v := v.(*EnrichedTable); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2365,6 +2590,42 @@ func file_data_proto_init() {
 			}
 		}
 		file_data_proto_msgTypes[21].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SourceTableMap); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_data_proto_msgTypes[22].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*MasterSegmentDetail_AttributeTable); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_data_proto_msgTypes[23].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*MasterSegmentDetail_BehaviorTable); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_data_proto_msgTypes[24].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*BehaviorCondition_HavingCondition); i {
 			case 0:
 				return &v.state
@@ -2383,7 +2644,7 @@ func file_data_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_data_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   22,
+			NumMessages:   25,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
