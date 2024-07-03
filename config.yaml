@@ -24,3 +24,10 @@ AIRFLOW_ADAPTER_CONFIG:
 
 QUERY_ADAPTER_CONFIG:
   ADDRESS: http://103.109.43.33
+
+MQQT_ADAPTAER_CONFIG:
+  HOST: localhost
+  PORT: 1883
+  CLIENT_ID: go_mqtt_client
+  USERNAME: apcs-thesis-cdp
+  PASSWORD: secret

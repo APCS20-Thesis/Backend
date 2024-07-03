@@ -98,7 +98,8 @@ type DataActionRunWithExtraInfo struct {
 	CreatedAt   time.Time                 `gorm:"column:created_at"`
 	UpdatedAt   time.Time                 `gorm:"column:updated_at"`
 	// extra
-	DagId string `gorm:"column:dag_id"`
+	DagId      string           `gorm:"column:dag_id"`
+	ActionType model.ActionType `gorm:"column:action_type"`
 }
 
 func (r *dataActionRunRepo) GetListDataActionRunsWithExtraInfo(ctx context.Context, params *GetListDataActionRunsWithExtraInfoParams) ([]DataActionRunWithExtraInfo, error) {
@@ -122,7 +123,8 @@ func (r *dataActionRunRepo) GetListDataActionRunsWithExtraInfo(ctx context.Conte
 			"data_action_run.status AS status, " +
 			"data_action_run.error AS error, " +
 			"data_action_run.account_uuid AS account_uuid, " +
-			"data_action.dag_id AS dag_id ",
+			"data_action.dag_id AS dag_id," +
+			"data_action.action_type AS action_type ",
 	)
 
 	var dataActionRuns []DataActionRunWithExtraInfo

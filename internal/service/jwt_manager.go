@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/APCS20-Thesis/Backend/api"
+	"github.com/APCS20-Thesis/Backend/internal/model"
 	"github.com/dgrijalva/jwt-go"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -27,12 +27,12 @@ func NewJWTManager(secretKey string, tokenDuration time.Duration) *JWTManager {
 }
 
 // Generate generates and signs a new token for a user
-func (manager *JWTManager) Generate(account *api.Account, role string) (string, error) {
+func (manager *JWTManager) Generate(account *model.Account, role string) (string, error) {
 	claims := UserClaims{
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(manager.tokenDuration).Unix(),
 		},
-		UUID: account.Uuid,
+		UUID: account.Uuid.String(),
 		Role: role,
 	}
 

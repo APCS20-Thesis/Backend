@@ -12,6 +12,7 @@ import (
 
 func (j *job) TriggerDagRuns(ctx context.Context) {
 	jobLog := j.logger.WithName("TriggerDagRun")
+
 	// get data action that are in status PENDING
 	dataActions, err := j.repository.DataActionRepository.GetListDataActions(ctx, &repository.GetListDataActionsParams{
 		Statuses: []model.DataActionStatus{model.DataActionStatus_Pending},

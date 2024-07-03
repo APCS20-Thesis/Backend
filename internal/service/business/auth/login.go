@@ -4,12 +4,13 @@ import (
 	"context"
 	"errors"
 	"github.com/APCS20-Thesis/Backend/api"
+	"github.com/APCS20-Thesis/Backend/internal/model"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 )
 
-func (b *business) ProcessLogin(ctx context.Context, request *api.LoginRequest) (*api.Account, error) {
+func (b *business) ProcessLogin(ctx context.Context, request *api.LoginRequest) (*model.Account, error) {
 	account, err := b.repository.AccountRepository.FindAccount(ctx, request.Username, request.Password)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		b.log.WithName("ProcessLogin").
@@ -22,11 +23,5 @@ func (b *business) ProcessLogin(ctx context.Context, request *api.LoginRequest) 
 		return nil, status.Error(codes.Internal, "Fail to get account")
 	}
 
-	return &api.Account{
-		Uuid:      account.Uuid.String(),
-		Username:  account.Username,
-		FirstName: account.FirstName,
-		LastName:  account.LastName,
-		Email:     account.Email,
-	}, nil
+	return account, nil
 }

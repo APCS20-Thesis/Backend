@@ -43,10 +43,11 @@ func (s *Service) GetAccountInfo(ctx context.Context, request *api.GetAccountInf
 	}
 
 	return &api.GetAccountInfoResponse{
-		Code:    int32(codes.OK),
-		Message: "Get account info success",
-		Account: account,
-		Setting: setting,
+		Code:      int32(codes.OK),
+		Message:   "Get account info success",
+		Account:   account,
+		Setting:   setting,
+		MqttTopic: accountUuid[:23],
 	}, nil
 }
 
@@ -64,7 +65,7 @@ func (s *Service) UpdateAccountInfo(ctx context.Context, request *api.UpdateAcco
 	}
 	return &api.UpdateAccountInfoResponse{
 		Code:    int32(codes.OK),
-		Message: "Get account info success",
+		Message: "Edit account info success",
 		Account: account,
 	}, nil
 }
@@ -83,7 +84,7 @@ func (s *Service) UpdateAccountSetting(ctx context.Context, request *api.UpdateA
 	}
 	return &api.UpdateAccountSettingResponse{
 		Code:    int32(codes.OK),
-		Message: "Get account info success",
+		Message: "Edit account setting success",
 		Setting: setting,
 	}, nil
 }

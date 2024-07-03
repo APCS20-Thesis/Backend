@@ -277,6 +277,8 @@ message GetAccountInfoResponse {
   Account account = 3;
   // setting
   Setting setting = 4;
+  // mqtt topic
+  string mqtt_topic = 5;
 }
 
 // UpdateAccountInfo Request

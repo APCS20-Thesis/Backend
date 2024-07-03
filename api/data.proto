@@ -13,8 +13,6 @@ import "validate/validate.proto";
 
 // Account
 message Account {
-  // uuid
-  string uuid = 1;
   // username
   string username = 2;
   // first_name

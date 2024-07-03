@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/APCS20-Thesis/Backend/config"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/airflow"
+	"github.com/APCS20-Thesis/Backend/internal/adapter/mqtt"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/query"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
 	"github.com/go-logr/logr"
@@ -28,9 +29,10 @@ type job struct {
 	repository     *repository.Repository
 	db             *gorm.DB
 	queryAdapter   query.QueryAdapter
+	mqttAdapter    mqtt.MqttAdapter
 }
 
-func NewJob(config *config.Config, logger logr.Logger, db *gorm.DB) (Job, error) {
+func NewJob(config *config.Config, logger logr.Logger, db *gorm.DB, mqttAdapter mqtt.MqttAdapter) (Job, error) {
 	logger.Info("Create new Job")
 
 	airflowAdapter, err := airflow.NewAirflowAdapter(logger, config.AirflowAdapterConfig.Address, config.AirflowAdapterConfig.Username, config.AirflowAdapterConfig.Password)
@@ -52,6 +54,7 @@ func NewJob(config *config.Config, logger logr.Logger, db *gorm.DB) (Job, error)
 		repository:     repo,
 		db:             db,
 		queryAdapter:   queryAdapter,
+		mqttAdapter:    mqttAdapter,
 	}, nil
 }
 

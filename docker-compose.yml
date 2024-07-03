@@ -10,3 +10,10 @@ services:
       POSTGRES_USER: cdp_service
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: cdp_service
+  mqtt:
+    image: eclipse-mosquitto:2
+    volumes:
+      - ./.docker/mosquitto.conf:/mosquitto/config/mosquitto.conf
+    ports:
+      - "1883:1883"
+      - "9001:9001"

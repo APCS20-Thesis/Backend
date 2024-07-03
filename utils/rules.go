@@ -28,6 +28,8 @@ const (
 	DeltaBehavior_Path            = "segments/id/id_name"
 	DeltaBehavior_MasterSegmentId = "id"
 	DeltaBehavior_TableName       = "name"
+
+	MqttTopic_Notification = "notification/account_uuid"
 )
 
 func GenerateExportDataFileLocation(accountUuid string, fileName string, fileFormat string) string {
@@ -95,4 +97,9 @@ func GenerateDeltaSegmentPath(masterSegmentId int64, segmentId int64) string {
 
 func GenerateDeltaPredictModelFilePath(masterSegmentId int64, predictModelId int64) string {
 	return fmt.Sprintf("segments/%d/%d_model", masterSegmentId, predictModelId)
+}
+
+func GetMqttNotificationTopic(accountUuid string) string {
+	path := strings.Replace(MqttTopic_Notification, Common_AccountUuid, accountUuid[:23], 1)
+	return path
 }
