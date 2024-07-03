@@ -12,6 +12,7 @@ import (
 type Business interface {
 	ProcessTrainPredictModel(ctx context.Context, request *api.TrainPredictModelRequest, accountUuid string) error
 	ProcessGetListPredictModels(ctx context.Context, request *api.GetListPredictModelsRequest, accountUuid string) (*api.GetListPredictModelsResponse, error)
+	ProcessGetPredictModelDetail(ctx context.Context, request *api.GetPredictModelDetailRequest, accountUuid string) (*api.GetPredictModelDetailResponse, error)
 }
 
 type business struct {

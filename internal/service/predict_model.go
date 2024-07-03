@@ -33,3 +33,13 @@ func (s *Service) GetListPredictModels(ctx context.Context, request *api.GetList
 
 	return s.business.PredictModelBusiness.ProcessGetListPredictModels(ctx, request, accountUuid)
 }
+
+func (s *Service) GetPredictModelDetail(ctx context.Context, request *api.GetPredictModelDetailRequest) (*api.GetPredictModelDetailResponse, error) {
+	accountUuid, err := GetAccountUuidFromCtx(ctx)
+	if err != nil {
+		s.log.WithName("GetPredictModelDetail").Error(err, "cannot get account uuid from context")
+		return nil, err
+	}
+
+	return s.business.PredictModelBusiness.ProcessGetPredictModelDetail(ctx, request, accountUuid)
+}
