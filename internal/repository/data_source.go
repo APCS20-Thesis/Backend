@@ -13,7 +13,7 @@ type DataSourceRepository interface {
 	CreateDataSource(ctx context.Context, params *CreateDataSourceParams) (*model.DataSource, error)
 	GetDataSource(ctx context.Context, id int64) (*model.DataSource, error)
 	UpdateDataSource(ctx context.Context, params *UpdateDataSourceParams) error
-	ListDataSources(ctx context.Context, filter *ListDataSourcesFilters) ([]model.DataSource, error)
+	ListDataSources(ctx context.Context, filter *ListDataSourcesFilters) (*ListDataSourcesResult, error)
 }
 
 type dataSourceRepo struct {
@@ -100,10 +100,20 @@ type ListDataSourcesFilters struct {
 	Type        model.DataSourceType
 	AccountUuid uuid.UUID
 	Name        string
+	Page        int
+	PageSize    int
 }
 
-func (r *dataSourceRepo) ListDataSources(ctx context.Context, filter *ListDataSourcesFilters) ([]model.DataSource, error) {
-	var dataSources []model.DataSource
+type ListDataSourcesResult struct {
+	DataSource []model.DataSource
+	Count      int64
+}
+
+func (r *dataSourceRepo) ListDataSources(ctx context.Context, filter *ListDataSourcesFilters) (*ListDataSourcesResult, error) {
+	var (
+		dataSources []model.DataSource
+		count       int64
+	)
 	query := r.WithContext(ctx).Table(r.TableName)
 	if filter.Type != "" {
 		query = query.Where("type = ?", filter.Type)
@@ -114,7 +124,7 @@ func (r *dataSourceRepo) ListDataSources(ctx context.Context, filter *ListDataSo
 	if filter.AccountUuid.String() != "" {
 		query = query.Where("account_uuid = ?", filter.AccountUuid)
 	}
-	err := query.Find(&dataSources).Error
+	err := query.Count(&count).Scopes(Paginate(filter.Page, filter.PageSize)).Find(&dataSources).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
@@ -122,5 +132,8 @@ func (r *dataSourceRepo) ListDataSources(ctx context.Context, filter *ListDataSo
 		return nil, err
 	}
 
-	return dataSources, nil
+	return &ListDataSourcesResult{
+		DataSource: dataSources,
+		Count:      count,
+	}, nil
 }

@@ -51,14 +51,8 @@ func (s *Service) GetListDataSources(ctx context.Context, request *api.GetListDa
 			Error(err, "Cannot get account_uuid from context")
 		return nil, err
 	}
-	dataSources, err := s.business.DataSourceBusiness.GetListDataSources(ctx, request, accountUuid)
-	if err != nil {
-		s.log.WithName("GetListDataSources").
-			WithValues("Context", ctx).
-			Error(err, "Failed to process list data-sources")
-		return nil, err
-	}
-	return &api.GetListDataSourcesResponse{Code: int32(codes.OK), Count: int64(len(dataSources)), Results: dataSources}, nil
+
+	return s.business.DataSourceBusiness.GetListDataSources(ctx, request, accountUuid)
 }
 
 func (s *Service) GetDataSource(ctx context.Context, request *api.GetDataSourceRequest) (*api.GetDataSourceResponse, error) {
@@ -115,4 +109,8 @@ func (s *Service) ImportFromMySQLSource(ctx context.Context, request *api.Import
 		Code:    int32(code.Code_OK),
 		Message: "Success",
 	}, nil
+}
+
+func (s *Service) GetListSourceTableMap(ctx context.Context, request *api.GetListSourceTableMapRequest) (*api.GetListSourceTableMapResponse, error) {
+	return s.business.DataSourceBusiness.GetListSourceTableMappings(ctx, request)
 }

@@ -274,6 +274,35 @@ message PredictModel {
   string status = 4;
   // labels - Labels for 2 categories
   repeated string labels = 5;
+  // created_at
   string created_at = 6;
+  // updated_at
   string updated_at = 7;
+}
+
+message EnrichedConnection {
+  // id
+  int64 id = 1;
+  // name
+  string name = 2;
+  // type
+  string type = 4;
+}
+
+message EnrichedTable {
+  // id
+  int64 id = 1;
+  // name
+  string name = 2;
+}
+
+message SourceTableMap {
+  // id
+  int64 id = 1;
+  // table
+  EnrichedTable table = 2;
+  // data_source
+  EnrichedDataSource source = 3;
+  // mappings
+  repeated MappingOptionItem mappings = 4;
 }

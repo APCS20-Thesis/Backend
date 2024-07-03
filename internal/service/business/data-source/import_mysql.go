@@ -42,6 +42,7 @@ func (b business) ProcessImportFromMySQLSource(ctx context.Context, request *api
 		Type:           model.DataSourceType_MySQL,
 		Configurations: pqtype.NullRawMessage{RawMessage: config, Valid: config != nil},
 		AccountUuid:    accountUuid,
+		ConnectionId:   request.ConnectionId,
 	})
 	if err != nil {
 		logger.Error(err, "cannot create data source")
