@@ -30,7 +30,7 @@ func (j *job) SyncDagRunStatus(ctx context.Context) {
 			j.mqttAdapter.PublishNotification(dataActionRun.AccountUuid.String(), mqtt.Notification{
 				Status:     409,
 				ActionType: dataActionRun.ActionType,
-				Severity:   "error",
+				Severity:   mqtt.MqttSeverity_Error,
 			})
 			continue
 		}
@@ -67,7 +67,7 @@ func (j *job) SyncDagRunStatus(ctx context.Context) {
 			j.mqttAdapter.PublishNotification(dataActionRun.AccountUuid.String(), mqtt.Notification{
 				Status:     409,
 				ActionType: dataActionRun.ActionType,
-				Severity:   "error",
+				Severity:   mqtt.MqttSeverity_Error,
 			})
 		default:
 		}
@@ -142,7 +142,7 @@ func (j *job) SyncRelatedStatusFromDataActionRunStatus(ctx context.Context, data
 	j.mqttAdapter.PublishNotification(dataAction.AccountUuid.String(), mqtt.Notification{
 		Status:     200,
 		ActionType: dataAction.ActionType,
-		Severity:   "success",
+		Severity:   mqtt.MqttSeverity_Success,
 	})
 	return
 }

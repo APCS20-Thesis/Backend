@@ -45,7 +45,7 @@ type (
 	Notification struct {
 		Status     int32            `json:"status"`
 		Message    string           `json:"message"`
-		Severity   string           `json:"severity"`
+		Severity   MqttSeverity     `json:"severity"`
 		ActionType model.ActionType `json:"action_type"`
 	}
 )
