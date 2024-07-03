@@ -306,3 +306,17 @@ message SourceTableMap {
   // mappings
   repeated MappingOptionItem mappings = 4;
 }
+
+message EnrichedMasterSegment {
+  // id
+  int64 id = 1;
+  // name
+  string name = 2;
+}
+
+message EnrichedSegment {
+  // id
+  int64 id = 1;
+  // name
+  string name = 2;
+}

@@ -77,7 +77,7 @@ func (b business) ListMasterSegments(ctx context.Context, request *api.GetListMa
 
 func (b business) GetMasterSegmentDetail(ctx context.Context, request *api.GetMasterSegmentDetailRequest, accountUuid string) (*api.MasterSegmentDetail, error) {
 	// Get master segment
-	masterSegment, err := b.repository.GetMasterSegment(ctx, request.Id, accountUuid)
+	masterSegment, err := b.repository.GetMasterSegment(ctx, request.Id)
 	if err != nil {
 		b.log.WithName("GetMasterSegmentDetail").Error(err, "cannot get master segment data")
 		return nil, err

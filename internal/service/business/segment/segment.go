@@ -160,7 +160,7 @@ func (b business) GetSegmentDetail(ctx context.Context, request *api.GetSegmentD
 		return nil, err
 	}
 
-	masterSegment, err := b.repository.SegmentRepository.GetMasterSegment(ctx, segment.MasterSegmentId, accountUuid)
+	masterSegment, err := b.repository.SegmentRepository.GetMasterSegment(ctx, segment.MasterSegmentId)
 	if err != nil {
 		logger.Error(err, "cannot get segment")
 		return nil, err
