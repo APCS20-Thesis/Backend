@@ -124,6 +124,7 @@ func serverAction(cliCtx *cli.Context) error {
 	// mqtt
 	mqtt, err := mqtt.NewMqttAdapter(cfg, logger, gormDb)
 	if err != nil {
+		log.Fatalln("Failed to create new mqtt client:", err)
 		return err
 	}
 	mqtt.Connect()
@@ -131,6 +132,7 @@ func serverAction(cliCtx *cli.Context) error {
 	// job
 	job, err := job.NewJob(cfg, logger, gormDb, mqtt)
 	if err != nil {
+		log.Fatalln("Failed to create new job:", err)
 		return err
 	}
 	job.RegisterCronJobs()
