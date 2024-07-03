@@ -11,6 +11,13 @@ import (
 	"gorm.io/gorm"
 )
 
+type MqttSeverity string
+
+const (
+	MqttSeverity_Success MqttSeverity = "success"
+	MqttSeverity_Error   MqttSeverity = "error"
+)
+
 type MqttAdapter interface {
 	Connect()
 
