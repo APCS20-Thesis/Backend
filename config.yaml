@@ -28,3 +28,6 @@ QUERY_ADAPTER_CONFIG:
 MQQT_ADAPTAER_CONFIG:
   HOST: localhost
   PORT: 1883
+  CLIENT_ID: "go_mqtt_client"
+  USERNAME: "apcs-thesis-cdp"
+  PASSWORD: "secret"

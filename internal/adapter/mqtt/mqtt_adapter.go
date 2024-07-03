@@ -89,9 +89,9 @@ func (m *mqtt) Disconnect() {
 
 func NewMqttAdapter(config *config.Config, log logr.Logger, db *gorm.DB) (MqttAdapter, error) {
 	opts := MQTT.NewClientOptions().AddBroker(fmt.Sprintf("tcp://%s:%d", config.MqttAdapterConfig.Host, config.MqttAdapterConfig.Port))
-	opts.SetClientID("go_mqtt_client")
-	opts.SetUsername("apcs-thesis-cdp")
-	opts.SetPassword("secret")
+	opts.SetClientID(config.MqttAdapterConfig.ClientID)
+	opts.SetUsername(config.MqttAdapterConfig.Username)
+	opts.SetPassword(config.MqttAdapterConfig.Password)
 	opts.SetDefaultPublishHandler(messagePubHandler)
 	opts.OnConnect = connectHandler
 	opts.OnConnectionLost = connectLostHandler

@@ -48,8 +48,11 @@ func loadDefaultConfig() *Config {
 		},
 		QueryAdapterConfig: QueryConfig{Address: "http://localhost:8000"},
 		MqttAdapterConfig: MqttConfig{
-			Host: "localhost",
-			Port: 1883,
+			Host:     "localhost",
+			Port:     1883,
+			ClientID: "go_mqtt_client",
+			Username: "apcs-thesis-cdp",
+			Password: "secret",
 		},
 	}
 	return c
