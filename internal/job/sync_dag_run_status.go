@@ -3,6 +3,7 @@ package job
 import (
 	"context"
 	"encoding/json"
+	"github.com/APCS20-Thesis/Backend/internal/adapter/mqtt"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/query"
 	"github.com/APCS20-Thesis/Backend/internal/model"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
@@ -25,6 +26,12 @@ func (j *job) SyncDagRunStatus(ctx context.Context) {
 	for _, dataActionRun := range dataActionRuns {
 		if dataActionRun.DagRunId == "" {
 			err = j.repository.DataActionRunRepository.UpdateDataActionRunStatus(ctx, dataActionRun.ID, model.DataActionRunStatus_Failed)
+
+			j.mqttAdapter.PublishNotification(dataActionRun.AccountUuid.String(), mqtt.Notification{
+				Status:     409,
+				ActionType: dataActionRun.ActionType,
+				Severity:   "error",
+			})
 			continue
 		}
 
@@ -56,6 +63,11 @@ func (j *job) SyncDagRunStatus(ctx context.Context) {
 			err = j.repository.DataActionRepository.UpdateDataAction(ctx, &repository.UpdateDataActionParams{
 				ID:     dataActionRun.ActionId,
 				Status: model.DataActionStatus_Failed,
+			})
+			j.mqttAdapter.PublishNotification(dataActionRun.AccountUuid.String(), mqtt.Notification{
+				Status:     409,
+				ActionType: dataActionRun.ActionType,
+				Severity:   "error",
 			})
 		default:
 		}
@@ -117,6 +129,7 @@ func (j *job) SyncRelatedStatusFromDataActionRunStatus(ctx context.Context, data
 			j.logger.WithName("job:SyncRelatedStatusFromDataActionStatus").Error(err, "cannot update data table", "TableId", sourceTableMap.TableId)
 			return
 		}
+
 		j.logger.WithName("GetSchemaTable").Info("update table here", "schema", schema)
 	case model.ActionType_CreateMasterSegment:
 
@@ -126,7 +139,11 @@ func (j *job) SyncRelatedStatusFromDataActionRunStatus(ctx context.Context, data
 		}
 	default:
 	}
-
+	j.mqttAdapter.PublishNotification(dataAction.AccountUuid.String(), mqtt.Notification{
+		Status:     200,
+		ActionType: dataAction.ActionType,
+		Severity:   "success",
+	})
 	return
 }
 

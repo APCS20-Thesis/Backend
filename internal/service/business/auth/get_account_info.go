@@ -20,7 +20,6 @@ func (b *business) ProcessGetAccountInfo(ctx context.Context, accountUuid string
 	}
 
 	return &api.Account{
-			Uuid:      account.Uuid.String(),
 			Username:  account.Username,
 			FirstName: account.FirstName,
 			LastName:  account.LastName,
@@ -50,7 +49,6 @@ func (b *business) ProcessUpdateAccountInfo(ctx context.Context, request *api.Up
 		return nil, err
 	}
 	return &api.Account{
-		Uuid:      account.Uuid.String(),
 		Username:  account.Username,
 		FirstName: account.FirstName,
 		LastName:  account.LastName,

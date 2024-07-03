@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/APCS20-Thesis/Backend/config"
+	"github.com/APCS20-Thesis/Backend/internal/model"
+	"github.com/APCS20-Thesis/Backend/utils"
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 	"github.com/go-logr/logr"
 	"gorm.io/gorm"
@@ -15,6 +17,7 @@ type MqttAdapter interface {
 	Publish(topic string, message interface{})
 	Sub(topic string)
 	Disconnect()
+	PublishNotification(accountUuid string, message interface{})
 }
 
 var (
@@ -36,6 +39,7 @@ type (
 		Status   int32  `json:"status"`
 		Message  string `json:"message"`
 		Severity string `json:"severity"`
+		model.ActionType
 	}
 )
 
@@ -43,6 +47,11 @@ type mqtt struct {
 	log    logr.Logger
 	client MQTT.Client
 	db     *gorm.DB
+}
+
+func (m *mqtt) PublishNotification(accountUuid string, message interface{}) {
+	topic := utils.GetMqttNotificationTopic(accountUuid)
+	m.Publish(topic, message)
 }
 
 func (m *mqtt) Sub(topic string) {
@@ -57,7 +66,7 @@ func (m *mqtt) Connect() {
 		panic(token.Error())
 	}
 
-	topic := "main/"
+	topic := ""
 	token := m.client.Subscribe(topic, 1, nil)
 	token.Wait()
 	m.log.Info("Mqtt Subscribe", "topic", topic)

@@ -3,7 +3,6 @@ package job
 import (
 	"context"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/airflow"
-	"github.com/APCS20-Thesis/Backend/internal/adapter/mqtt"
 	"github.com/APCS20-Thesis/Backend/internal/model"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
 	"google.golang.org/grpc/codes"
@@ -14,12 +13,6 @@ import (
 func (j *job) TriggerDagRuns(ctx context.Context) {
 	jobLog := j.logger.WithName("TriggerDagRun")
 
-	messageSuccess := mqtt.Notification{
-		Status:   200,
-		Message:  "Create sucess",
-		Severity: "success",
-	}
-	j.mqttAdapter.Publish("notification/data-source", messageSuccess)
 	// get data action that are in status PENDING
 	dataActions, err := j.repository.DataActionRepository.GetListDataActions(ctx, &repository.GetListDataActionsParams{
 		Statuses: []model.DataActionStatus{model.DataActionStatus_Pending},
