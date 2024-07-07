@@ -6,18 +6,21 @@ import (
 	"github.com/APCS20-Thesis/Backend/internal/model"
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 )
 
 type DataTableRepository interface {
 	CreateDataTable(ctx context.Context, params *CreateDataTableParams) (*model.DataTable, error)
 	GetDataTable(ctx context.Context, id int64) (*model.DataTable, error)
-	UpdateDataTable(ctx context.Context, params *UpdateDataTableParams) error
+	UpdateDataTable(ctx context.Context, params *UpdateDataTableParams) (*model.DataTable, error)
 	ListDataTables(ctx context.Context, filter *ListDataTablesFilters) (*ListDataTablesResult, error)
 	UpdateStatusDataTable(ctx context.Context, id int64, status model.DataTableStatus) error
 	GetDataTableDeltaPath(ctx context.Context, id int64) (string, error)
 	GetSourcesOfDataTables(ctx context.Context, tableIds []int64) (map[int64][]model.DataSource, error)
 	GetDestinationsOfDataTables(ctx context.Context, tableIds []int64) (map[int64][]model.DataDestination, error)
+	CheckExistsDataTable(ctx context.Context, tableName string, accountUuid string) error
 }
 
 type dataTableRepo struct {
@@ -68,26 +71,37 @@ func (r *dataTableRepo) GetDataTable(ctx context.Context, id int64) (*model.Data
 }
 
 type UpdateDataTableParams struct {
+	Tx     *gorm.DB
 	ID     int64
 	Name   string
 	Schema pqtype.NullRawMessage
 	Status model.DataTableStatus
 }
 
-func (r *dataTableRepo) UpdateDataTable(ctx context.Context, params *UpdateDataTableParams) error {
+func (r *dataTableRepo) UpdateDataTable(ctx context.Context, params *UpdateDataTableParams) (*model.DataTable, error) {
 	dataTable := &model.DataTable{
 		ID:     params.ID,
 		Name:   params.Name,
 		Schema: params.Schema,
 		Status: params.Status,
 	}
-
-	updateErr := r.WithContext(ctx).Table(r.TableName).Where("id = ?", params.ID).Updates(&dataTable).Error
+	var updateErr error
+	if params.Tx != nil {
+		updateErr = params.Tx.WithContext(ctx).Table(r.TableName).
+			Where("id = ?", params.ID).
+			Updates(&dataTable).
+			First(&dataTable).Error
+	} else {
+		updateErr = r.WithContext(ctx).Table(r.TableName).
+			Where("id = ?", params.ID).
+			Updates(&dataTable).First(&dataTable).
+			Error
+	}
 	if updateErr != nil {
-		return updateErr
+		return nil, updateErr
 	}
 
-	return nil
+	return dataTable, nil
 }
 
 type ListDataTablesFilters struct {
@@ -226,4 +240,17 @@ func (r *dataTableRepo) GetDestinationsOfDataTables(ctx context.Context, tableId
 	}
 
 	return tableDestinationMap, nil
+}
+
+func (r *dataTableRepo) CheckExistsDataTable(ctx context.Context, tableName string, accountUuid string) error {
+	err := r.WithContext(ctx).Table(r.TableName).
+		Where("name = ? AND account_uuid = ?", tableName, accountUuid).
+		First(&model.DataTable{}).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil
+	} else if err != nil {
+		return err
+	}
+	return status.Error(codes.AlreadyExists, "Table name is already used")
 }

@@ -61,6 +61,21 @@ func (b business) ProcessImportCsv(ctx context.Context, request *api.ImportCsvRe
 		return err
 	}
 
+	if request.TableId > 0 {
+		dataTable, err := b.repository.DataTableRepository.GetDataTable(ctx, request.TableId)
+		if err != nil {
+			return err
+		}
+		if dataTable.AccountUuid.String() == accountUuid {
+			return status.Error(codes.PermissionDenied, "No have permission with dataTable")
+		}
+	} else {
+		err = b.repository.DataTableRepository.CheckExistsDataTable(ctx, request.NewTableName, accountUuid)
+		if err != nil {
+			return err
+		}
+	}
+
 	err = b.repository.TransactionRepository.ImportCsvTransaction(ctx, &repository.ImportCsvTransactionParams{
 		DataSourceName:           request.Name,
 		DatSourceDescription:     request.Description,
@@ -150,6 +165,20 @@ func (b business) ProcessImportCsvFromS3(ctx context.Context, request *api.Impor
 	if err != nil {
 		b.log.WithName("ProcessImportCsv").Error(err, "Cannot parse schema to JSON")
 		return err
+	}
+	if request.TableId > 0 {
+		dataTable, err := b.repository.DataTableRepository.GetDataTable(ctx, request.TableId)
+		if err != nil {
+			return err
+		}
+		if dataTable.AccountUuid.String() == accountUuid {
+			return status.Error(codes.PermissionDenied, "No have permission with dataTable")
+		}
+	} else {
+		err = b.repository.DataTableRepository.CheckExistsDataTable(ctx, request.NewTableName, accountUuid)
+		if err != nil {
+			return err
+		}
 	}
 
 	err = b.repository.TransactionRepository.ImportCsvTransaction(ctx, &repository.ImportCsvTransactionParams{

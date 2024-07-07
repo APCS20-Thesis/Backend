@@ -940,13 +940,15 @@ message ImportFromMySQLSourceRequest {
   // description - Description of data source
   string description = 2 [(validate.rules).string.min_len = 1];
   // connection_id - MySQL connection id
-  int64 connection_id = 3;
+  int64 connection_id = 3 [(validate.rules).int64.gt = 0];
   // source_table_name - MySQL table name to import data from
   string source_table_name = 4 [(validate.rules).string.min_len = 1];
   // delta_table_name - Delta table name where data will be stored
   string delta_table_name = 5 [(validate.rules).string.min_len = 1];
+  // delta_table_id - Delta table already exist in system
+  int64 delta_table_id = 6 [(validate.rules).int64.gt = 0];
   // headers
-  repeated string headers = 6 [(validate.rules).repeated.min_items = 1];
+  repeated string headers = 7 [(validate.rules).repeated.min_items = 1];
 }
 
 message ImportFromMySQLSourceResponse {
