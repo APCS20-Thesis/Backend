@@ -14,6 +14,7 @@ type (
 		DagId                 string                              `json:"dag_id"`
 		AccountUuid           string                              `json:"account_uuid"`
 		DeltaTableName        string                              `json:"delta_table_name"`
+		WriteMode             DeltaWriteMode                      `json:"write_mode"`
 		Headers               []string                            `json:"headers"`
 		DatabaseConfiguration DagImportMySQLDatabaseConfiguration `json:"database_configuration"`
 	}

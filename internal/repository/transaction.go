@@ -78,7 +78,7 @@ func (r transactionRepo) ImportCsvTransaction(ctx context.Context, params *Impor
 	if params.TableId > 0 {
 		dataTable = model.DataTable{ID: params.TableId, Status: model.DataTableStatus_UPDATING}
 		err = tx.WithContext(ctx).Table("data_table").
-			Where("id = ?", params.TableId).
+			Where("id = ? ", params.TableId).
 			Updates(&dataTable).
 			First(&dataTable).Error
 		if err != nil {

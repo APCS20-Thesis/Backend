@@ -125,8 +125,8 @@ func (b business) GetConnection(ctx context.Context, request *api.GetConnectionR
 		configurations["password"] = utils.TransformPassword(configurations["password"])
 	case model.ConnectionType_Gophish:
 		configurations["api_key"] = utils.TransformPassword(configurations["api_key"])
-	case model.ConnectionType_S3:
-		configurations["secret_access_key"] = utils.TransformPassword(configurations["secret_access_key"])
+		//case model.ConnectionType_S3:
+		//	configurations["secret_access_key"] = utils.TransformPassword(configurations["secret_access_key"])
 	}
 
 	return &api.GetConnectionResponse{

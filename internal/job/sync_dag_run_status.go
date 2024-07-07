@@ -120,7 +120,7 @@ func (j *job) SyncRelatedStatusFromDataActionRunStatus(ctx context.Context, data
 			j.logger.WithName("job:SyncRelatedStatusFromDataActionStatus").Error(err, "cannot parse schema")
 			return
 		}
-		err = j.repository.DataTableRepository.UpdateDataTable(ctx, &repository.UpdateDataTableParams{
+		_, err = j.repository.DataTableRepository.UpdateDataTable(ctx, &repository.UpdateDataTableParams{
 			ID:     sourceTableMap.TableId,
 			Schema: pqtype.NullRawMessage{Valid: true, RawMessage: jsonSchema},
 			Status: model.DataTableStatus_UP_TO_DATE,

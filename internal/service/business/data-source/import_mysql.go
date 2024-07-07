@@ -50,16 +50,36 @@ func (b business) ProcessImportFromMySQLSource(ctx context.Context, request *api
 		return err
 	}
 
-	dataTable, err := b.repository.DataTableRepository.CreateDataTable(ctx, &repository.CreateDataTableParams{
-		Tx:          tx,
-		Name:        request.DeltaTableName,
-		Schema:      pqtype.NullRawMessage{},
-		AccountUuid: accountUuid,
-	})
-	if err != nil {
-		logger.Error(err, "cannot create data table")
-		tx.Rollback()
-		return err
+	var dataTable *model.DataTable
+	if request.DeltaTableId > 0 {
+		dataTable, err = b.repository.UpdateDataTable(ctx, &repository.UpdateDataTableParams{
+			Tx:     tx,
+			ID:     request.DeltaTableId,
+			Status: model.DataTableStatus_UPDATING,
+		})
+		if err != nil {
+			logger.Error(err, "cannot update data table")
+			tx.Rollback()
+			return err
+		}
+	} else {
+		err := b.repository.DataTableRepository.CheckExistsDataTableName(ctx, request.DeltaTableName, accountUuid.String())
+		if err != nil {
+			logger.Error(err, "check table name exist")
+			tx.Rollback()
+			return err
+		}
+		dataTable, err = b.repository.DataTableRepository.CreateDataTable(ctx, &repository.CreateDataTableParams{
+			Tx:          tx,
+			Name:        request.DeltaTableName,
+			Schema:      pqtype.NullRawMessage{},
+			AccountUuid: accountUuid,
+		})
+		if err != nil {
+			logger.Error(err, "cannot create data table")
+			tx.Rollback()
+			return err
+		}
 	}
 
 	sourceTableMap, err := b.repository.SourceTableMapRepository.CreateSourceTableMap(ctx, &repository.CreateSourceTableMapParams{
@@ -104,6 +124,7 @@ func (b business) ProcessImportFromMySQLSource(ctx context.Context, request *api
 				Password: dbConfiguration.Password,
 				Table:    request.SourceTableName,
 			},
+			WriteMode: airflow.DeltaWriteMode(request.WriteMode),
 		},
 	})
 	if err != nil {

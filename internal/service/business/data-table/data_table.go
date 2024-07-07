@@ -17,6 +17,11 @@ import (
 )
 
 func (b business) CreateDataTable(ctx context.Context, params *repository.CreateDataTableParams) (*model.DataTable, error) {
+	err := b.repository.DataTableRepository.CheckExistsDataTableName(ctx, params.Name, params.AccountUuid.String())
+	if err != nil {
+		b.log.Error(err, "check table name exist")
+		return nil, err
+	}
 	dataTable, err := b.repository.DataTableRepository.CreateDataTable(ctx, params)
 	if err != nil {
 		b.log.WithName("CreateDataTable").
@@ -28,7 +33,7 @@ func (b business) CreateDataTable(ctx context.Context, params *repository.Create
 }
 
 func (b business) UpdateDataTable(ctx context.Context, params *repository.UpdateDataTableParams) error {
-	err := b.repository.DataTableRepository.UpdateDataTable(ctx, params)
+	_, err := b.repository.DataTableRepository.UpdateDataTable(ctx, params)
 	if err != nil {
 		b.log.WithName("UpdateDataTable").
 			WithValues("Context", ctx).
