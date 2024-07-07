@@ -124,6 +124,7 @@ func (b business) ProcessImportFromMySQLSource(ctx context.Context, request *api
 				Password: dbConfiguration.Password,
 				Table:    request.SourceTableName,
 			},
+			WriteMode: airflow.DeltaWriteMode(request.WriteMode),
 		},
 	})
 	if err != nil {
