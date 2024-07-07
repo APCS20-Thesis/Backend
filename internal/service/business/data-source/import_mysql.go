@@ -58,12 +58,14 @@ func (b business) ProcessImportFromMySQLSource(ctx context.Context, request *api
 			Status: model.DataTableStatus_UPDATING,
 		})
 		if err != nil {
+			logger.Error(err, "cannot update data table")
 			tx.Rollback()
 			return err
 		}
 	} else {
-		err := b.repository.DataTableRepository.CheckExistsDataTable(ctx, request.DeltaTableName, accountUuid.String())
+		err := b.repository.DataTableRepository.CheckExistsDataTableName(ctx, request.DeltaTableName, accountUuid.String())
 		if err != nil {
+			logger.Error(err, "check table name exist")
 			tx.Rollback()
 			return err
 		}

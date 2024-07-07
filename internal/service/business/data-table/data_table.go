@@ -17,8 +17,9 @@ import (
 )
 
 func (b business) CreateDataTable(ctx context.Context, params *repository.CreateDataTableParams) (*model.DataTable, error) {
-	err := b.repository.DataTableRepository.CheckExistsDataTable(ctx, params.Name, params.AccountUuid.String())
+	err := b.repository.DataTableRepository.CheckExistsDataTableName(ctx, params.Name, params.AccountUuid.String())
 	if err != nil {
+		b.log.Error(err, "check table name exist")
 		return nil, err
 	}
 	dataTable, err := b.repository.DataTableRepository.CreateDataTable(ctx, params)

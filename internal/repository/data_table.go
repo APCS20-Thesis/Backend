@@ -20,7 +20,7 @@ type DataTableRepository interface {
 	GetDataTableDeltaPath(ctx context.Context, id int64) (string, error)
 	GetSourcesOfDataTables(ctx context.Context, tableIds []int64) (map[int64][]model.DataSource, error)
 	GetDestinationsOfDataTables(ctx context.Context, tableIds []int64) (map[int64][]model.DataDestination, error)
-	CheckExistsDataTable(ctx context.Context, tableName string, accountUuid string) error
+	CheckExistsDataTableName(ctx context.Context, tableName string, accountUuid string) error
 }
 
 type dataTableRepo struct {
@@ -242,7 +242,7 @@ func (r *dataTableRepo) GetDestinationsOfDataTables(ctx context.Context, tableId
 	return tableDestinationMap, nil
 }
 
-func (r *dataTableRepo) CheckExistsDataTable(ctx context.Context, tableName string, accountUuid string) error {
+func (r *dataTableRepo) CheckExistsDataTableName(ctx context.Context, tableName string, accountUuid string) error {
 	err := r.WithContext(ctx).Table(r.TableName).
 		Where("name = ? AND account_uuid = ?", tableName, accountUuid).
 		First(&model.DataTable{}).Error
