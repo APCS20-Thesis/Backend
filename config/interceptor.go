@@ -36,5 +36,6 @@ func AccessibleRoles() map[string][]string {
 		rootServicePath + "TrainPredictModel":                 {"admin", "user"},
 		rootServicePath + "GetListPredictModels":              {"admin", "user"},
 		rootServicePath + "GetDataDestinationDetail":          {"admin", "user"},
+		rootServicePath + "GetPredictModelDetail":             {"admin", "user"},
 	}
 }

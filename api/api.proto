@@ -223,6 +223,12 @@ service CDPService {
       get: "/api/v1/data-destination/{id}"
     };
   }
+
+  rpc GetPredictModelDetail(GetPredictModelDetailRequest) returns (GetPredictModelDetailResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/predict-model/{id}"
+    };
+  }
 }
 
 // CheckHealthRequest
@@ -1092,3 +1098,31 @@ message GetDataDestinationDetailResponse {
   string updated_at = 11;
 }
 
+message GetPredictModelDetailRequest {
+  int64 id = 1;
+}
+
+message GetPredictModelDetailResponse {
+  // code
+  int32 code = 1;
+  // message
+  string message = 2;
+  // id - Id of predict model
+  int64 id = 3;
+  // name - Name of predict model
+  string name = 4;
+  // master_segment - Master segment that predict model belongs to
+  EnrichedMasterSegment master_segment = 5;
+  // created_at
+  string created_at = 6;
+  // updated_at
+  string updated_at = 7;
+  // train_segments
+  repeated EnrichedSegment train_segments = 8;
+  // labels
+  repeated string labels = 9;
+  // train_attributes
+  repeated string train_attributes = 10;
+  // status
+  string status = 11;
+}

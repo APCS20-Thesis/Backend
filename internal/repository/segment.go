@@ -14,7 +14,7 @@ import (
 type SegmentRepository interface {
 	CreateMasterSegment(ctx context.Context, params *model.MasterSegment) error
 	ListMasterSegments(ctx context.Context, params *ListMasterSegmentsParams) ([]model.MasterSegment, error)
-	GetMasterSegment(ctx context.Context, masterSegmentId int64, accountUuid string) (model.MasterSegment, error)
+	GetMasterSegment(ctx context.Context, masterSegmentId int64) (model.MasterSegment, error)
 	UpdateMasterSegment(ctx context.Context, params *UpdateMasterSegmentParams) error
 
 	CreateAudienceTable(ctx context.Context, params *CreateAudienceTableParams) error
@@ -251,10 +251,10 @@ func (r *segmentRepo) UpdateAudienceTable(ctx context.Context, params *UpdateAud
 	return nil
 }
 
-func (r *segmentRepo) GetMasterSegment(ctx context.Context, masterSegmentId int64, accountUuid string) (model.MasterSegment, error) {
+func (r *segmentRepo) GetMasterSegment(ctx context.Context, masterSegmentId int64) (model.MasterSegment, error) {
 	var masterSegment model.MasterSegment
 	err := r.WithContext(ctx).Table(r.MasterSegmentTableName).
-		Where("account_uuid = ? AND id = ?", accountUuid, masterSegmentId).
+		Where("id = ?", masterSegmentId).
 		First(&masterSegment).Error
 	if err != nil {
 		return model.MasterSegment{}, err

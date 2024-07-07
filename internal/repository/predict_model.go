@@ -10,6 +10,7 @@ import (
 type PredictModelRepository interface {
 	CreatePredictModel(ctx context.Context, params *CreatePredictModelParams) (*model.PredictModel, error)
 	ListPredictModels(ctx context.Context, params *ListPredictModelsParams) (*ListPredictModelsResult, error)
+	GetPredictModel(ctx context.Context, id int64) (*model.PredictModel, error)
 }
 
 type predictModelRepo struct {
@@ -79,4 +80,15 @@ func (r *predictModelRepo) ListPredictModels(ctx context.Context, params *ListPr
 		PredictModels: models,
 		Count:         count,
 	}, nil
+}
+
+func (r *predictModelRepo) GetPredictModel(ctx context.Context, id int64) (*model.PredictModel, error) {
+	var md model.PredictModel
+
+	err := r.WithContext(ctx).Table(r.TableName).Where("id = ?", id).First(&md).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &md, nil
 }
