@@ -962,8 +962,8 @@ message ImportFromMySQLSourceRequest {
   int64 delta_table_id = 6 [(validate.rules).int64.gt = 0];
   // write mode - append or overwrite if table exist
   string write_mode = 7;
-  // headers
-  repeated string headers = 8 [(validate.rules).repeated.min_items = 1];
+  // mapping_options
+  repeated MappingOptionItem mapping_options = 8 [(validate.rules).repeated.min_items = 1];
 }
 
 message ImportFromMySQLSourceResponse {
