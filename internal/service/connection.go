@@ -2,12 +2,16 @@ package service
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
+	"fmt"
 	"github.com/APCS20-Thesis/Backend/api"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 func (s *Service) GetListConnections(ctx context.Context, request *api.GetListConnectionsRequest) (*api.GetListConnectionsResponse, error) {
@@ -109,4 +113,48 @@ func (s *Service) DeleteConnection(ctx context.Context, request *api.DeleteConne
 		return nil, err
 	}
 	return &api.DeleteConnectionResponse{Message: "Delete Success", Code: int32(codes.OK)}, nil
+}
+
+func (s *Service) GetMySQLTableSchema(ctx context.Context, request *api.GetMySQLTableSchemaRequest) (*api.GetMySQLTableSchemaResponse, error) {
+	mysqlStringConfig := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", request.User, request.Password, request.Host, request.Port, request.Database)
+
+	// Connect to the MySQL database
+	mysqlDB, err := sql.Open("mysql", mysqlStringConfig)
+	if err != nil {
+		s.log.WithName("GetMySQLTableSchema").Error(err, "cannot connect to database")
+		return nil, err
+	}
+	defer mysqlDB.Close()
+
+	// Query the information_schema to get the schema for the specified table
+	rows, err := mysqlDB.Query("SELECT COLUMN_NAME, DATA_TYPE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?", request.TableName)
+	if err != nil {
+		s.log.WithName("GetMySQLTableSchema").Error(err, "cannot query the database")
+		return nil, err
+	}
+	defer rows.Close()
+
+	var schema []*api.SchemaColumn
+	for rows.Next() {
+		var columnName, dataType string
+		err := rows.Scan(&columnName, &dataType)
+		if err != nil {
+			s.log.WithName("GetMySQLTableSchema").Error(err, "error scanning result rows")
+			return nil, err
+		}
+		schema = append(schema, &api.SchemaColumn{
+			ColumnName: columnName,
+			DataType:   dataType,
+		})
+	}
+
+	if len(schema) == 0 {
+		return nil, status.Error(codes.NotFound, "Table is empty or wrong table name")
+	}
+
+	return &api.GetMySQLTableSchemaResponse{
+		Code:    0,
+		Message: "Success",
+		Schema:  schema,
+	}, nil
 }

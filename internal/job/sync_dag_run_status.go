@@ -225,3 +225,27 @@ func (j *job) SyncOnCreateMasterSegment(ctx context.Context, masterSegmentId int
 
 	return nil
 }
+
+func (j *job) SyncOnCreatePredictModel(ctx context.Context, dataAction model.DataAction) error {
+	predictModelId := dataAction.ObjectId
+	switch dataAction.Status {
+	case model.DataActionStatus_Success:
+		err := j.repository.PredictModelRepository.UpdatePredictModel(ctx, &repository.UpdatePredictModelParams{
+			Id:     predictModelId,
+			Status: model.PredictModelStatus_OK,
+		})
+		if err != nil {
+			return err
+		}
+	case model.DataActionStatus_Failed:
+		err := j.repository.PredictModelRepository.UpdatePredictModel(ctx, &repository.UpdatePredictModelParams{
+			Id:     predictModelId,
+			Status: model.PredictModelStatus_FAILED,
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

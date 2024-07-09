@@ -229,6 +229,13 @@ service CDPService {
       get: "/api/v1/predict-model/{id}"
     };
   }
+
+  rpc GetMySQLTableSchema(GetMySQLTableSchemaRequest) returns (GetMySQLTableSchemaResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/connection/mysql/schema"
+      body: "*"
+    };
+  }
 }
 
 // CheckHealthRequest
@@ -1127,4 +1134,22 @@ message GetPredictModelDetailResponse {
   repeated string train_attributes = 10;
   // status
   string status = 11;
+}
+
+message GetMySQLTableSchemaRequest {
+  string host = 1;
+  string port = 2;
+  string user = 3;
+  string password = 4;
+  string database = 5;
+  string table_name = 6;
+}
+
+message GetMySQLTableSchemaResponse {
+  // code
+  int32 code = 1;
+  // message
+  string message = 2;
+
+  repeated SchemaColumn schema = 3;
 }

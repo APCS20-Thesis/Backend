@@ -70,7 +70,8 @@ func (m *mqtt) Sub(topic string) {
 
 func (m *mqtt) Connect() {
 	if token := m.client.Connect(); token.Wait() && token.Error() != nil {
-		panic(token.Error())
+		//panic(token.Error())
+		m.log.Error(token.Error(), "connect mqtt failed")
 	}
 
 	topic := ""
