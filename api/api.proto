@@ -1137,12 +1137,10 @@ message GetPredictModelDetailResponse {
 }
 
 message GetMySQLTableSchemaRequest {
-  string host = 1;
-  string port = 2;
-  string user = 3;
-  string password = 4;
-  string database = 5;
-  string table_name = 6;
+  // connection_id - MySQL connection id
+  int64 connection_id = 1;
+  // table_name - Table name to retrieve the schema
+  string table_name = 2;
 }
 
 message GetMySQLTableSchemaResponse {

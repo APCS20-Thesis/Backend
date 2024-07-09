@@ -2,12 +2,15 @@ package connection
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/APCS20-Thesis/Backend/api"
 	"github.com/APCS20-Thesis/Backend/internal/model"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
 	"github.com/APCS20-Thesis/Backend/utils"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 	"golang.org/x/exp/slices"
@@ -165,4 +168,61 @@ func (b business) DeleteConnection(ctx context.Context, request *api.DeleteConne
 		return err
 	}
 	return nil
+}
+
+func (b business) ProcessGetMySQLTableSchema(ctx context.Context, request *api.GetMySQLTableSchemaRequest, accountUuid string) ([]*api.SchemaColumn, error) {
+	logger := b.log.WithName("ProcessGetMySQLTableSchema")
+
+	connection, err := b.repository.ConnectionRepository.GetConnection(ctx, request.ConnectionId)
+	if err != nil {
+		logger.Error(err, "cannot get connection")
+		return nil, err
+	}
+	if connection.AccountUuid.String() != accountUuid {
+		return nil, status.Error(codes.PermissionDenied, "Not have permission on this connection")
+	}
+
+	var config model.MySQLConfiguration
+	err = json.Unmarshal(connection.Configurations.RawMessage, &config)
+	if err != nil {
+		logger.Error(err, "cannot unmarshal connection configuration")
+		return nil, err
+	}
+
+	mysqlStringConfig := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", config.User, config.Password, config.Host, config.Port, config.Database)
+	// Connect to the MySQL database
+	mysqlDB, err := sql.Open("mysql", mysqlStringConfig)
+	if err != nil {
+		logger.Error(err, "cannot connect to database")
+		return nil, err
+	}
+	defer mysqlDB.Close()
+
+	// Query the information_schema to get the schema for the specified table
+	rows, err := mysqlDB.Query("SELECT COLUMN_NAME, DATA_TYPE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?", request.TableName)
+	if err != nil {
+		logger.Error(err, "cannot query the database")
+		return nil, err
+	}
+	defer rows.Close()
+
+	var schema []*api.SchemaColumn
+	for rows.Next() {
+		var columnName, dataType string
+		err := rows.Scan(&columnName, &dataType)
+		if err != nil {
+			logger.Error(err, "error scanning result rows")
+			return nil, err
+		}
+		schema = append(schema, &api.SchemaColumn{
+			ColumnName: columnName,
+			DataType:   dataType,
+		})
+	}
+
+	if len(schema) == 0 {
+		return nil, status.Error(codes.NotFound, "Table is empty or wrong table name")
+	}
+
+	return schema, nil
 }
