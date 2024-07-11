@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 	"google.golang.org/genproto/googleapis/rpc/code"
+	"gorm.io/gorm"
 	"strings"
 )
 
@@ -199,4 +200,19 @@ func (b business) GetSegmentDetail(ctx context.Context, request *api.GetSegmentD
 		Condition:         &condition,
 		Schema:            audienceSchema,
 	}, nil
+}
+
+func (b business) ProcessApplyPredictModel(ctx context.Context, request *api.ApplyPredictModelRequest) (*api.ApplyPredictModelResponse, error) {
+	logger := b.log.WithName("ProcessApplyPredictModel").WithValues("request", request)
+
+	payload := &airflow.Dag
+
+	//transaction
+	err := b.db.Transaction(func(tx *gorm.DB) error {
+
+
+		dataAction, err :=
+	}
+
+	return nil, nil
 }

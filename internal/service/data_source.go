@@ -23,7 +23,7 @@ func (s *Service) ImportCsv(ctx context.Context, request *api.ImportCsvRequest) 
 
 	err = s.s3Manger.S3Uploader(
 		constants.S3BucketName,
-		"data/"+accountUuid+"/"+dateTime+"_"+request.GetFileName(),
+		"data/bronze/"+accountUuid+"/"+dateTime+"_"+request.GetFileName(),
 		request.GetFileContent())
 
 	if err != nil {

@@ -20,6 +20,7 @@ const (
 	Endpoint_TRIGGER_GENERATE_DAG_CREATE_MASTER_SEGMENT string = "/api/v1/dags/generate_create_master_segment/dagRuns"
 	Endpoint_TRIGGER_GENERATE_DAG_CREATE_SEGMENT        string = "/api/v1/dags/generate_create_segment/dagRuns"
 	Endpoint_TROGGER_GENERATE_DAG_TRAIN_PREDICT_MODEL   string = "/api/v1/dags/generate_train_predict_model/dagRuns"
+	Endpoint_TROGGER_GENERATE_DAG_APPLY_PREDICT_MODEL   string = "/api/v1/dags/generate_apply_predict_model/dagRuns"
 
 	WriteMode_Append    DeltaWriteMode = "append"
 	WriteMode_Overwrite DeltaWriteMode = "overwrite"
@@ -34,6 +35,7 @@ type AirflowAdapter interface {
 	TriggerGenerateDagCreateMasterSegment(ctx context.Context, request *TriggerGenerateDagCreateMasterSegmentRequest) error
 	TriggerGenerateDagCreateSegment(ctx context.Context, request *TriggerGenerateDagCreateSegmentRequest) error
 	TriggerGenerateDagTrainPredictModel(ctx context.Context, request *TriggerGenerateDagTrainPredictModelRequest) (*TriggerNewDagRunResponse, error)
+	TriggerGenerateDagApplyPredictModel(ctx context.Context, request *TriggerGenerateDagApplyPredictModelRequest) error
 
 	ListDags(ctx context.Context, request *ListDagsParams) (*ListDagsResponse, error)
 	UpdateDag(ctx context.Context, dagId string, request *UpdateDagRequest) (*UpdateDagResponse, error)

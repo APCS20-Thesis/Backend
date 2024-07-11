@@ -242,6 +242,13 @@ service CDPService {
       get: "/api/v1/master-segment/{id}/profiles"
     };
   }
+
+  rpc ApplyPredictModel(ApplyPredictModelRequest) returns (ApplyPredictModelResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/predict-model/apply"
+      body: "*"
+    };
+  }
 }
 
 // CheckHealthRequest
@@ -1178,4 +1185,18 @@ message GetMasterSegmentProfilesResponse {
   int64 count = 3;
   // results list
   repeated string results = 4;
+}
+
+message ApplyPredictModelRequest {
+  // predict_model_id - Id of chosen predict model
+  int64 predict_model_id = 1;
+  // segment_id - Id of predict segment
+  int64 segment_id = 2;
+}
+
+message ApplyPredictModelResponse {
+  // code
+  int32 code = 1;
+  // message
+  string message = 2;
 }
