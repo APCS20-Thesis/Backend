@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/APCS20-Thesis/Backend/api"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/airflow"
+	"github.com/APCS20-Thesis/Backend/internal/adapter/query"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
 	"github.com/go-logr/logr"
 	"gorm.io/gorm"
@@ -18,6 +19,7 @@ type Business interface {
 	GetSegmentDetail(ctx context.Context, request *api.GetSegmentDetailRequest, accountUuid string) (*api.GetSegmentDetailResponse, error)
 
 	GetMasterSegmentDetail(ctx context.Context, request *api.GetMasterSegmentDetailRequest, accountUuid string) (*api.MasterSegmentDetail, error)
+	ListMasterSegmentProfiles(ctx context.Context, request *api.GetMasterSegmentProfilesRequest, accountUuid string) (int64, []string, error)
 }
 
 type business struct {
@@ -25,13 +27,15 @@ type business struct {
 	log            logr.Logger
 	repository     *repository.Repository
 	airflowAdapter airflow.AirflowAdapter
+	queryAdapter   query.QueryAdapter
 }
 
-func NewSegmentBusiness(db *gorm.DB, log logr.Logger, repository *repository.Repository, airflowAdapter airflow.AirflowAdapter) Business {
+func NewSegmentBusiness(db *gorm.DB, log logr.Logger, repository *repository.Repository, airflowAdapter airflow.AirflowAdapter, queryAdapter query.QueryAdapter) Business {
 	return &business{
 		db:             db,
 		log:            log.WithName("SegmentBiz"),
 		repository:     repository,
 		airflowAdapter: airflowAdapter,
+		queryAdapter:   queryAdapter,
 	}
 }

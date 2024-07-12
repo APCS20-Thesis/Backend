@@ -11,6 +11,7 @@ const (
 	Endpoint_GET_SCHEMA_TABLE  string = "/api/schema-table"
 	Endpoint_GET_DATA_TABLE_V2 string = "/api/v2/data-table"
 	Endpoint_QUERY_SQL         string = "/api/delta-query"
+	Endpoint_QUERY_SQL_V2      string = "/api/v2/delta-query"
 )
 
 type QueryAdapter interface {
@@ -18,6 +19,7 @@ type QueryAdapter interface {
 	GetDataTable(ctx context.Context, request *GetQueryDataTableRequest) (*GetQueryDataTableResponse, error)
 	GetSchemaTable(ctx context.Context, request *GetSchemaDataTableRequest) (*GetSchemaDataTableResponse, error)
 	QueryRawSQL(ctx context.Context, request *QueryRawSQLRequest) (*QueryRawSQLResponse, error)
+	QueryRawSQLV2(ctx context.Context, request *QueryRawSQLV2Request) (*QueryRawSQLV2Response, error)
 }
 
 type query struct {
@@ -133,4 +135,45 @@ func (c *query) QueryRawSQL(ctx context.Context, request *QueryRawSQLRequest) (*
 	}
 
 	return &response, nil
+}
+
+type (
+	QueryRawSQLV2Request struct {
+		Query string `json:"query"`
+	}
+	QueryRawSQLV2Response struct {
+		Count int      `json:"count"`
+		Data  []string `json:"data"`
+	}
+)
+
+func (c *query) QueryRawSQLV2(ctx context.Context, request *QueryRawSQLV2Request) (*QueryRawSQLV2Response, error) {
+	var response QueryRawSQLV2Response
+
+	err := c.client.SendHttpRequest(ctx, utils.Request{
+		Endpoint: Endpoint_QUERY_SQL_V2,
+		Method:   utils.Method_POST,
+		Body:     request,
+	}, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	return &response, nil
+}
+
+func QueryV2Paginate(page int32, pageSize int32, list []string) []string {
+	if page <= 0 {
+		page = 1
+	}
+
+	switch {
+	case pageSize > 100:
+		pageSize = 100
+	case pageSize <= 0:
+		pageSize = 100
+	}
+
+	offset := (page - 1) * pageSize
+	return list[offset : offset+pageSize]
 }
