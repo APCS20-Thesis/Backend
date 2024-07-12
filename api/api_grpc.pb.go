@@ -54,6 +54,8 @@ const (
 	CDPService_GetListSourceTableMap_FullMethodName             = "/api.CDPService/GetListSourceTableMap"
 	CDPService_GetDataDestinationDetail_FullMethodName          = "/api.CDPService/GetDataDestinationDetail"
 	CDPService_GetPredictModelDetail_FullMethodName             = "/api.CDPService/GetPredictModelDetail"
+	CDPService_GetMySQLTableSchema_FullMethodName               = "/api.CDPService/GetMySQLTableSchema"
+	CDPService_GetMasterSegmentProfiles_FullMethodName          = "/api.CDPService/GetMasterSegmentProfiles"
 )
 
 // CDPServiceClient is the client API for CDPService service.
@@ -95,6 +97,8 @@ type CDPServiceClient interface {
 	GetListSourceTableMap(ctx context.Context, in *GetListSourceTableMapRequest, opts ...grpc.CallOption) (*GetListSourceTableMapResponse, error)
 	GetDataDestinationDetail(ctx context.Context, in *GetDataDestinationDetailRequest, opts ...grpc.CallOption) (*GetDataDestinationDetailResponse, error)
 	GetPredictModelDetail(ctx context.Context, in *GetPredictModelDetailRequest, opts ...grpc.CallOption) (*GetPredictModelDetailResponse, error)
+	GetMySQLTableSchema(ctx context.Context, in *GetMySQLTableSchemaRequest, opts ...grpc.CallOption) (*GetMySQLTableSchemaResponse, error)
+	GetMasterSegmentProfiles(ctx context.Context, in *GetMasterSegmentProfilesRequest, opts ...grpc.CallOption) (*GetMasterSegmentProfilesResponse, error)
 }
 
 type cDPServiceClient struct {
@@ -420,6 +424,24 @@ func (c *cDPServiceClient) GetPredictModelDetail(ctx context.Context, in *GetPre
 	return out, nil
 }
 
+func (c *cDPServiceClient) GetMySQLTableSchema(ctx context.Context, in *GetMySQLTableSchemaRequest, opts ...grpc.CallOption) (*GetMySQLTableSchemaResponse, error) {
+	out := new(GetMySQLTableSchemaResponse)
+	err := c.cc.Invoke(ctx, CDPService_GetMySQLTableSchema_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cDPServiceClient) GetMasterSegmentProfiles(ctx context.Context, in *GetMasterSegmentProfilesRequest, opts ...grpc.CallOption) (*GetMasterSegmentProfilesResponse, error) {
+	out := new(GetMasterSegmentProfilesResponse)
+	err := c.cc.Invoke(ctx, CDPService_GetMasterSegmentProfiles_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CDPServiceServer is the server API for CDPService service.
 // All implementations must embed UnimplementedCDPServiceServer
 // for forward compatibility
@@ -459,6 +481,8 @@ type CDPServiceServer interface {
 	GetListSourceTableMap(context.Context, *GetListSourceTableMapRequest) (*GetListSourceTableMapResponse, error)
 	GetDataDestinationDetail(context.Context, *GetDataDestinationDetailRequest) (*GetDataDestinationDetailResponse, error)
 	GetPredictModelDetail(context.Context, *GetPredictModelDetailRequest) (*GetPredictModelDetailResponse, error)
+	GetMySQLTableSchema(context.Context, *GetMySQLTableSchemaRequest) (*GetMySQLTableSchemaResponse, error)
+	GetMasterSegmentProfiles(context.Context, *GetMasterSegmentProfilesRequest) (*GetMasterSegmentProfilesResponse, error)
 	mustEmbedUnimplementedCDPServiceServer()
 }
 
@@ -570,6 +594,12 @@ func (UnimplementedCDPServiceServer) GetDataDestinationDetail(context.Context, *
 }
 func (UnimplementedCDPServiceServer) GetPredictModelDetail(context.Context, *GetPredictModelDetailRequest) (*GetPredictModelDetailResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPredictModelDetail not implemented")
+}
+func (UnimplementedCDPServiceServer) GetMySQLTableSchema(context.Context, *GetMySQLTableSchemaRequest) (*GetMySQLTableSchemaResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMySQLTableSchema not implemented")
+}
+func (UnimplementedCDPServiceServer) GetMasterSegmentProfiles(context.Context, *GetMasterSegmentProfilesRequest) (*GetMasterSegmentProfilesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMasterSegmentProfiles not implemented")
 }
 func (UnimplementedCDPServiceServer) mustEmbedUnimplementedCDPServiceServer() {}
 
@@ -1214,6 +1244,42 @@ func _CDPService_GetPredictModelDetail_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CDPService_GetMySQLTableSchema_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMySQLTableSchemaRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDPServiceServer).GetMySQLTableSchema(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CDPService_GetMySQLTableSchema_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDPServiceServer).GetMySQLTableSchema(ctx, req.(*GetMySQLTableSchemaRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CDPService_GetMasterSegmentProfiles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMasterSegmentProfilesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDPServiceServer).GetMasterSegmentProfiles(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CDPService_GetMasterSegmentProfiles_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDPServiceServer).GetMasterSegmentProfiles(ctx, req.(*GetMasterSegmentProfilesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CDPService_ServiceDesc is the grpc.ServiceDesc for CDPService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1360,6 +1426,14 @@ var CDPService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetPredictModelDetail",
 			Handler:    _CDPService_GetPredictModelDetail_Handler,
+		},
+		{
+			MethodName: "GetMySQLTableSchema",
+			Handler:    _CDPService_GetMySQLTableSchema_Handler,
+		},
+		{
+			MethodName: "GetMasterSegmentProfiles",
+			Handler:    _CDPService_GetMasterSegmentProfiles_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

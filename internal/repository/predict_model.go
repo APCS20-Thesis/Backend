@@ -11,6 +11,7 @@ type PredictModelRepository interface {
 	CreatePredictModel(ctx context.Context, params *CreatePredictModelParams) (*model.PredictModel, error)
 	ListPredictModels(ctx context.Context, params *ListPredictModelsParams) (*ListPredictModelsResult, error)
 	GetPredictModel(ctx context.Context, id int64) (*model.PredictModel, error)
+	UpdatePredictModel(ctx context.Context, params *UpdatePredictModelParams) error
 }
 
 type predictModelRepo struct {
@@ -91,4 +92,26 @@ func (r *predictModelRepo) GetPredictModel(ctx context.Context, id int64) (*mode
 	}
 
 	return &md, nil
+}
+
+type UpdatePredictModelParams struct {
+	Id                  int64
+	Name                string
+	Status              model.PredictModelStatus
+	TrainConfigurations pqtype.NullRawMessage
+}
+
+func (r *predictModelRepo) UpdatePredictModel(ctx context.Context, params *UpdatePredictModelParams) error {
+	predictModel := model.PredictModel{
+		ID:                  params.Id,
+		Name:                params.Name,
+		TrainConfigurations: params.TrainConfigurations,
+		Status:              params.Status,
+	}
+	err := r.WithContext(ctx).Table(r.TableName).Updates(&predictModel).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

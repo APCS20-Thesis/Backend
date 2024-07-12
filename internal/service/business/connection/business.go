@@ -14,6 +14,7 @@ type Business interface {
 	GetListConnections(ctx context.Context, request *api.GetListConnectionsRequest, accountUuid string) ([]*api.GetListConnectionsResponse_Connection, int64, error)
 	GetConnection(ctx context.Context, request *api.GetConnectionRequest, accountUuid string) (*api.GetConnectionResponse, error)
 	DeleteConnection(ctx context.Context, request *api.DeleteConnectionRequest, accountUuid string) error
+	ProcessGetMySQLTableSchema(ctx context.Context, request *api.GetMySQLTableSchemaRequest, accountUuid string) ([]*api.SchemaColumn, error)
 }
 
 type business struct {

@@ -229,6 +229,19 @@ service CDPService {
       get: "/api/v1/predict-model/{id}"
     };
   }
+
+  rpc GetMySQLTableSchema(GetMySQLTableSchemaRequest) returns (GetMySQLTableSchemaResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/connection/mysql/schema"
+      body: "*"
+    };
+  }
+
+  rpc GetMasterSegmentProfiles(GetMasterSegmentProfilesRequest) returns (GetMasterSegmentProfilesResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/master-segment/{id}/profiles"
+    };
+  }
 }
 
 // CheckHealthRequest
@@ -955,8 +968,8 @@ message ImportFromMySQLSourceRequest {
   int64 delta_table_id = 6 [(validate.rules).int64.gt = 0];
   // write mode - append or overwrite if table exist
   string write_mode = 7;
-  // headers
-  repeated string headers = 8 [(validate.rules).repeated.min_items = 1];
+  // mapping_options
+  repeated MappingOptionItem mapping_options = 8 [(validate.rules).repeated.min_items = 1];
 }
 
 message ImportFromMySQLSourceResponse {
@@ -1127,4 +1140,42 @@ message GetPredictModelDetailResponse {
   repeated string train_attributes = 10;
   // status
   string status = 11;
+}
+
+message GetMySQLTableSchemaRequest {
+  // connection_id - MySQL connection id
+  int64 connection_id = 1;
+  // table_name - Table name to retrieve the schema
+  string table_name = 2;
+}
+
+message GetMySQLTableSchemaResponse {
+  // code
+  int32 code = 1;
+  // message
+  string message = 2;
+
+  repeated SchemaColumn schema = 3;
+}
+
+// GetMasterSegmentProfiles Request
+message GetMasterSegmentProfilesRequest {
+  // master segment id
+  int64 id = 1 [(validate.rules).int64.gt = 0];
+  // page
+  int32 page = 3;
+  // page_size
+  int32 page_size = 4;
+}
+
+// GetMasterSegmentProfiles Response
+message GetMasterSegmentProfilesResponse {
+  // code
+  int32 code = 1;
+  // message
+  string message = 2;
+  // count
+  int64 count = 3;
+  // results list
+  repeated string results = 4;
 }

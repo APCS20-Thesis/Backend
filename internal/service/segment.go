@@ -150,3 +150,20 @@ func (s *Service) GetSegmentDetail(ctx context.Context, request *api.GetSegmentD
 
 	return s.business.SegmentBusiness.GetSegmentDetail(ctx, request, accountUuid)
 }
+
+func (s *Service) GetMasterSegmentProfiles(ctx context.Context, request *api.GetMasterSegmentProfilesRequest) (*api.GetMasterSegmentProfilesResponse, error) {
+	accountUuid, err := GetAccountUuidFromCtx(ctx)
+	if err != nil {
+		s.log.WithName("GetMasterSegmentProfiles").Error(err, "cannot get account uuid from context")
+		return nil, err
+	}
+
+	count, res, err := s.business.SegmentBusiness.ListMasterSegmentProfiles(ctx, request, accountUuid)
+
+	return &api.GetMasterSegmentProfilesResponse{
+		Code:    int32(codes.OK),
+		Message: "Success",
+		Count:   count,
+		Results: res,
+	}, nil
+}

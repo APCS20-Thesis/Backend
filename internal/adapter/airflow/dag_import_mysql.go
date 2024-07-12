@@ -2,6 +2,7 @@ package airflow
 
 import (
 	"context"
+
 	"github.com/APCS20-Thesis/Backend/utils"
 )
 
@@ -12,8 +13,7 @@ type (
 
 	DagImportMySQLConfig struct {
 		DagId                 string                              `json:"dag_id"`
-		AccountUuid           string                              `json:"account_uuid"`
-		DeltaTableName        string                              `json:"delta_table_name"`
+		DeltaTableKey         string                              `json:"delta_table_key"`
 		WriteMode             DeltaWriteMode                      `json:"write_mode"`
 		Headers               []string                            `json:"headers"`
 		DatabaseConfiguration DagImportMySQLDatabaseConfiguration `json:"database_configuration"`

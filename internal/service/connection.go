@@ -110,3 +110,22 @@ func (s *Service) DeleteConnection(ctx context.Context, request *api.DeleteConne
 	}
 	return &api.DeleteConnectionResponse{Message: "Delete Success", Code: int32(codes.OK)}, nil
 }
+
+func (s *Service) GetMySQLTableSchema(ctx context.Context, request *api.GetMySQLTableSchemaRequest) (*api.GetMySQLTableSchemaResponse, error) {
+	accountUuid, err := GetAccountUuidFromCtx(ctx)
+	if err != nil {
+		s.log.WithName("GetMySQLTableSchema").Error(err, "Cannot get account_uuid from context")
+		return nil, err
+	}
+
+	schema, err := s.business.ConnectionBusiness.ProcessGetMySQLTableSchema(ctx, request, accountUuid)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.GetMySQLTableSchemaResponse{
+		Code:    0,
+		Message: "Success",
+		Schema:  schema,
+	}, nil
+}

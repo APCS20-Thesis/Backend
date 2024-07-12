@@ -8,8 +8,9 @@ import (
 type PredictModelStatus string
 
 const (
-	PredictModelStatus_DRAFT      PredictModelStatus = "DRAFT"
-	PredictModelStatus_UP_TO_DATE PredictModelStatus = "UP_TO_DATE"
+	PredictModelStatus_DRAFT  PredictModelStatus = "DRAFT"
+	PredictModelStatus_OK     PredictModelStatus = "OK"
+	PredictModelStatus_FAILED PredictModelStatus = "FAILED"
 )
 
 type PredictModel struct {

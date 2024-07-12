@@ -112,10 +112,11 @@ func (b business) ProcessImportFromMySQLSource(ctx context.Context, request *api
 
 	_, err = b.airflowAdapter.TriggerGenerateDagImportMySQL(ctx, &airflow.TriggerGenerateDagImportMySQLRequest{
 		Conf: airflow.DagImportMySQLConfig{
-			DagId:          dagId,
-			AccountUuid:    accountUuid.String(),
-			DeltaTableName: request.DeltaTableName,
-			Headers:        request.Headers,
+			DagId:         dagId,
+			DeltaTableKey: utils.GenerateDeltaTablePath(accountUuid.String(), request.DeltaTableName),
+			Headers: utils.Map(request.MappingOptions, func(mapping *api.MappingOptionItem) string {
+				return mapping.DestinationFieldName
+			}),
 			DatabaseConfiguration: airflow.DagImportMySQLDatabaseConfiguration{
 				Host:     dbConfiguration.Host,
 				Port:     dbConfiguration.Port,
