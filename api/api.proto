@@ -922,17 +922,10 @@ message GetSegmentDetailResponse {
   // updated_at
   string updated_at = 9;
   // condition
-  Rule condition = 10;
+  SegmentCondition condition = 10;
   // schema
   repeated SchemaColumn schema = 11;
 
-  message Rule {
-    string field = 1;
-    string operator = 2;
-    string value = 3;
-    repeated Rule rules = 4;
-    string combinator = 5;
-  }
 }
 
 message CreateGophishUserGroupFromSegmentRequest {

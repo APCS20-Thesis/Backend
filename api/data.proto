@@ -229,6 +229,12 @@ message EnrichedDataDestination {
   string type = 4;
 }
 
+message SegmentCondition {
+  Rule audience_condition = 1;
+  string audience_sql_condition = 2;
+  repeated BehaviorCondition behavior_conditions = 3;
+}
+
 message BehaviorCondition {
   // behavior_table_id - Behavior table id
   int64 behavior_table_id = 1;

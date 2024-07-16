@@ -101,12 +101,12 @@ func (b business) CreateSegment(ctx context.Context, request *api.CreateSegmentR
 		tx.Rollback()
 		return err
 	}
-	err = b.airflowAdapter.TriggerGenerateDagCreateSegment(ctx, payload)
-	if err != nil {
-		logger.Error(err, "cannot trigger dag generate create segment")
-		tx.Rollback()
-		return err
-	}
+	//err = b.airflowAdapter.TriggerGenerateDagCreateSegment(ctx, payload)
+	//if err != nil {
+	//	logger.Error(err, "cannot trigger dag generate create segment")
+	//	tx.Rollback()
+	//	return err
+	//}
 
 	// 3. Save data action
 	_, err = b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
@@ -166,12 +166,13 @@ func (b business) GetSegmentDetail(ctx context.Context, request *api.GetSegmentD
 		return nil, err
 	}
 
-	var condition api.GetSegmentDetailResponse_Rule
+	var condition api.SegmentCondition
 	err = json.Unmarshal(segment.Condition.RawMessage, &condition)
 	if err != nil {
 		logger.Error(err, "cannot unmarshal condition")
 		return nil, err
 	}
+	condition.AudienceSqlCondition = segment.SqlCondition
 
 	audienceTable, err := b.repository.SegmentRepository.GetAudienceTable(ctx, repository.GetAudienceTableParams{MasterSegmentId: masterSegment.ID})
 	if err != nil {
