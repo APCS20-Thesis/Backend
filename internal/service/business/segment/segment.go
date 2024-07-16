@@ -11,6 +11,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 	"google.golang.org/genproto/googleapis/rpc/code"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"strings"
 )
 
@@ -166,7 +168,7 @@ func (b business) GetSegmentDetail(ctx context.Context, request *api.GetSegmentD
 		return nil, err
 	}
 
-	var condition api.GetSegmentDetailResponse_Rule
+	var condition api.Rule
 	err = json.Unmarshal(segment.Condition.RawMessage, &condition)
 	if err != nil {
 		logger.Error(err, "cannot unmarshal condition")
@@ -198,5 +200,145 @@ func (b business) GetSegmentDetail(ctx context.Context, request *api.GetSegmentD
 		UpdatedAt:         segment.UpdatedAt.String(),
 		Condition:         &condition,
 		Schema:            audienceSchema,
+	}, nil
+}
+
+type ApplyPredictModelConfig struct {
+	DagConfig      airflow.DagApplyPredictModelConfig
+	PredictModelId int64
+	SegmentId      int64
+}
+
+func (b business) ProcessApplyPredictModel(ctx context.Context, request *api.ApplyPredictModelRequest, accountUuid string) (*api.ApplyPredictModelResponse, error) {
+	logger := b.log.WithName("ProcessApplyPredictModel").WithValues("request", request)
+
+	predictModel, err := b.repository.PredictModelRepository.GetPredictModel(ctx, request.PredictModelId)
+	if err != nil {
+		logger.Error(err, "cannot get predict model")
+		return nil, err
+	}
+
+	segment, err := b.repository.SegmentRepository.GetSegment(ctx, request.SegmentId, accountUuid)
+	if err != nil {
+		logger.Error(err, "cannot get segment")
+		return nil, err
+	}
+
+	if segment.MasterSegmentId != predictModel.MasterSegmentId {
+		return nil, status.Error(codes.InvalidArgument, "cannot predict segment with other master segment's model")
+	}
+
+	var config model.PredictModelTrainConfiguration
+	err = json.Unmarshal(predictModel.TrainConfigurations.RawMessage, &config)
+	if err != nil {
+		logger.Error(err, "cannot unmarshal predict model train configurations")
+		return nil, err
+	}
+
+	dagId := utils.GenerateDagId(accountUuid, model.ActionType_ApplyPredictModel)
+	payload := &airflow.TriggerGenerateDagApplyPredictModelRequest{
+		Conf: airflow.DagApplyPredictModelConfig{
+			DagId:            dagId,
+			DataKey:          utils.GenerateDeltaSegmentPath(predictModel.MasterSegmentId, request.SegmentId),
+			ModelPath:        utils.GenerateDeltaPredictModelFilePath(predictModel.MasterSegmentId, request.PredictModelId),
+			ResultPath:       utils.GenerateDeltaPredictResult(predictModel.MasterSegmentId),
+			SelectAttributes: config.SelectedAttributes,
+		},
+	}
+	jsonPayload, err := json.Marshal(ApplyPredictModelConfig{
+		DagConfig:      payload.Conf,
+		PredictModelId: request.PredictModelId,
+		SegmentId:      request.SegmentId,
+	})
+	if err != nil {
+		logger.Error(err, "cannot marshal payload", "payload", payload)
+		return nil, err
+	}
+
+	err = b.airflowAdapter.TriggerGenerateDagApplyPredictModel(ctx, payload)
+	if err != nil {
+		logger.Error(err, "cannot trigger generate dag apply predict model")
+		return nil, err
+	}
+
+	_, err = b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
+		TargetTable: model.TargetTable_Segment,
+		ActionType:  model.ActionType_ApplyPredictModel,
+		Schedule:    "",
+		AccountUuid: uuid.MustParse(accountUuid),
+		DagId:       dagId,
+		Status:      model.DataActionStatus_Pending,
+		ObjectId:    request.SegmentId,
+		Payload:     pqtype.NullRawMessage{RawMessage: jsonPayload, Valid: jsonPayload != nil},
+	})
+	if err != nil {
+		logger.Error(err, "cannot create data action")
+		return nil, err
+	}
+
+	return &api.ApplyPredictModelResponse{
+		Code:    0,
+		Message: "Success",
+	}, nil
+}
+
+func (b business) ProcessGetListPredictionActions(ctx context.Context, request *api.GetListPredictionActionsRequest, accountUuid string) (*api.GetListPredictionActionsResponse, error) {
+	logger := b.log.WithName("ProcessGetListPredictionActions")
+
+	queryResult, err := b.repository.DataActionRepository.GetListDataActions(ctx, &repository.GetListDataActionsParams{
+		ActionTypes: []string{string(model.ActionType_ApplyPredictModel)},
+		AccountUuid: uuid.MustParse(accountUuid),
+		Page:        int(request.Page),
+		PageSize:    int(request.PageSize),
+		TargetTable: model.TargetTable_Segment,
+		ObjectId:    request.Id,
+	})
+	if err != nil {
+		logger.Error(err, "cannot get list data actions")
+		return nil, err
+	}
+
+	modelIds := make([]int64, 0, len(queryResult.DataActions))
+	configMap := make(map[int64]ApplyPredictModelConfig)
+	for _, action := range queryResult.DataActions {
+		var config ApplyPredictModelConfig
+		err := json.Unmarshal(action.Payload.RawMessage, &config)
+		if err != nil {
+			logger.Error(err, "cannot unmarshal data action payload", "actionId", action.ID)
+			return nil, err
+		}
+		configMap[action.ID] = config
+		modelIds = append(modelIds, config.PredictModelId)
+	}
+
+	predictModels, err := b.repository.PredictModelRepository.ListPredictModels(ctx, &repository.ListPredictModelsParams{
+		Ids: modelIds,
+	})
+	if err != nil {
+		logger.Error(err, "cannot get list predict models")
+		return nil, err
+	}
+	predictModelMap := make(map[int64]string)
+	for _, predictModel := range predictModels.PredictModels {
+		predictModelMap[predictModel.ID] = predictModel.Name
+	}
+
+	predictActions := utils.Map(queryResult.DataActions, func(action model.DataAction) *api.GetListPredictionActionsResponse_PredictionAction {
+		modelId := configMap[action.ID].PredictModelId
+		return &api.GetListPredictionActionsResponse_PredictionAction{
+			Id:        action.ID,
+			ModelId:   modelId,
+			ModelName: predictModelMap[modelId],
+			Status:    string(action.Status),
+			CreatedAt: action.CreatedAt.String(),
+			UpdatedAt: action.UpdatedAt.String(),
+		}
+	})
+
+	return &api.GetListPredictionActionsResponse{
+		Code:    0,
+		Message: "Success",
+		Count:   queryResult.Count,
+		Results: predictActions,
 	}, nil
 }

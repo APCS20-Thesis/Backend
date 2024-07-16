@@ -5,6 +5,7 @@ import (
 	"github.com/APCS20-Thesis/Backend/api"
 	"github.com/APCS20-Thesis/Backend/config"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/airflow"
+	"github.com/APCS20-Thesis/Backend/internal/adapter/query"
 	"github.com/APCS20-Thesis/Backend/internal/model"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
 	"github.com/go-logr/logr"
@@ -25,6 +26,9 @@ type Business interface {
 	ProcessImportFromMySQLSource(ctx context.Context, request *api.ImportFromMySQLSourceRequest, accountUuid uuid.UUID) error
 
 	GetListSourceTableMappings(ctx context.Context, request *api.GetListSourceTableMapRequest) (*api.GetListSourceTableMapResponse, error)
+
+	SyncOnImportFromSourceSuccess(ctx context.Context, dataActionId int64) error
+	SynOnImportFromSourceFailed(ctx context.Context, dataActionId int64) error
 }
 
 type business struct {
@@ -32,16 +36,18 @@ type business struct {
 	log            logr.Logger
 	repository     *repository.Repository
 	airflowAdapter airflow.AirflowAdapter
+	queryAdapter   query.QueryAdapter
 	config         *config.Config
 }
 
-func NewDataSourceBusiness(db *gorm.DB, log logr.Logger, repository *repository.Repository, airflowAdapter airflow.AirflowAdapter, config *config.Config) Business {
+func NewDataSourceBusiness(db *gorm.DB, log logr.Logger, repository *repository.Repository, airflowAdapter airflow.AirflowAdapter, queryAdapter query.QueryAdapter, config *config.Config) Business {
 
 	return &business{
 		db:             db,
 		log:            log.WithName("DataSourceBiz"),
 		repository:     repository,
 		airflowAdapter: airflowAdapter,
+		queryAdapter:   queryAdapter,
 		config:         config,
 	}
 }

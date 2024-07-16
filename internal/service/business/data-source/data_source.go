@@ -4,9 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/APCS20-Thesis/Backend/api"
+	"github.com/APCS20-Thesis/Backend/internal/adapter/query"
 	"github.com/APCS20-Thesis/Backend/internal/model"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
 	"github.com/google/uuid"
+	"github.com/sqlc-dev/pqtype"
 	"google.golang.org/genproto/googleapis/rpc/code"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -135,4 +137,74 @@ func (b business) GetListSourceTableMappings(ctx context.Context, request *api.G
 		Count:   queryResult.Count,
 		Results: returnMaps,
 	}, nil
+}
+
+func (b business) SyncOnImportFromSourceSuccess(ctx context.Context, dataActionId int64) error {
+	dataAction, err := b.repository.DataActionRepository.GetDataAction(ctx, dataActionId)
+	if err != nil {
+		b.log.WithName("SyncOnImportFromSourceSuccess").Error(err, "cannot get data action ")
+	}
+	sourceTableMap, err := b.repository.SourceTableMapRepository.GetSourceTableMapById(ctx, dataAction.ObjectId)
+	if err != nil {
+		b.log.WithName("SyncOnImportFromSourceSuccess").Error(err, "cannot get source table map", "sourceTableMapId", dataAction.ObjectId)
+		return err
+	}
+	path, err := b.repository.DataTableRepository.GetDataTableDeltaPath(ctx, sourceTableMap.TableId)
+	if err != nil {
+		b.log.WithName("SyncOnImportFromSourceSuccess").Error(err, "cannot get table delta path", "TableId", sourceTableMap.TableId)
+		return err
+	}
+	response, err := b.queryAdapter.GetSchemaTable(ctx, &query.GetSchemaDataTableRequest{TablePath: path})
+	if err != nil {
+		b.log.WithName("GetSchemaTable").Info("error here")
+		err = b.repository.DataTableRepository.UpdateStatusDataTable(ctx, sourceTableMap.TableId, model.DataTableStatus_NEED_TO_SYNC)
+		if err != nil {
+			b.log.WithName("SyncOnImportFromSourceSuccess").Error(err, "cannot update data table status", "TableId", sourceTableMap.TableId)
+			return err
+		}
+	}
+	schema := make([]model.SchemaUnit, 0, len(response.Schema))
+	for _, column := range response.Schema {
+		schema = append(schema, model.SchemaUnit{
+			ColumnName: column.Name,
+			DataType:   column.Type,
+		})
+	}
+	jsonSchema, err := json.Marshal(schema)
+	if err != nil {
+		b.log.WithName("SyncOnImportFromSourceSuccess").Error(err, "cannot parse schema")
+		return err
+	}
+	_, err = b.repository.DataTableRepository.UpdateDataTable(ctx, &repository.UpdateDataTableParams{
+		ID:     sourceTableMap.TableId,
+		Schema: pqtype.NullRawMessage{Valid: true, RawMessage: jsonSchema},
+		Status: model.DataTableStatus_UP_TO_DATE,
+	})
+	if err != nil {
+		b.log.WithName("SyncOnImportFromSourceSuccess").Error(err, "cannot update data table", "TableId", sourceTableMap.TableId)
+		return err
+	}
+
+	return nil
+}
+
+func (b business) SynOnImportFromSourceFailed(ctx context.Context, dataActionId int64) error {
+	dataAction, err := b.repository.DataActionRepository.GetDataAction(ctx, dataActionId)
+	if err != nil {
+		b.log.WithName("SynOnImportFromSourceFailed").Error(err, "cannot get data action ")
+	}
+	sourceTableMap, err := b.repository.SourceTableMapRepository.GetSourceTableMapById(ctx, dataAction.ObjectId)
+	if err != nil {
+		b.log.WithName("SynOnImportFromSourceFailed").Error(err, "cannot get source table map", "sourceTableMapId", dataAction.ObjectId)
+		return err
+	}
+	err = b.repository.DataSourceRepository.UpdateDataSource(ctx, &repository.UpdateDataSourceParams{
+		ID:     sourceTableMap.SourceId,
+		Status: model.DataSourceStatus_Failed,
+	})
+	if err != nil {
+		b.log.WithName("SynOnImportFromSourceFailed").Error(err, "failed to update source status", "sourceTableMapId", dataAction.ObjectId)
+		return err
+	}
+	return nil
 }

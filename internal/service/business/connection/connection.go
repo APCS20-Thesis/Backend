@@ -83,6 +83,8 @@ func (b business) GetListConnections(ctx context.Context, request *api.GetListCo
 			Name:        request.Name,
 			Type:        model.ConnectionType(request.Type),
 			AccountUuid: uuid.MustParse(accountUuid),
+			Page:        int(request.Page),
+			PageSize:    int(request.PageSize),
 		})
 	if err != nil {
 		b.log.WithName("GetListConnections").

@@ -7,9 +7,11 @@ import (
 	"github.com/APCS20-Thesis/Backend/internal/adapter/airflow"
 	"github.com/APCS20-Thesis/Backend/internal/model"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
+	"github.com/APCS20-Thesis/Backend/internal/service/business/segment"
 	"github.com/APCS20-Thesis/Backend/utils"
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
+	"golang.org/x/exp/slices"
 	"google.golang.org/genproto/googleapis/rpc/code"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -48,8 +50,8 @@ func (b business) ProcessTrainPredictModel(ctx context.Context, request *api.Tra
 			DagId:            dagId,
 			Segment1Key:      utils.GenerateDeltaSegmentPath(request.MasterSegmentId, request.TrainSegmentIds[0]),
 			Segment2Key:      utils.GenerateDeltaSegmentPath(request.MasterSegmentId, request.TrainSegmentIds[1]),
-			Label1:           "0",
-			Label2:           "1",
+			Label1:           0,
+			Label2:           1,
 			PredictModelKey:  utils.GenerateDeltaPredictModelFilePath(request.MasterSegmentId, predictModel.ID),
 			SelectAttributes: request.SelectedAttributes,
 		}}
@@ -88,14 +90,53 @@ func (b business) ProcessTrainPredictModel(ctx context.Context, request *api.Tra
 }
 
 func (b business) ProcessGetListPredictModels(ctx context.Context, request *api.GetListPredictModelsRequest, accountUuid string) (*api.GetListPredictModelsResponse, error) {
+	logger := b.log.WithName("ProcessGetListPredictModels").WithValues("request", request)
+
 	queryResult, err := b.repository.PredictModelRepository.ListPredictModels(ctx, &repository.ListPredictModelsParams{
 		Page:            int(request.Page),
 		PageSize:        int(request.PageSize),
 		MasterSegmentId: request.MasterSegmentId,
+		Statuses: utils.Map(request.Statuses, func(status string) model.PredictModelStatus {
+			return model.PredictModelStatus(status)
+		}),
 	})
 	if err != nil {
-		b.log.WithName("ProcessGetListPredictModels").Error(err, "cannot get list predict models", "request", request)
+		logger.Error(err, "cannot get list predict models")
 		return nil, err
+	}
+
+	if request.NotAppliedSegmentId > 0 {
+		queryDataActions, err := b.repository.GetListDataActions(ctx, &repository.GetListDataActionsParams{
+			ActionTypes: []string{string(model.ActionType_ApplyPredictModel)},
+			AccountUuid: uuid.MustParse(accountUuid),
+			TargetTable: model.TargetTable_Segment,
+			ObjectId:    request.NotAppliedSegmentId,
+		})
+		if err != nil {
+			logger.Error(err, "cannot get list data actions")
+			return nil, err
+		}
+
+		excludedIds := make([]int64, 0, len(queryDataActions.DataActions))
+		for _, action := range queryDataActions.DataActions {
+			var config segment.ApplyPredictModelConfig
+			err = json.Unmarshal(action.Payload.RawMessage, &config)
+			if err != nil {
+				logger.Error(err, "cannot unmarshal data action payload")
+				return nil, err
+			}
+			excludedIds = append(excludedIds, config.PredictModelId)
+		}
+
+		var filteredPredictModels []model.PredictModel
+		for _, predictModel := range queryResult.PredictModels {
+			if !slices.Contains(excludedIds, predictModel.ID) {
+				filteredPredictModels = append(filteredPredictModels, predictModel)
+			}
+		}
+
+		queryResult.PredictModels = filteredPredictModels
+		queryResult.Count = int64(len(filteredPredictModels))
 	}
 
 	return &api.GetListPredictModelsResponse{
@@ -178,4 +219,36 @@ func (b business) ProcessGetPredictModelDetail(ctx context.Context, request *api
 		TrainAttributes: trainConfiguration.SelectedAttributes,
 		Status:          string(predictModel.Status),
 	}, nil
+}
+
+func (b business) SyncOnTrainPredictModel(ctx context.Context, dataActionId int64) error {
+	logger := b.log.WithName("SyncOnCreatePredictModel").WithValues("dataActionId", dataActionId)
+
+	dataAction, err := b.repository.GetDataAction(ctx, dataActionId)
+	if err != nil {
+		logger.Error(err, "cannot get data action")
+		return err
+	}
+	switch dataAction.Status {
+	case model.DataActionStatus_Success:
+		err = b.repository.PredictModelRepository.UpdatePredictModel(ctx, &repository.UpdatePredictModelParams{
+			Id:     dataAction.ObjectId,
+			Status: model.PredictModelStatus_OK,
+		})
+		if err != nil {
+			logger.Error(err, "cannot update predict model status")
+			return err
+		}
+	case model.DataActionStatus_Failed:
+		err = b.repository.PredictModelRepository.UpdatePredictModel(ctx, &repository.UpdatePredictModelParams{
+			Id:     dataAction.ObjectId,
+			Status: model.PredictModelStatus_FAILED,
+		})
+		if err != nil {
+			logger.Error(err, "cannot update predict model status")
+			return err
+		}
+	}
+
+	return nil
 }

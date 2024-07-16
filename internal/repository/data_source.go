@@ -78,6 +78,7 @@ type UpdateDataSourceParams struct {
 	Configurations pqtype.NullRawMessage
 	MappingOptions pqtype.NullRawMessage
 	AccountUuid    uuid.UUID
+	Status         model.DataSourceStatus
 }
 
 func (r *dataSourceRepo) UpdateDataSource(ctx context.Context, params *UpdateDataSourceParams) error {

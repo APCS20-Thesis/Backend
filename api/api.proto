@@ -195,7 +195,8 @@ service CDPService {
 
   rpc GetListDataActions(GetListDataActionsRequest) returns (GetListDataActionsResponse) {
     option (google.api.http) = {
-      get: "/api/v1/data-actions"
+      post: "/api/v1/data-actions"
+      body: "*"
     };
   }
 
@@ -240,6 +241,26 @@ service CDPService {
   rpc GetMasterSegmentProfiles(GetMasterSegmentProfilesRequest) returns (GetMasterSegmentProfilesResponse) {
     option (google.api.http) = {
       get: "/api/v1/master-segment/{id}/profiles"
+    };
+  }
+
+  rpc ApplyPredictModel(ApplyPredictModelRequest) returns (ApplyPredictModelResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/predict-model/apply"
+      body: "*"
+    };
+  }
+
+  rpc GetListPredictionActions(GetListPredictionActionsRequest) returns (GetListPredictionActionsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/segment/{id}/predictions"
+    };
+  }
+
+  rpc TriggerDataActionRun(TriggerDataActionRunRequest) returns (TriggerDataActionRunResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/data-actions/{id}/run"
+      body: "*"
     };
   }
 }
@@ -407,10 +428,12 @@ message GetListDataSourcesRequest {
 message GetListDataSourcesResponse {
   // code
   int32 code = 1;
+  // message
+  string message = 2;
   // count
-  int64 count = 2;
+  int64 count = 3;
   // results list
-  repeated DataSource results = 3;
+  repeated DataSource results = 4;
 
   message DataSource {
     // id
@@ -925,14 +948,6 @@ message GetSegmentDetailResponse {
   Rule condition = 10;
   // schema
   repeated SchemaColumn schema = 11;
-
-  message Rule {
-    string field = 1;
-    string operator = 2;
-    string value = 3;
-    repeated Rule rules = 4;
-    string combinator = 5;
-  }
 }
 
 message CreateGophishUserGroupFromSegmentRequest {
@@ -1020,6 +1035,12 @@ message GetListDataActionsRequest {
   int32 page = 1;
   // page_size
   int32 page_size = 2;
+  // type
+  repeated string types = 3;
+  // target_table
+  string target_table = 4;
+  // object_id
+  int64 object_id = 5;
 }
 
 message GetListDataActionsResponse {
@@ -1056,6 +1077,10 @@ message GetListPredictModelsRequest {
   int32 page_size = 2;
   // master_segment_id
   int64 master_segment_id = 3 [(validate.rules).int64.gt = 0];
+  // status
+  repeated string statuses = 4;
+  // not_applied_segment_id
+  int64 not_applied_segment_id = 5;
 }
 
 message GetListPredictModelsResponse {
@@ -1178,4 +1203,65 @@ message GetMasterSegmentProfilesResponse {
   int64 count = 3;
   // results list
   repeated string results = 4;
+}
+
+message ApplyPredictModelRequest {
+  // predict_model_id - Id of chosen predict model
+  int64 predict_model_id = 1;
+  // segment_id - Id of predict segment
+  int64 segment_id = 2;
+}
+
+message ApplyPredictModelResponse {
+  // code
+  int32 code = 1;
+  // message
+  string message = 2;
+}
+
+message GetListPredictionActionsRequest {
+  // id - Segment Id
+  int64 id = 1;
+  // page
+  int32 page = 2;
+  // page_size
+  int32 page_size = 3;
+}
+
+message GetListPredictionActionsResponse {
+  // code
+  int32 code = 1;
+  // message
+  string message = 2;
+  //
+  int64 count = 3;
+  //
+  repeated PredictionAction results = 4;
+
+  message PredictionAction {
+    // id - Id of data action
+    int64 id = 1;
+    // model_id - Id of predict model
+    int64 model_id = 2;
+    // model_name - Name of predict model
+    string model_name = 3;
+    // status - Status of data action
+    string status = 4;
+    // created_at - Created timestamp of data action
+    string created_at = 5;
+    // updated_at - Last updated timestamp of data action
+    string updated_at = 6;
+  }
+}
+
+message TriggerDataActionRunRequest {
+  // id - Data Action id
+  int64 id = 1;
+}
+
+message TriggerDataActionRunResponse {
+  // code
+  int32 code = 1;
+  // message
+  string message = 2;
 }
