@@ -249,7 +249,6 @@ message BehaviorCondition {
 
 message Rule {
   string field = 1;
-  google.protobuf.StringValue field = 1;
   string operator = 2;
   string value = 3;
   repeated Rule rules = 4;

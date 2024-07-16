@@ -13,7 +13,6 @@ type PredictModelRepository interface {
 	ListPredictModels(ctx context.Context, params *ListPredictModelsParams) (*ListPredictModelsResult, error)
 	GetPredictModel(ctx context.Context, id int64) (*model.PredictModel, error)
 	UpdatePredictModel(ctx context.Context, params *UpdatePredictModelParams) error
-	UpdatePredictModel(ctx context.Context, params *UpdatePredictModelParams) error
 }
 
 type predictModelRepo struct {

@@ -33,17 +33,14 @@ type business struct {
 	repository     *repository.Repository
 	airflowAdapter airflow.AirflowAdapter
 	queryAdapter   query.QueryAdapter
-	queryAdapter   query.QueryAdapter
 }
 
-func NewSegmentBusiness(db *gorm.DB, log logr.Logger, repository *repository.Repository, airflowAdapter airflow.AirflowAdapter, queryAdapter query.QueryAdapter) Business {
 func NewSegmentBusiness(db *gorm.DB, log logr.Logger, repository *repository.Repository, airflowAdapter airflow.AirflowAdapter, queryAdapter query.QueryAdapter) Business {
 	return &business{
 		db:             db,
 		log:            log.WithName("SegmentBiz"),
 		repository:     repository,
 		airflowAdapter: airflowAdapter,
-		queryAdapter:   queryAdapter,
 		queryAdapter:   queryAdapter,
 	}
 }

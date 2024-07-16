@@ -168,7 +168,7 @@ func (b business) GetSegmentDetail(ctx context.Context, request *api.GetSegmentD
 		return nil, err
 	}
 
-	var condition api.GetSegmentDetailResponse_Rule
+	var condition api.Rule
 	err = json.Unmarshal(segment.Condition.RawMessage, &condition)
 	if err != nil {
 		logger.Error(err, "cannot unmarshal condition")
