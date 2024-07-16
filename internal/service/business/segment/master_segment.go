@@ -220,7 +220,6 @@ func (b business) SyncOnCreateMasterSegment(ctx context.Context, masterSegmentId
 	} else if actionStatus != model.DataActionStatus_Success {
 		return nil
 	}
-
 	audienceTable, err := b.repository.SegmentRepository.GetAudienceTable(ctx, repository.GetAudienceTableParams{MasterSegmentId: masterSegmentId})
 	if err != nil {
 		b.log.WithName("SyncOnCreateMasterSegment").Error(err, "cannot get audience table", "masterSegmentId", masterSegmentId)
@@ -250,12 +249,17 @@ func (b business) SyncOnCreateMasterSegment(ctx context.Context, masterSegmentId
 		b.log.WithName("SyncOnCreateMasterSegment").Error(err, "cannot parse schema")
 		return err
 	}
+
+	tx := b.db.Begin()
+
 	err = b.repository.SegmentRepository.UpdateAudienceTable(ctx, &repository.UpdateAudienceTableParams{
+		Tx:     tx,
 		Id:     audienceTable.ID,
 		Schema: pqtype.NullRawMessage{RawMessage: jsonSchema, Valid: jsonSchema != nil},
 	})
 	if err != nil {
 		b.log.WithName("SyncOnCreateMasterSegment").Error(err, "cannot update audience table", "id", audienceTable.ID)
+		tx.Rollback()
 		return err
 	}
 	// Sync behavior schemas
@@ -279,22 +283,27 @@ func (b business) SyncOnCreateMasterSegment(ctx context.Context, masterSegmentId
 			return err
 		}
 		err = b.repository.SegmentRepository.UpdateBehaviorTable(ctx, &repository.UpdateBehaviorTableParams{
+			Tx:     tx,
 			Id:     behaviorTable.ID,
 			Schema: pqtype.NullRawMessage{RawMessage: jsonSchema, Valid: jsonSchema != nil},
 		})
 		if err != nil {
 			b.log.WithName("SyncOnCreateMasterSegment").Error(err, "cannot update behavior table", "id", behaviorTable.ID)
+			tx.Rollback()
 			return err
 		}
 	}
 	err = b.repository.SegmentRepository.UpdateMasterSegment(ctx, &repository.UpdateMasterSegmentParams{
+		Tx:     tx,
 		Id:     masterSegmentId,
 		Status: model.MasterSegmentStatus_UP_TO_DATE,
 	})
 	if err != nil {
 		b.log.WithName("SyncOnCreateMasterSegment").Error(err, "cannot update master segment status", "masterSegmentId", masterSegmentId)
+		tx.Rollback()
 		return err
 	}
 
+	tx.Commit()
 	return nil
 }

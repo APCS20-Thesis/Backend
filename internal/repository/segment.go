@@ -169,6 +169,7 @@ func (r *segmentRepo) ListMasterSegments(ctx context.Context, params *ListMaster
 }
 
 type UpdateMasterSegmentParams struct {
+	Tx     *gorm.DB
 	Id     int64
 	Status model.MasterSegmentStatus
 }
@@ -178,7 +179,12 @@ func (r *segmentRepo) UpdateMasterSegment(ctx context.Context, params *UpdateMas
 		ID:     params.Id,
 		Status: params.Status,
 	}
-	updateErr := r.WithContext(ctx).Table(r.MasterSegmentTableName).Where("id = ?", params.Id).Updates(&masterSegment).Error
+	var updateErr error
+	if params.Tx != nil {
+		updateErr = params.Tx.WithContext(ctx).Table(r.MasterSegmentTableName).Where("id = ?", params.Id).Updates(&masterSegment).Error
+	} else {
+		updateErr = r.WithContext(ctx).Table(r.MasterSegmentTableName).Where("id = ?", params.Id).Updates(&masterSegment).Error
+	}
 	if updateErr != nil {
 		return updateErr
 	}
@@ -202,6 +208,7 @@ func (r *segmentRepo) ListBehaviorTables(ctx context.Context, params ListBehavio
 }
 
 type UpdateBehaviorTableParams struct {
+	Tx     *gorm.DB
 	Id     int64
 	Schema pqtype.NullRawMessage
 }
@@ -211,7 +218,12 @@ func (r *segmentRepo) UpdateBehaviorTable(ctx context.Context, params *UpdateBeh
 		ID:     params.Id,
 		Schema: params.Schema,
 	}
-	updateErr := r.WithContext(ctx).Table(r.AudienceTableName).Where("id = ?", params.Id).Updates(&behaviorTable).Error
+	var updateErr error
+	if params.Tx != nil {
+		updateErr = params.Tx.WithContext(ctx).Table(r.AudienceTableName).Where("id = ?", params.Id).Updates(&behaviorTable).Error
+	} else {
+		updateErr = r.WithContext(ctx).Table(r.AudienceTableName).Where("id = ?", params.Id).Updates(&behaviorTable).Error
+	}
 	if updateErr != nil {
 		return updateErr
 	}
@@ -235,6 +247,7 @@ func (r *segmentRepo) GetAudienceTable(ctx context.Context, params GetAudienceTa
 }
 
 type UpdateAudienceTableParams struct {
+	Tx     *gorm.DB
 	Id     int64
 	Schema pqtype.NullRawMessage
 }
@@ -244,7 +257,12 @@ func (r *segmentRepo) UpdateAudienceTable(ctx context.Context, params *UpdateAud
 		ID:     params.Id,
 		Schema: params.Schema,
 	}
-	updateErr := r.WithContext(ctx).Table(r.AudienceTableName).Where("id = ?", params.Id).Updates(&audienceTable).Error
+	var updateErr error
+	if params.Tx != nil {
+		updateErr = params.Tx.WithContext(ctx).Table(r.AudienceTableName).Where("id = ?", params.Id).Updates(&audienceTable).Error
+	} else {
+		updateErr = r.WithContext(ctx).Table(r.AudienceTableName).Where("id = ?", params.Id).Updates(&audienceTable).Error
+	}
 	if updateErr != nil {
 		return updateErr
 	}
