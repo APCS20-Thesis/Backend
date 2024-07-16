@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"github.com/APCS20-Thesis/Backend/internal/model"
+	"github.com/google/uuid"
 	"strconv"
 	"strings"
 	"time"
@@ -85,6 +86,8 @@ func GenerateDagId(accountUuid string, dataActionType model.ActionType) string {
 		prefix = "create_segment"
 	case model.ActionType_TrainPredictModel:
 		prefix = "train_predict_model"
+	case model.ActionType_ApplyPredictModel:
+		prefix = "apply_predict_model"
 	default:
 		return ""
 	}
@@ -102,4 +105,9 @@ func GenerateDeltaPredictModelFilePath(masterSegmentId int64, predictModelId int
 func GetMqttNotificationTopic(accountUuid string) string {
 	path := strings.Replace(MqttTopic_Notification, Common_AccountUuid, accountUuid[:23], 1)
 	return path
+}
+
+func GenerateDeltaPredictResult(masterSegmentId int64) string {
+	version := uuid.New()
+	return fmt.Sprintf("segments/%d/predict-output/%s", masterSegmentId, version)
 }

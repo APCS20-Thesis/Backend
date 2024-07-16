@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+
 	"github.com/APCS20-Thesis/Backend/internal/model"
 	"github.com/sqlc-dev/pqtype"
 	"gorm.io/gorm"
@@ -58,6 +59,8 @@ type ListPredictModelsParams struct {
 	Page            int
 	PageSize        int
 	MasterSegmentId int64
+	Statuses        []model.PredictModelStatus
+	Ids             []int64
 }
 
 type ListPredictModelsResult struct {
@@ -71,7 +74,16 @@ func (r *predictModelRepo) ListPredictModels(ctx context.Context, params *ListPr
 		count  int64
 	)
 
-	query := r.WithContext(ctx).Table(r.TableName).Where("master_segment_id = ?", params.MasterSegmentId)
+	query := r.WithContext(ctx).Table(r.TableName)
+	if params.MasterSegmentId > 0 {
+		query.Where("master_segment_id = ?", params.MasterSegmentId)
+	}
+	if len(params.Statuses) != 0 {
+		query.Where("status IN ?", params.Statuses)
+	}
+	if len(params.Ids) > 0 {
+		query.Where("id IN ?", params.Ids)
+	}
 	err := query.Count(&count).Scopes(Paginate(params.Page, params.PageSize)).Find(&models).Error
 	if err != nil {
 		return nil, err
@@ -95,23 +107,24 @@ func (r *predictModelRepo) GetPredictModel(ctx context.Context, id int64) (*mode
 }
 
 type UpdatePredictModelParams struct {
-	Id                  int64
-	Name                string
-	Status              model.PredictModelStatus
-	TrainConfigurations pqtype.NullRawMessage
+	Tx     *gorm.DB
+	Id     int64
+	Status model.PredictModelStatus
 }
 
 func (r *predictModelRepo) UpdatePredictModel(ctx context.Context, params *UpdatePredictModelParams) error {
 	predictModel := model.PredictModel{
-		ID:                  params.Id,
-		Name:                params.Name,
-		TrainConfigurations: params.TrainConfigurations,
-		Status:              params.Status,
+		ID:     params.Id,
+		Status: params.Status,
 	}
-	err := r.WithContext(ctx).Table(r.TableName).Updates(&predictModel).Error
-	if err != nil {
-		return err
+	var updateErr error
+	if params.Tx != nil {
+		updateErr = params.Tx.WithContext(ctx).Table(r.TableName).Where("id = ?", params.Id).Updates(&predictModel).Error
+	} else {
+		updateErr = r.WithContext(ctx).Table(r.TableName).Where("id = ?", params.Id).Updates(&predictModel).Error
 	}
-
+	if updateErr != nil {
+		return updateErr
+	}
 	return nil
 }

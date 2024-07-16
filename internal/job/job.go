@@ -7,6 +7,7 @@ import (
 	"github.com/APCS20-Thesis/Backend/internal/adapter/mqtt"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/query"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
+	"github.com/APCS20-Thesis/Backend/internal/service/business"
 	"github.com/go-logr/logr"
 	"github.com/robfig/cron/v3"
 	"gorm.io/gorm"
@@ -30,6 +31,7 @@ type job struct {
 	db             *gorm.DB
 	queryAdapter   query.QueryAdapter
 	mqttAdapter    mqtt.MqttAdapter
+	business       *business.Business
 }
 
 func NewJob(config *config.Config, logger logr.Logger, db *gorm.DB, mqttAdapter mqtt.MqttAdapter) (Job, error) {
@@ -46,6 +48,9 @@ func NewJob(config *config.Config, logger logr.Logger, db *gorm.DB, mqttAdapter 
 	// cron
 	cronJob := cron.New(cron.WithLogger(logger))
 
+	// business
+	biz := business.NewBusiness(logger, db, airflowAdapter, config, queryAdapter, nil)
+
 	return &job{
 		cronJob:        cronJob,
 		config:         config,
@@ -55,6 +60,7 @@ func NewJob(config *config.Config, logger logr.Logger, db *gorm.DB, mqttAdapter 
 		db:             db,
 		queryAdapter:   queryAdapter,
 		mqttAdapter:    mqttAdapter,
+		business:       biz,
 	}, nil
 }
 

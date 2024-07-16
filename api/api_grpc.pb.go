@@ -56,6 +56,9 @@ const (
 	CDPService_GetPredictModelDetail_FullMethodName             = "/api.CDPService/GetPredictModelDetail"
 	CDPService_GetMySQLTableSchema_FullMethodName               = "/api.CDPService/GetMySQLTableSchema"
 	CDPService_GetMasterSegmentProfiles_FullMethodName          = "/api.CDPService/GetMasterSegmentProfiles"
+	CDPService_ApplyPredictModel_FullMethodName                 = "/api.CDPService/ApplyPredictModel"
+	CDPService_GetListPredictionActions_FullMethodName          = "/api.CDPService/GetListPredictionActions"
+	CDPService_TriggerDataActionRun_FullMethodName              = "/api.CDPService/TriggerDataActionRun"
 )
 
 // CDPServiceClient is the client API for CDPService service.
@@ -99,6 +102,9 @@ type CDPServiceClient interface {
 	GetPredictModelDetail(ctx context.Context, in *GetPredictModelDetailRequest, opts ...grpc.CallOption) (*GetPredictModelDetailResponse, error)
 	GetMySQLTableSchema(ctx context.Context, in *GetMySQLTableSchemaRequest, opts ...grpc.CallOption) (*GetMySQLTableSchemaResponse, error)
 	GetMasterSegmentProfiles(ctx context.Context, in *GetMasterSegmentProfilesRequest, opts ...grpc.CallOption) (*GetMasterSegmentProfilesResponse, error)
+	ApplyPredictModel(ctx context.Context, in *ApplyPredictModelRequest, opts ...grpc.CallOption) (*ApplyPredictModelResponse, error)
+	GetListPredictionActions(ctx context.Context, in *GetListPredictionActionsRequest, opts ...grpc.CallOption) (*GetListPredictionActionsResponse, error)
+	TriggerDataActionRun(ctx context.Context, in *TriggerDataActionRunRequest, opts ...grpc.CallOption) (*TriggerDataActionRunResponse, error)
 }
 
 type cDPServiceClient struct {
@@ -442,6 +448,33 @@ func (c *cDPServiceClient) GetMasterSegmentProfiles(ctx context.Context, in *Get
 	return out, nil
 }
 
+func (c *cDPServiceClient) ApplyPredictModel(ctx context.Context, in *ApplyPredictModelRequest, opts ...grpc.CallOption) (*ApplyPredictModelResponse, error) {
+	out := new(ApplyPredictModelResponse)
+	err := c.cc.Invoke(ctx, CDPService_ApplyPredictModel_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cDPServiceClient) GetListPredictionActions(ctx context.Context, in *GetListPredictionActionsRequest, opts ...grpc.CallOption) (*GetListPredictionActionsResponse, error) {
+	out := new(GetListPredictionActionsResponse)
+	err := c.cc.Invoke(ctx, CDPService_GetListPredictionActions_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cDPServiceClient) TriggerDataActionRun(ctx context.Context, in *TriggerDataActionRunRequest, opts ...grpc.CallOption) (*TriggerDataActionRunResponse, error) {
+	out := new(TriggerDataActionRunResponse)
+	err := c.cc.Invoke(ctx, CDPService_TriggerDataActionRun_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CDPServiceServer is the server API for CDPService service.
 // All implementations must embed UnimplementedCDPServiceServer
 // for forward compatibility
@@ -483,6 +516,9 @@ type CDPServiceServer interface {
 	GetPredictModelDetail(context.Context, *GetPredictModelDetailRequest) (*GetPredictModelDetailResponse, error)
 	GetMySQLTableSchema(context.Context, *GetMySQLTableSchemaRequest) (*GetMySQLTableSchemaResponse, error)
 	GetMasterSegmentProfiles(context.Context, *GetMasterSegmentProfilesRequest) (*GetMasterSegmentProfilesResponse, error)
+	ApplyPredictModel(context.Context, *ApplyPredictModelRequest) (*ApplyPredictModelResponse, error)
+	GetListPredictionActions(context.Context, *GetListPredictionActionsRequest) (*GetListPredictionActionsResponse, error)
+	TriggerDataActionRun(context.Context, *TriggerDataActionRunRequest) (*TriggerDataActionRunResponse, error)
 	mustEmbedUnimplementedCDPServiceServer()
 }
 
@@ -600,6 +636,15 @@ func (UnimplementedCDPServiceServer) GetMySQLTableSchema(context.Context, *GetMy
 }
 func (UnimplementedCDPServiceServer) GetMasterSegmentProfiles(context.Context, *GetMasterSegmentProfilesRequest) (*GetMasterSegmentProfilesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMasterSegmentProfiles not implemented")
+}
+func (UnimplementedCDPServiceServer) ApplyPredictModel(context.Context, *ApplyPredictModelRequest) (*ApplyPredictModelResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ApplyPredictModel not implemented")
+}
+func (UnimplementedCDPServiceServer) GetListPredictionActions(context.Context, *GetListPredictionActionsRequest) (*GetListPredictionActionsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetListPredictionActions not implemented")
+}
+func (UnimplementedCDPServiceServer) TriggerDataActionRun(context.Context, *TriggerDataActionRunRequest) (*TriggerDataActionRunResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TriggerDataActionRun not implemented")
 }
 func (UnimplementedCDPServiceServer) mustEmbedUnimplementedCDPServiceServer() {}
 
@@ -1280,6 +1325,60 @@ func _CDPService_GetMasterSegmentProfiles_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CDPService_ApplyPredictModel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ApplyPredictModelRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDPServiceServer).ApplyPredictModel(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CDPService_ApplyPredictModel_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDPServiceServer).ApplyPredictModel(ctx, req.(*ApplyPredictModelRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CDPService_GetListPredictionActions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetListPredictionActionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDPServiceServer).GetListPredictionActions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CDPService_GetListPredictionActions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDPServiceServer).GetListPredictionActions(ctx, req.(*GetListPredictionActionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CDPService_TriggerDataActionRun_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TriggerDataActionRunRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDPServiceServer).TriggerDataActionRun(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CDPService_TriggerDataActionRun_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDPServiceServer).TriggerDataActionRun(ctx, req.(*TriggerDataActionRunRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CDPService_ServiceDesc is the grpc.ServiceDesc for CDPService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1434,6 +1533,18 @@ var CDPService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetMasterSegmentProfiles",
 			Handler:    _CDPService_GetMasterSegmentProfiles_Handler,
+		},
+		{
+			MethodName: "ApplyPredictModel",
+			Handler:    _CDPService_ApplyPredictModel_Handler,
+		},
+		{
+			MethodName: "GetListPredictionActions",
+			Handler:    _CDPService_GetListPredictionActions_Handler,
+		},
+		{
+			MethodName: "TriggerDataActionRun",
+			Handler:    _CDPService_TriggerDataActionRun_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

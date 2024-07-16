@@ -17,6 +17,7 @@ const (
 	ActionType_CreateMasterSegment ActionType = "CREATE_MS_SEGMENT"
 	ActionType_CreateSegment       ActionType = "CREATE_SEGMENT"
 	ActionType_TrainPredictModel   ActionType = "TRAIN_PREDICT_MODEL"
+	ActionType_ApplyPredictModel   ActionType = "APPLY_PREDICT_MODEL"
 )
 
 type DataActionTargetTable string

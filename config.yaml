@@ -18,7 +18,7 @@ POSTGRESQL:
   DATABASE: cdp_service
 
 AIRFLOW_ADAPTER_CONFIG:
-  ADDRESS: https://c275-113-161-84-248.ngrok-free.app
+  ADDRESS: http://localhost:8080
   USERNAME: airflow
   PASSWORD: airflow
 

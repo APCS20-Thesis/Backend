@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+
 	"github.com/APCS20-Thesis/Backend/api"
 	"github.com/APCS20-Thesis/Backend/utils"
 	"golang.org/x/exp/slices"
@@ -166,4 +167,24 @@ func (s *Service) GetMasterSegmentProfiles(ctx context.Context, request *api.Get
 		Count:   count,
 		Results: res,
 	}, nil
+}
+
+func (s *Service) ApplyPredictModel(ctx context.Context, request *api.ApplyPredictModelRequest) (*api.ApplyPredictModelResponse, error) {
+	accountUuid, err := GetAccountUuidFromCtx(ctx)
+	if err != nil {
+		s.log.WithName("ApplyPredictModel").Error(err, "cannot get account uuid from context")
+		return nil, err
+	}
+
+	return s.business.SegmentBusiness.ProcessApplyPredictModel(ctx, request, accountUuid)
+}
+
+func (s *Service) GetListPredictionActions(ctx context.Context, request *api.GetListPredictionActionsRequest) (*api.GetListPredictionActionsResponse, error) {
+	accountUuid, err := GetAccountUuidFromCtx(ctx)
+	if err != nil {
+		s.log.WithName("GetListPredictionActions").Error(err, "cannot get account uuid from context")
+		return nil, err
+	}
+
+	return s.business.SegmentBusiness.ProcessGetListPredictionActions(ctx, request, accountUuid)
 }

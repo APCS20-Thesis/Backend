@@ -14,16 +14,16 @@ func (j *job) TriggerDagRuns(ctx context.Context) {
 	jobLog := j.logger.WithName("TriggerDagRun")
 
 	// get data action that are in status PENDING
-	dataActions, err := j.repository.DataActionRepository.GetListDataActions(ctx, &repository.GetListDataActionsParams{
+	queryDataActions, err := j.repository.DataActionRepository.GetListDataActions(ctx, &repository.GetListDataActionsParams{
 		Statuses: []model.DataActionStatus{model.DataActionStatus_Pending},
 	})
 	if err != nil {
 		jobLog.Error(err, "fail to get list data actions")
 		return
 	}
-	jobLog.Info("dataActions", "data", dataActions)
+	jobLog.Info("dataActions", "data", queryDataActions.DataActions)
 
-	for _, dataAction := range dataActions {
+	for _, dataAction := range queryDataActions.DataActions {
 
 		// - Gọi airflow update dag active
 		_, err = j.airflowAdapter.UpdateDag(ctx, dataAction.DagId, &airflow.UpdateDagRequest{IsPaused: false})
