@@ -24,6 +24,6 @@ func (Segment) TableName() string {
 }
 
 type SegmentBuildConditions struct {
-	AudienceCondition  *api.Rule
-	BehaviorConditions []*api.BehaviorCondition
+	AudienceCondition  *api.Rule                `json:"audience_condition"`
+	BehaviorConditions []*api.BehaviorCondition `json:"behavior_conditions"`
 }

@@ -168,12 +168,13 @@ func (b business) GetSegmentDetail(ctx context.Context, request *api.GetSegmentD
 		return nil, err
 	}
 
-	var condition api.Rule
+	var condition api.SegmentCondition
 	err = json.Unmarshal(segment.Condition.RawMessage, &condition)
 	if err != nil {
 		logger.Error(err, "cannot unmarshal condition")
 		return nil, err
 	}
+	condition.AudienceSqlCondition = segment.SqlCondition
 
 	audienceTable, err := b.repository.SegmentRepository.GetAudienceTable(ctx, repository.GetAudienceTableParams{MasterSegmentId: masterSegment.ID})
 	if err != nil {

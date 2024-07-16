@@ -945,9 +945,10 @@ message GetSegmentDetailResponse {
   // updated_at
   string updated_at = 9;
   // condition
-  Rule condition = 10;
+  SegmentCondition condition = 10;
   // schema
   repeated SchemaColumn schema = 11;
+
 }
 
 message CreateGophishUserGroupFromSegmentRequest {
