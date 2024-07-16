@@ -103,12 +103,12 @@ func (b business) CreateSegment(ctx context.Context, request *api.CreateSegmentR
 		tx.Rollback()
 		return err
 	}
-	//err = b.airflowAdapter.TriggerGenerateDagCreateSegment(ctx, payload)
-	//if err != nil {
-	//	logger.Error(err, "cannot trigger dag generate create segment")
-	//	tx.Rollback()
-	//	return err
-	//}
+	err = b.airflowAdapter.TriggerGenerateDagCreateSegment(ctx, payload)
+	if err != nil {
+		logger.Error(err, "cannot trigger dag generate create segment")
+		tx.Rollback()
+		return err
+	}
 
 	// 3. Save data action
 	_, err = b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
