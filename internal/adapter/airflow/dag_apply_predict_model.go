@@ -7,7 +7,7 @@ import (
 
 type (
 	TriggerGenerateDagApplyPredictModelRequest struct {
-		Conf DagTrainPredictModelConfig `json:"conf"`
+		Conf DagApplyPredictModelConfig `json:"conf"`
 	}
 
 	DagApplyPredictModelConfig struct {
@@ -26,7 +26,7 @@ func (c *airflow) TriggerGenerateDagApplyPredictModel(ctx context.Context, reque
 		Username: c.username,
 		Password: c.password,
 	}, utils.Request{
-		Endpoint: Endpoint_TROGGER_GENERATE_DAG_APPLY_PREDICT_MODEL,
+		Endpoint: Endpoint_TRIGGER_GENERATE_DAG_APPLY_PREDICT_MODEL,
 		Method:   utils.Method_POST,
 		Body:     request,
 		Headers:  map[string]string{utils.Header_CONTENT_TYPE: "application/json"},

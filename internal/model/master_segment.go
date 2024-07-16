@@ -11,6 +11,7 @@ const (
 	MasterSegmentStatus_DRAFT      MasterSegmentStatus = "DRAFT"
 	MasterSegmentStatus_UPDATING   MasterSegmentStatus = "UPDATING"
 	MasterSegmentStatus_UP_TO_DATE MasterSegmentStatus = "UP_TO_DATE"
+	MasterSegmentStatus_FAILED     MasterSegmentStatus = "FAILED"
 )
 
 type MasterSegment struct {

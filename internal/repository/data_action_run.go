@@ -25,6 +25,7 @@ func NewDataActionRunRepository(db *gorm.DB) DataActionRunRepository {
 }
 
 type CreateDataActionRunParams struct {
+	Tx          *gorm.DB
 	ActionId    int64
 	RunId       int64
 	DagRunId    string
@@ -40,9 +41,16 @@ func (r *dataActionRunRepo) CreateDataActionRun(ctx context.Context, params *Cre
 		AccountUuid: params.AccountUuid,
 		DagRunId:    params.DagRunId,
 	}
-	if err := r.WithContext(ctx).Table(r.TableName).Create(&dataActionRun).Error; err != nil {
-		return nil, err
+	var createErr error
+	if params.Tx != nil {
+		createErr = params.Tx.WithContext(ctx).Table(r.TableName).Create(&dataActionRun).Error
+	} else {
+		createErr = r.WithContext(ctx).Table(r.TableName).Create(&dataActionRun).Error
 	}
+	if createErr != nil {
+		return nil, createErr
+	}
+
 	return dataActionRun, nil
 }
 

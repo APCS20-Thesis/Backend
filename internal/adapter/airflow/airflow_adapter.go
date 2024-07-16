@@ -19,8 +19,8 @@ const (
 	Endpoint_TRIGGER_GENERATE_DAG_EXPORT_MYSQL          string = "/api/v1/dags/generate_export_mysql/dagRuns"
 	Endpoint_TRIGGER_GENERATE_DAG_CREATE_MASTER_SEGMENT string = "/api/v1/dags/generate_create_master_segment/dagRuns"
 	Endpoint_TRIGGER_GENERATE_DAG_CREATE_SEGMENT        string = "/api/v1/dags/generate_create_segment/dagRuns"
-	Endpoint_TROGGER_GENERATE_DAG_TRAIN_PREDICT_MODEL   string = "/api/v1/dags/generate_train_predict_model/dagRuns"
-	Endpoint_TROGGER_GENERATE_DAG_APPLY_PREDICT_MODEL   string = "/api/v1/dags/generate_apply_predict_model/dagRuns"
+	Endpoint_TRIGGER_GENERATE_DAG_TRAIN_PREDICT_MODEL   string = "/api/v1/dags/generate_train_predict_model/dagRuns"
+	Endpoint_TRIGGER_GENERATE_DAG_APPLY_PREDICT_MODEL   string = "/api/v1/dags/generate_apply_predict_model/dagRuns"
 
 	WriteMode_Append    DeltaWriteMode = "append"
 	WriteMode_Overwrite DeltaWriteMode = "overwrite"

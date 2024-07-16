@@ -14,7 +14,7 @@ const (
 
 	DataSourceStatus_Processing DataSourceStatus = "PROCESSING"
 	DataSourceStatus_Success    DataSourceStatus = "SUCCESS"
-	DataSourceStatus_Failed     DataActionStatus = "FAILED"
+	DataSourceStatus_Failed     DataSourceStatus = "FAILED"
 )
 
 type DataSource struct {
