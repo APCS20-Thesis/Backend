@@ -61,18 +61,8 @@ func (s *Service) GetListMasterSegments(ctx context.Context, request *api.GetLis
 		s.log.WithName("GetListMasterSegments").Error(err, "cannot get account uuid from context")
 		return nil, err
 	}
-
-	count, masterSegments, err := s.business.SegmentBusiness.ListMasterSegments(ctx, request, accountUuid)
-	if err != nil {
-		return nil, err
-	}
-
-	return &api.GetListMasterSegmentsResponse{
-		Code:    int32(codes.OK),
-		Message: "Success",
-		Count:   count,
-		Results: masterSegments,
-	}, nil
+	
+	return s.business.SegmentBusiness.ListMasterSegments(ctx, request, accountUuid)
 }
 
 func (s *Service) GetMasterSegmentDetail(ctx context.Context, request *api.GetMasterSegmentDetailRequest) (*api.GetMasterSegmentDetailResponse, error) {

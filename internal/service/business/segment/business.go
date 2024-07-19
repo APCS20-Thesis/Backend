@@ -13,7 +13,7 @@ import (
 
 type Business interface {
 	CreateMasterSegment(ctx context.Context, request *api.CreateMasterSegmentRequest, accountUuid string) error
-	ListMasterSegments(ctx context.Context, request *api.GetListMasterSegmentsRequest, accountUuid string) (int64, []*api.MasterSegment, error)
+	ListMasterSegments(ctx context.Context, request *api.GetListMasterSegmentsRequest, accountUuid string) (*api.GetListMasterSegmentsResponse, error)
 
 	CreateSegment(ctx context.Context, request *api.CreateSegmentRequest, accountUuid string) error
 	ListSegments(ctx context.Context, request *api.GetListSegmentsRequest, accountUuid string) ([]*api.Segment, error)

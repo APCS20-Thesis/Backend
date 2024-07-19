@@ -807,7 +807,16 @@ message CreateMasterSegmentResponse {
   string message = 2;
 }
 
-message GetListMasterSegmentsRequest {}
+message GetListMasterSegmentsRequest {
+  //name
+  string name = 1;
+  // status
+  string status = 2;
+  // page
+  int32 page = 3;
+  // page_size
+  int32 page_size = 4;
+}
 
 message GetListMasterSegmentsResponse {
   // code
