@@ -4,6 +4,7 @@ import (
 	"github.com/APCS20-Thesis/Backend/api"
 	"github.com/APCS20-Thesis/Backend/config"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/airflow"
+	"github.com/APCS20-Thesis/Backend/internal/adapter/alert"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/gophish"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/query"
 	"github.com/APCS20-Thesis/Backend/internal/service/business"
@@ -12,10 +13,11 @@ import (
 )
 
 type Service struct {
-	log        logr.Logger
-	config     *config.Config
-	jwtManager *JWTManager
-	s3Manger   *S3Manager
+	log          logr.Logger
+	config       *config.Config
+	jwtManager   *JWTManager
+	s3Manger     *S3Manager
+	alertAdapter alert.AlertAdapter
 	//// more connector here
 	//store  store.StoreQuerier
 
@@ -39,6 +41,10 @@ func NewService(logger logr.Logger, config *config.Config, gormDb *gorm.DB, jwtM
 	if err != nil {
 		return nil, err
 	}
+	alertAdapter, err := alert.NewAlertAdapter(logger, config.AlertAdapterConfig.Webhook)
+	if err != nil {
+		return nil, err
+	}
 
 	business := business.NewBusiness(logger, gormDb, airflowAdapter, config, queryAdapter, gophishAdapter)
 
@@ -48,10 +54,11 @@ func NewService(logger logr.Logger, config *config.Config, gormDb *gorm.DB, jwtM
 		config.S3StorageConfig.SecretAccessKey,
 	)
 	return &Service{
-		log:        logger,
-		config:     config,
-		jwtManager: jwtManager,
-		s3Manger:   s3Manager,
-		business:   business,
+		log:          logger,
+		config:       config,
+		jwtManager:   jwtManager,
+		s3Manger:     s3Manager,
+		business:     business,
+		alertAdapter: alertAdapter,
 	}, nil
 }

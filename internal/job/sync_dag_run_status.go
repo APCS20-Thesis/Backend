@@ -2,6 +2,7 @@ package job
 
 import (
 	"context"
+	"github.com/APCS20-Thesis/Backend/internal/adapter/alert"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/mqtt"
 	"github.com/APCS20-Thesis/Backend/internal/model"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
@@ -66,12 +67,24 @@ func (j *job) SyncDagRunStatus(ctx context.Context) {
 		}
 		if err != nil {
 			jobLog.Error(err, "cannot get dag run from airflow", "dagId", dataActionRun.DagId, "dagRunId", dataActionRun.DagRunId)
+			if j.config.AlertAdapterConfig.EnableAlert {
+				_ = j.alertAdapter.AlertError(ctx, &alert.ErrorMessage{
+					Title:        "Job error",
+					Description:  "There is error in job sync dag run status",
+					Request:      syncStatusInfo{DataActionRunId: dataActionRun.ID},
+					ErrorMessage: err.Error(),
+				})
+			}
 			continue
 		}
 
 	}
 
 	return
+}
+
+type syncStatusInfo struct {
+	DataActionRunId int64 `json:"data_action_run_id"`
 }
 
 func (j *job) SyncRelatedStatusFromDataActionRunStatus(ctx context.Context, dataActionId int64) {
@@ -88,18 +101,55 @@ func (j *job) SyncRelatedStatusFromDataActionRunStatus(ctx context.Context, data
 			err = j.business.DataSourceBusiness.SynOnImportFromSourceFailed(ctx, dataActionId)
 		}
 		if err != nil {
+			if j.config.AlertAdapterConfig.EnableAlert {
+				_ = j.alertAdapter.AlertError(ctx, &alert.ErrorMessage{
+					Title:        "Job error",
+					Description:  "There is error in job sync dag run status",
+					Request:      syncStatusInfo{DataActionRunId: dataActionId},
+					ErrorMessage: err.Error(),
+				})
+			}
 			return
 		}
 	case model.ActionType_CreateMasterSegment:
 		err = j.business.SegmentBusiness.SyncOnCreateMasterSegment(ctx, dataAction.ObjectId, dataAction.Status)
 		if err != nil {
+			if j.config.AlertAdapterConfig.EnableAlert {
+				_ = j.alertAdapter.AlertError(ctx, &alert.ErrorMessage{
+					Title:        "Job error",
+					Description:  "There is error in job sync dag run status",
+					Request:      syncStatusInfo{DataActionRunId: dataActionId},
+					ErrorMessage: err.Error(),
+				})
+			}
 			return
 		}
 	case model.ActionType_TrainPredictModel:
 		err = j.business.PredictModelBusiness.SyncOnTrainPredictModel(ctx, dataActionId)
 		if err != nil {
+			if j.config.AlertAdapterConfig.EnableAlert {
+				_ = j.alertAdapter.AlertError(ctx, &alert.ErrorMessage{
+					Title:        "Job error",
+					Description:  "There is error in job sync dag run status",
+					Request:      syncStatusInfo{DataActionRunId: dataActionId},
+					ErrorMessage: err.Error(),
+				})
+			}
 			return
 		}
+	case model.ActionType_CreateSegment:
+		var status string
+		switch dataAction.Status {
+		case model.DataActionStatus_Success:
+			status = "UP_TO_DATE"
+		case model.DataActionStatus_Failed:
+			status = "FAILED"
+		}
+		err = j.repository.SegmentRepository.UpdateSegment(ctx, &repository.UpdateSegmentParams{
+			Tx:     nil,
+			Id:     dataAction.ObjectId,
+			Status: status,
+		})
 	default:
 	}
 

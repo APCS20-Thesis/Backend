@@ -38,6 +38,7 @@ func NewBusiness(
 	config *config.Config,
 	queryAdapter query.QueryAdapter,
 	gophishAdapter gophish.GophishAdapter,
+	// alertAdapter alert.AlertAdapter,
 ) *Business {
 	repo := repository.NewRepository(db)
 	return &Business{

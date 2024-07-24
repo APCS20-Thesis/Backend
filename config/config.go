@@ -11,6 +11,7 @@ type Config struct {
 	AirflowAdapterConfig AirflowConfig `json:"airflow_adapter_config" mapstructure:"airflow_adapter_config"`
 	QueryAdapterConfig   QueryConfig   `json:"query_adapter_config" mapstructure:"query_adapter_config"`
 	MqttAdapterConfig    MqttConfig    `json:"mqtt_adapter_config" mapstructure:"mqtt_adapter_config"`
+	AlertAdapterConfig   AlertConfig   `json:"alert_adapter_config" mapstructure:"alert_adapter_config"`
 }
 
 type Base struct {
@@ -54,6 +55,7 @@ func loadDefaultConfig() *Config {
 			Username: "apcs-thesis-cdp",
 			Password: "secret",
 		},
+		AlertAdapterConfig: AlertConfig{},
 	}
 	return c
 }

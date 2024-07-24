@@ -21,7 +21,7 @@ func (b business) ProcessImportCsv(ctx context.Context, request *api.ImportCsvRe
 		SecretAccessKey: b.config.S3StorageConfig.SecretAccessKey,
 		BucketName:      constants.S3BucketName,
 		Region:          b.config.S3StorageConfig.Region,
-		Key:             "data/" + accountUuid + "/" + dateTime + "_" + request.GetFileName(),
+		Key:             "data/files/" + accountUuid + "/" + dateTime + "_" + request.GetFileName(),
 	}
 	actionType := model.ActionType_ImportDataFromFile
 

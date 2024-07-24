@@ -52,6 +52,7 @@ func (b business) GetListDataTables(ctx context.Context, request *api.GetListDat
 			AccountUuid: accountUuid,
 			Page:        int(request.Page),
 			PageSize:    int(request.PageSize),
+			Statuses:    utils.Map(request.Statuses, func(status string) model.DataTableStatus { return model.DataTableStatus(status) }),
 		})
 	if err != nil {
 		logger.Error(err, "Cannot get list data_Tables")

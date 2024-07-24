@@ -136,6 +136,7 @@ func (b business) ListSegments(ctx context.Context, request *api.GetListSegments
 	segments, err := b.repository.SegmentRepository.ListSegments(ctx, &repository.ListSegmentFilter{
 		AccountUuid:      accountUuid,
 		MasterSegmentIds: request.MasterSegmentIds,
+		Statuses:         request.Statuses,
 	})
 	if err != nil {
 		b.log.WithName("ListSegments").Error(err, "cannot get list segments")
@@ -150,6 +151,7 @@ func (b business) ListSegments(ctx context.Context, request *api.GetListSegments
 			MasterSegmentName: segment.MasterSegmentName,
 			CreatedAt:         segment.CreatedAt.String(),
 			UpdatedAt:         segment.UpdatedAt.String(),
+			Status:            segment.Status,
 		}
 	}), nil
 }
