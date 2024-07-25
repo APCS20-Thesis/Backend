@@ -122,7 +122,6 @@ type GetListDataActionsResult struct {
 }
 
 func (r *dataActionRepo) GetListDataActions(ctx context.Context, params *GetListDataActionsParams) (*GetListDataActionsResult, error) {
-	r.Logger.Info(ctx, "GetListDataActions", params)
 	var count int64
 
 	query := r.WithContext(ctx).Table(r.TableName)

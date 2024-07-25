@@ -10,7 +10,7 @@ import (
 )
 
 type Business interface {
-	ProcessGetListDataActions(ctx context.Context, request *api.GetListDataActionsRequest, accountUuid string) (*api.GetListDataActionsResponse, error)
+	ProcessGetListDataActionRuns(ctx context.Context, request *api.GetListDataActionRunsRequest, accountUuid string) (*api.GetListDataActionRunsResponse, error)
 	ProcessNewDataActionRun(ctx context.Context, request *api.TriggerDataActionRunRequest, accountUuid string) error
 }
 

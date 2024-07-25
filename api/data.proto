@@ -261,12 +261,19 @@ message Rule {
   string combinator = 5;
 }
 
-message DataAction {
+message DataActionRun {
+  // id
   int64 id = 1;
-  string action_type = 2;
-  string status = 3;
-  string created_at = 4;
-  string updated_at = 5;
+  // action_id
+  int64 action_id = 2;
+  // action_type
+  string action_type = 3;
+  // status
+  string status = 4;
+  // created_at
+  string created_at = 5;
+  // updated_at
+  string updated_at = 6;
 }
 
 message PredictModel {

@@ -22,7 +22,8 @@ type Business interface {
 	ProcessGetListPredictionActions(ctx context.Context, request *api.GetListPredictionActionsRequest, accountUuid string) (*api.GetListPredictionActionsResponse, error)
 
 	GetMasterSegmentDetail(ctx context.Context, request *api.GetMasterSegmentDetailRequest, accountUuid string) (*api.MasterSegmentDetail, error)
-	ListMasterSegmentProfiles(ctx context.Context, request *api.GetMasterSegmentProfilesRequest, accountUuid string) (int64, []string, error)
+	ListMasterSegmentProfiles(ctx context.Context, request *api.GetListMasterSegmentProfilesRequest, accountUuid string) (int64, []string, error)
+	GetMasterSegmentProfile(ctx context.Context, request *api.GetMasterSegmentProfileRequest, accountUuid string) (string, error)
 
 	SyncOnCreateMasterSegment(ctx context.Context, masterSegmentId int64, actionStatus model.DataActionStatus) error
 }

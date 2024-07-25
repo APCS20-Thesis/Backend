@@ -11,7 +11,7 @@ import (
 type DataActionRunRepository interface {
 	CreateDataActionRun(ctx context.Context, params *CreateDataActionRunParams) (*model.DataActionRun, error)
 	UpdateDataActionRunStatus(ctx context.Context, id int64, status model.DataActionRunStatus) error
-	GetListDataActionRuns(ctx context.Context, params *GetListDataActionRunsParams) ([]model.DataActionRun, error)
+	GetListDataActionRuns(ctx context.Context, params *GetListDataActionRunsParams) (*GetListDataActionRunsResult, error)
 	GetListDataActionRunsWithExtraInfo(ctx context.Context, params *GetListDataActionRunsWithExtraInfoParams) ([]DataActionRunWithExtraInfo, error)
 }
 
@@ -62,31 +62,57 @@ func (r *dataActionRunRepo) UpdateDataActionRunStatus(ctx context.Context, id in
 
 type GetListDataActionRunsParams struct {
 	Ids         []int64
+	ActionTypes []string
 	Statuses    []model.DataActionRunStatus
 	AccountUuid uuid.UUID
+	Page        int
+	PageSize    int
+}
+type GetListDataActionRunsResult struct {
+	DataActionRuns []DataActionRunWithExtraInfo
+	Count          int64
 }
 
-func (r *dataActionRunRepo) GetListDataActionRuns(ctx context.Context, params *GetListDataActionRunsParams) ([]model.DataActionRun, error) {
+func (r *dataActionRunRepo) GetListDataActionRuns(ctx context.Context, params *GetListDataActionRunsParams) (*GetListDataActionRunsResult, error) {
 	query := r.WithContext(ctx).Table(r.TableName)
+	var count int64
+
 	if len(params.Ids) > 0 {
-		query.Where("id IN ?", params.Ids)
+		query.Where("data_action_run.id IN ?", params.Ids)
+	}
+	if len(params.ActionTypes) > 0 {
+		query.Where("data_action_run.action_type IN ?", params.ActionTypes)
 	}
 	if len(params.Statuses) > 0 {
-		query.Where("status IN ?", params.Statuses)
+		query.Where("data_action_run.status IN ?", params.Statuses)
 	}
 
 	emptyUuid, _ := uuid.Parse("")
 	if params.AccountUuid != emptyUuid {
-		query = query.Where("account_uuid = ?", params.AccountUuid)
+		query = query.Where("data_action_run.account_uuid = ?", params.AccountUuid)
 	}
 
-	var dataActionRuns []model.DataActionRun
-	err := query.Find(&dataActionRuns).Error
+	query = query.Joins("LEFT JOIN data_action ON data_action.id = data_action_run.action_id").Select(
+		"data_action_run.id AS id, " +
+			"data_action_run.action_id AS action_id, " +
+			"data_action_run.run_id AS run_id, " +
+			"data_action_run.dag_run_id AS dag_run_id, " +
+			"data_action_run.status AS status, " +
+			"data_action_run.error AS error, " +
+			"data_action_run.account_uuid AS account_uuid, " +
+			"data_action.action_type AS action_type ",
+	)
+
+	var dataActionRuns []DataActionRunWithExtraInfo
+	err := query.Order("data_action_run.updated_at desc").Count(&count).Scopes(Paginate(params.Page, params.PageSize)).Find(&dataActionRuns).Error
 	if err != nil {
 		return nil, err
 	}
 
-	return dataActionRuns, nil
+	return &GetListDataActionRunsResult{
+		DataActionRuns: dataActionRuns,
+		Count:          count,
+	}, nil
 }
 
 type GetListDataActionRunsWithExtraInfoParams struct {

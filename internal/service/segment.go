@@ -142,7 +142,7 @@ func (s *Service) GetSegmentDetail(ctx context.Context, request *api.GetSegmentD
 	return s.business.SegmentBusiness.GetSegmentDetail(ctx, request, accountUuid)
 }
 
-func (s *Service) GetMasterSegmentProfiles(ctx context.Context, request *api.GetMasterSegmentProfilesRequest) (*api.GetMasterSegmentProfilesResponse, error) {
+func (s *Service) GetMasterSegmentProfiles(ctx context.Context, request *api.GetListMasterSegmentProfilesRequest) (*api.GetListMasterSegmentProfilesResponse, error) {
 	accountUuid, err := GetAccountUuidFromCtx(ctx)
 	if err != nil {
 		s.log.WithName("GetMasterSegmentProfiles").Error(err, "cannot get account uuid from context")
@@ -151,7 +151,7 @@ func (s *Service) GetMasterSegmentProfiles(ctx context.Context, request *api.Get
 
 	count, res, err := s.business.SegmentBusiness.ListMasterSegmentProfiles(ctx, request, accountUuid)
 
-	return &api.GetMasterSegmentProfilesResponse{
+	return &api.GetListMasterSegmentProfilesResponse{
 		Code:    int32(codes.OK),
 		Message: "Success",
 		Count:   count,
@@ -177,4 +177,20 @@ func (s *Service) GetListPredictionActions(ctx context.Context, request *api.Get
 	}
 
 	return s.business.SegmentBusiness.ProcessGetListPredictionActions(ctx, request, accountUuid)
+}
+
+func (s *Service) GetMasterSegmentProfile(ctx context.Context, request *api.GetMasterSegmentProfileRequest) (*api.GetMasterSegmentProfileResponse, error) {
+	accountUuid, err := GetAccountUuidFromCtx(ctx)
+	if err != nil {
+		s.log.WithName("GetMasterSegmentProfiles").Error(err, "cannot get account uuid from context")
+		return nil, err
+	}
+
+	profile, err := s.business.SegmentBusiness.GetMasterSegmentProfile(ctx, request, accountUuid)
+
+	return &api.GetMasterSegmentProfileResponse{
+		Code:    int32(codes.OK),
+		Message: "Success",
+		Profile: profile,
+	}, nil
 }
