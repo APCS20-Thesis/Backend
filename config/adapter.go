@@ -17,3 +17,8 @@ type MqttConfig struct {
 	Username string `json:"username" mapstructure:"username"`
 	Password string `json:"password" mapstructure:"password"`
 }
+
+type AlertConfig struct {
+	EnableAlert bool   `json:"enable_alert" mapstructure:"enable_alert"`
+	Webhook     string `json:"webhook" mapstructure:"webhook"`
+}

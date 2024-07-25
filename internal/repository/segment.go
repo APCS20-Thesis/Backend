@@ -28,6 +28,7 @@ type SegmentRepository interface {
 	CreateSegment(ctx context.Context, params *CreateSegmentParams) (*model.Segment, error)
 	ListSegments(ctx context.Context, filter *ListSegmentFilter) ([]SegmentListItem, error)
 	GetSegment(ctx context.Context, segmentId int64, accountUuid string) (model.Segment, error)
+	UpdateSegment(ctx context.Context, params *UpdateSegmentParams) error
 }
 
 type segmentRepo struct {
@@ -137,6 +138,7 @@ func (r *segmentRepo) CreateSegment(ctx context.Context, params *CreateSegmentPa
 		Description:     params.Description,
 		Name:            params.Name,
 		AccountUuid:     params.AccountUuid,
+		Status:          model.SegmentStatus_DRAFT,
 	}
 
 	var createErr error
@@ -154,13 +156,17 @@ func (r *segmentRepo) CreateSegment(ctx context.Context, params *CreateSegmentPa
 
 type ListMasterSegmentsParams struct {
 	AccountUuid uuid.UUID
+	Statuses    []string
 }
 
 func (r *segmentRepo) ListMasterSegments(ctx context.Context, params *ListMasterSegmentsParams) ([]model.MasterSegment, error) {
 	var masterSegments []model.MasterSegment
-	err := r.WithContext(ctx).Table(r.MasterSegmentTableName).
-		Where("account_uuid = ?", params.AccountUuid).
-		Find(&masterSegments).Error
+	query := r.WithContext(ctx).Table(r.MasterSegmentTableName).
+		Where("account_uuid = ?", params.AccountUuid)
+	if len(params.Statuses) > 0 {
+		query.Where("status IN ?", params.Statuses)
+	}
+	err := query.Find(&masterSegments).Error
 	if err != nil {
 		return nil, err
 	}
@@ -286,6 +292,7 @@ type SegmentListItem struct {
 	Name              string
 	MasterSegmentId   int64
 	MasterSegmentName string
+	Status            string
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
 }
@@ -293,6 +300,7 @@ type SegmentListItem struct {
 type ListSegmentFilter struct {
 	AccountUuid      string
 	MasterSegmentIds []int64
+	Statuses         []string
 }
 
 func (r *segmentRepo) ListSegments(ctx context.Context, filter *ListSegmentFilter) ([]SegmentListItem, error) {
@@ -304,12 +312,16 @@ func (r *segmentRepo) ListSegments(ctx context.Context, filter *ListSegmentFilte
 	if filter.AccountUuid != "" {
 		query = query.Where("segment.account_uuid = ?", filter.AccountUuid)
 	}
+	if len(filter.Statuses) > 0 {
+		query = query.Where("segment.status IN ?", filter.Statuses)
+	}
 	err := query.
 		Joins("LEFT JOIN master_segment ON segment.master_segment_id = master_segment.id").
 		Select("segment.id AS id," +
 			"segment.name AS name, " +
 			"segment.master_segment_id as master_segment_id, " +
 			"master_segment.name as master_segment_name, " +
+			"segment.status AS status, " +
 			"segment.created_at AS created_at, " +
 			"segment.updated_at AS updated_at").
 		Scan(&segments).Error
@@ -329,4 +341,27 @@ func (r *segmentRepo) GetSegment(ctx context.Context, segmentId int64, accountUu
 		return model.Segment{}, err
 	}
 	return segment, nil
+}
+
+type UpdateSegmentParams struct {
+	Tx     *gorm.DB
+	Id     int64
+	Status string
+}
+
+func (r *segmentRepo) UpdateSegment(ctx context.Context, params *UpdateSegmentParams) error {
+	segment := model.Segment{
+		ID:     params.Id,
+		Status: model.SegmentStatus(params.Status),
+	}
+	var updateErr error
+	if params.Tx != nil {
+		updateErr = params.Tx.WithContext(ctx).Table(r.SegmentTableName).Where("id = ?", params.Id).Updates(&segment).Error
+	} else {
+		updateErr = r.WithContext(ctx).Table(r.SegmentTableName).Where("id = ?", params.Id).Updates(&segment).Error
+	}
+	if updateErr != nil {
+		return updateErr
+	}
+	return nil
 }

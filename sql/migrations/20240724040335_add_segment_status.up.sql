@@ -1,0 +1,1 @@
+ALTER TABLE segment ADD COLUMN status VARCHAR(255);

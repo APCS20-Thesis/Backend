@@ -486,6 +486,8 @@ message GetListDataTablesRequest {
   int32 page = 2;
   // page_size
   int32 page_size = 3;
+  // statuses
+  repeated string statuses = 4;
 }
 
 // GetListDataSource Response
@@ -807,7 +809,9 @@ message CreateMasterSegmentResponse {
   string message = 2;
 }
 
-message GetListMasterSegmentsRequest {}
+message GetListMasterSegmentsRequest {
+  repeated string statuses = 1;
+}
 
 message GetListMasterSegmentsResponse {
   // code
@@ -907,7 +911,10 @@ message CreateSegmentResponse {
 }
 
 message GetListSegmentsRequest {
+  // master_segment_ids
   repeated int64 master_segment_ids = 1;
+  // statuses
+  repeated string statuses = 2;
 }
 
 message GetListSegmentsResponse {
