@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/APCS20-Thesis/Backend/config"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/airflow"
+	"github.com/APCS20-Thesis/Backend/internal/adapter/alert"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/mqtt"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/query"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
@@ -31,6 +32,7 @@ type job struct {
 	db             *gorm.DB
 	queryAdapter   query.QueryAdapter
 	mqttAdapter    mqtt.MqttAdapter
+	alertAdapter   alert.AlertAdapter
 	business       *business.Business
 }
 
@@ -42,6 +44,14 @@ func NewJob(config *config.Config, logger logr.Logger, db *gorm.DB, mqttAdapter 
 		return nil, err
 	}
 	queryAdapter, err := query.NewQueryAdapter(logger, config.QueryAdapterConfig.Address)
+	if err != nil {
+		return nil, err
+	}
+	alertAdapter, err := alert.NewAlertAdapter(logger, config.AlertAdapterConfig.Webhook)
+	if err != nil {
+		return nil, err
+	}
+
 	// Repository
 	repo := repository.NewRepository(db)
 
@@ -60,6 +70,7 @@ func NewJob(config *config.Config, logger logr.Logger, db *gorm.DB, mqttAdapter 
 		db:             db,
 		queryAdapter:   queryAdapter,
 		mqttAdapter:    mqttAdapter,
+		alertAdapter:   alertAdapter,
 		business:       biz,
 	}, nil
 }

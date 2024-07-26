@@ -100,6 +100,8 @@ func (r *dataActionRunRepo) GetListDataActionRuns(ctx context.Context, params *G
 			"data_action_run.status AS status, " +
 			"data_action_run.error AS error, " +
 			"data_action_run.account_uuid AS account_uuid, " +
+			"data_action_run.created_at AS created_at, " +
+			"data_action_run.updated_at AS updated_at, " +
 			"data_action.action_type AS action_type ",
 	)
 

@@ -110,6 +110,7 @@ type ListDataTablesFilters struct {
 	DataTableIds []int64
 	Page         int
 	PageSize     int
+	Statuses     []model.DataTableStatus
 }
 
 type ListDataTablesResult struct {
@@ -131,6 +132,9 @@ func (r *dataTableRepo) ListDataTables(ctx context.Context, filter *ListDataTabl
 	}
 	if len(filter.DataTableIds) > 0 {
 		query = query.Where("id IN ?", filter.DataTableIds)
+	}
+	if len(filter.Statuses) > 0 {
+		query = query.Where("status IN ?", filter.Statuses)
 	}
 	err := query.Count(&count).Scopes(Paginate(filter.Page, filter.PageSize)).Find(&dataTables).Error
 	if err != nil {

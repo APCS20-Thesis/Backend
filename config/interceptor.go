@@ -38,9 +38,10 @@ func AccessibleRoles() map[string][]string {
 		rootServicePath + "GetDataDestinationDetail":          {"admin", "user"},
 		rootServicePath + "GetPredictModelDetail":             {"admin", "user"},
 		rootServicePath + "GetMySQLTableSchema":               {"admin", "user"},
-		rootServicePath + "GetMasterSegmentProfiles":          {"admin", "user"},
+		rootServicePath + "GetListMasterSegmentProfiles":      {"admin", "user"},
 		rootServicePath + "GetListPredictionActions":          {"admin", "user"},
 		rootServicePath + "ApplyPredictModel":                 {"admin", "user"},
 		rootServicePath + "TriggerDataActionRun":              {"admin", "user"},
+		rootServicePath + "GetResultPredictionActions":        {"admin", "user"},
 	}
 }

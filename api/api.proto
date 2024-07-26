@@ -268,6 +268,12 @@ service CDPService {
       get: "/api/v1/master-segment/profiles/{id}"
     };
   }
+
+  rpc GetResultPredictionActions(GetResultPredictionActionsRequest) returns (GetResultPredictionActionsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/master-segment/prediction/{action_id}"
+    };
+  }
 }
 
 // CheckHealthRequest
@@ -491,6 +497,8 @@ message GetListDataTablesRequest {
   int32 page = 2;
   // page_size
   int32 page_size = 3;
+  // statuses
+  repeated string statuses = 4;
 }
 
 // GetListDataSource Response
@@ -816,7 +824,7 @@ message GetListMasterSegmentsRequest {
   //name
   string name = 1;
   // status
-  string status = 2;
+  repeated string statuses = 2;
   // page
   int32 page = 3;
   // page_size
@@ -921,7 +929,10 @@ message CreateSegmentResponse {
 }
 
 message GetListSegmentsRequest {
+  // master_segment_ids
   repeated int64 master_segment_ids = 1;
+  // statuses
+  repeated string statuses = 2;
 }
 
 message GetListSegmentsResponse {
@@ -1295,4 +1306,19 @@ message GetMasterSegmentProfileResponse {
   string message = 2;
   // profile
   string profile = 3;
+}
+
+// GetResultApplyPredictModel Request
+message GetResultPredictionActionsRequest{
+  int64 action_id = 1 [(validate.rules).int64.gt = 0];
+}
+
+// GetResultApplyPredictModel Response
+message GetResultPredictionActionsResponse {
+  // code
+  int32 code = 1;
+  // count
+  int64 count = 2;
+  // data
+  repeated string data = 3;
 }

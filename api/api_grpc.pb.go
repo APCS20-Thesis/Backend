@@ -60,6 +60,7 @@ const (
 	CDPService_GetListPredictionActions_FullMethodName          = "/api.CDPService/GetListPredictionActions"
 	CDPService_TriggerDataActionRun_FullMethodName              = "/api.CDPService/TriggerDataActionRun"
 	CDPService_GetMasterSegmentProfile_FullMethodName           = "/api.CDPService/GetMasterSegmentProfile"
+	CDPService_GetResultPredictionActions_FullMethodName        = "/api.CDPService/GetResultPredictionActions"
 )
 
 // CDPServiceClient is the client API for CDPService service.
@@ -107,6 +108,7 @@ type CDPServiceClient interface {
 	GetListPredictionActions(ctx context.Context, in *GetListPredictionActionsRequest, opts ...grpc.CallOption) (*GetListPredictionActionsResponse, error)
 	TriggerDataActionRun(ctx context.Context, in *TriggerDataActionRunRequest, opts ...grpc.CallOption) (*TriggerDataActionRunResponse, error)
 	GetMasterSegmentProfile(ctx context.Context, in *GetMasterSegmentProfileRequest, opts ...grpc.CallOption) (*GetMasterSegmentProfileResponse, error)
+	GetResultPredictionActions(ctx context.Context, in *GetResultPredictionActionsRequest, opts ...grpc.CallOption) (*GetResultPredictionActionsResponse, error)
 }
 
 type cDPServiceClient struct {
@@ -486,6 +488,15 @@ func (c *cDPServiceClient) GetMasterSegmentProfile(ctx context.Context, in *GetM
 	return out, nil
 }
 
+func (c *cDPServiceClient) GetResultPredictionActions(ctx context.Context, in *GetResultPredictionActionsRequest, opts ...grpc.CallOption) (*GetResultPredictionActionsResponse, error) {
+	out := new(GetResultPredictionActionsResponse)
+	err := c.cc.Invoke(ctx, CDPService_GetResultPredictionActions_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CDPServiceServer is the server API for CDPService service.
 // All implementations must embed UnimplementedCDPServiceServer
 // for forward compatibility
@@ -531,6 +542,7 @@ type CDPServiceServer interface {
 	GetListPredictionActions(context.Context, *GetListPredictionActionsRequest) (*GetListPredictionActionsResponse, error)
 	TriggerDataActionRun(context.Context, *TriggerDataActionRunRequest) (*TriggerDataActionRunResponse, error)
 	GetMasterSegmentProfile(context.Context, *GetMasterSegmentProfileRequest) (*GetMasterSegmentProfileResponse, error)
+	GetResultPredictionActions(context.Context, *GetResultPredictionActionsRequest) (*GetResultPredictionActionsResponse, error)
 	mustEmbedUnimplementedCDPServiceServer()
 }
 
@@ -660,6 +672,9 @@ func (UnimplementedCDPServiceServer) TriggerDataActionRun(context.Context, *Trig
 }
 func (UnimplementedCDPServiceServer) GetMasterSegmentProfile(context.Context, *GetMasterSegmentProfileRequest) (*GetMasterSegmentProfileResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMasterSegmentProfile not implemented")
+}
+func (UnimplementedCDPServiceServer) GetResultPredictionActions(context.Context, *GetResultPredictionActionsRequest) (*GetResultPredictionActionsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetResultPredictionActions not implemented")
 }
 func (UnimplementedCDPServiceServer) mustEmbedUnimplementedCDPServiceServer() {}
 
@@ -1412,6 +1427,24 @@ func _CDPService_GetMasterSegmentProfile_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CDPService_GetResultPredictionActions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetResultPredictionActionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDPServiceServer).GetResultPredictionActions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CDPService_GetResultPredictionActions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDPServiceServer).GetResultPredictionActions(ctx, req.(*GetResultPredictionActionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CDPService_ServiceDesc is the grpc.ServiceDesc for CDPService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1582,6 +1615,10 @@ var CDPService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetMasterSegmentProfile",
 			Handler:    _CDPService_GetMasterSegmentProfile_Handler,
+		},
+		{
+			MethodName: "GetResultPredictionActions",
+			Handler:    _CDPService_GetResultPredictionActions_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

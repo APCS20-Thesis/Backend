@@ -62,9 +62,9 @@ func (b business) ListMasterSegments(ctx context.Context, request *api.GetListMa
 	modelMasterSegments, err := b.repository.SegmentRepository.ListMasterSegments(ctx, &repository.ListMasterSegmentsFilter{
 		AccountUuid: uuid.MustParse(accountUuid),
 		Name:        request.Name,
-		Status:      model.MasterSegmentStatus(request.Status),
 		PageSize:    int(request.PageSize),
 		Page:        int(request.Page),
+		Statuses:    request.Statuses,
 	})
 	if err != nil {
 		b.log.WithName("ListMasterSegments").Error(err, "cannot get list master segment")

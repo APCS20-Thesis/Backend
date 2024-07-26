@@ -20,6 +20,7 @@ type Business interface {
 	GetSegmentDetail(ctx context.Context, request *api.GetSegmentDetailRequest, accountUuid string) (*api.GetSegmentDetailResponse, error)
 	ProcessApplyPredictModel(ctx context.Context, request *api.ApplyPredictModelRequest, accountUuid string) (*api.ApplyPredictModelResponse, error)
 	ProcessGetListPredictionActions(ctx context.Context, request *api.GetListPredictionActionsRequest, accountUuid string) (*api.GetListPredictionActionsResponse, error)
+	ProcessGetResultPredictionActions(ctx context.Context, request *api.GetResultPredictionActionsRequest, accountUuid string) (*api.GetResultPredictionActionsResponse, error)
 
 	GetMasterSegmentDetail(ctx context.Context, request *api.GetMasterSegmentDetailRequest, accountUuid string) (*api.MasterSegmentDetail, error)
 	ListMasterSegmentProfiles(ctx context.Context, request *api.GetListMasterSegmentProfilesRequest, accountUuid string) (int64, []string, error)

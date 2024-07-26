@@ -15,6 +15,7 @@ type Segment struct {
 	Description     string
 	Name            string
 	AccountUuid     uuid.UUID
+	Status          SegmentStatus
 	CreatedAt       time.Time `gorm:"autoCreateTime"`
 	UpdatedAt       time.Time `gorm:"autoUpdateTime"`
 }
@@ -27,3 +28,12 @@ type SegmentBuildConditions struct {
 	AudienceCondition  *api.Rule                `json:"audience_condition"`
 	BehaviorConditions []*api.BehaviorCondition `json:"behavior_conditions"`
 }
+
+type SegmentStatus string
+
+const (
+	SegmentStatus_DRAFT      SegmentStatus = "DRAFT"
+	SegmentStatus_UPDATING   SegmentStatus = "UPDATING"
+	SegmentStatus_UP_TO_DATE SegmentStatus = "UP_TO_DATE"
+	SegmentStatus_FAILED     SegmentStatus = "FAILED"
+)
