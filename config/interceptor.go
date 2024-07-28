@@ -32,15 +32,16 @@ func AccessibleRoles() map[string][]string {
 		rootServicePath + "ImportFromMySQLSource":             {"admin", "user"},
 		rootServicePath + "ExportToMySQLDestination":          {"admin", "user"},
 		rootServicePath + "GetListDataDestinations":           {"admin", "user"},
-		rootServicePath + "GetListDataActions":                {"admin", "user"},
+		rootServicePath + "GetListDataActionRuns":             {"admin", "user"},
 		rootServicePath + "TrainPredictModel":                 {"admin", "user"},
 		rootServicePath + "GetListPredictModels":              {"admin", "user"},
 		rootServicePath + "GetDataDestinationDetail":          {"admin", "user"},
 		rootServicePath + "GetPredictModelDetail":             {"admin", "user"},
 		rootServicePath + "GetMySQLTableSchema":               {"admin", "user"},
-		rootServicePath + "GetMasterSegmentProfiles":          {"admin", "user"},
+		rootServicePath + "GetListMasterSegmentProfiles":      {"admin", "user"},
 		rootServicePath + "GetListPredictionActions":          {"admin", "user"},
 		rootServicePath + "ApplyPredictModel":                 {"admin", "user"},
 		rootServicePath + "TriggerDataActionRun":              {"admin", "user"},
+		rootServicePath + "GetResultPredictionActions":        {"admin", "user"},
 	}
 }

@@ -3,6 +3,7 @@ package data_destination
 import (
 	"context"
 	"github.com/APCS20-Thesis/Backend/api"
+	"github.com/APCS20-Thesis/Backend/config"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/airflow"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/gophish"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/query"
@@ -27,9 +28,10 @@ type business struct {
 	gophishAdapter gophish.GophishAdapter
 	queryAdapter   query.QueryAdapter
 	airflowAdapter airflow.AirflowAdapter
+	config         *config.Config
 }
 
-func NewDataDestinationBusiness(db *gorm.DB, log logr.Logger, repository *repository.Repository, gophishAdapter gophish.GophishAdapter, queryAdapter query.QueryAdapter, airflowAdapter airflow.AirflowAdapter) Business {
+func NewDataDestinationBusiness(db *gorm.DB, log logr.Logger, repository *repository.Repository, gophishAdapter gophish.GophishAdapter, queryAdapter query.QueryAdapter, airflowAdapter airflow.AirflowAdapter, config *config.Config) Business {
 	return &business{
 		db:             db,
 		log:            log.WithName("DataDestinationBiz"),
@@ -37,5 +39,6 @@ func NewDataDestinationBusiness(db *gorm.DB, log logr.Logger, repository *reposi
 		gophishAdapter: gophishAdapter,
 		queryAdapter:   queryAdapter,
 		airflowAdapter: airflowAdapter,
+		config:         config,
 	}
 }

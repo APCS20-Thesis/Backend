@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"github.com/APCS20-Thesis/Backend/api"
 	"github.com/APCS20-Thesis/Backend/internal/model"
 	"github.com/google/uuid"
@@ -13,7 +14,7 @@ import (
 
 type SegmentRepository interface {
 	CreateMasterSegment(ctx context.Context, params *model.MasterSegment) error
-	ListMasterSegments(ctx context.Context, params *ListMasterSegmentsParams) ([]model.MasterSegment, error)
+	ListMasterSegments(ctx context.Context, filter *ListMasterSegmentsFilter) (*ListMasterSegmentsResult, error)
 	GetMasterSegment(ctx context.Context, masterSegmentId int64) (model.MasterSegment, error)
 	UpdateMasterSegment(ctx context.Context, params *UpdateMasterSegmentParams) error
 
@@ -154,24 +155,47 @@ func (r *segmentRepo) CreateSegment(ctx context.Context, params *CreateSegmentPa
 	return segment, nil
 }
 
-type ListMasterSegmentsParams struct {
+type ListMasterSegmentsFilter struct {
 	AccountUuid uuid.UUID
 	Statuses    []string
+	Name        string
+	Page        int
+	PageSize    int
 }
 
-func (r *segmentRepo) ListMasterSegments(ctx context.Context, params *ListMasterSegmentsParams) ([]model.MasterSegment, error) {
-	var masterSegments []model.MasterSegment
-	query := r.WithContext(ctx).Table(r.MasterSegmentTableName).
-		Where("account_uuid = ?", params.AccountUuid)
-	if len(params.Statuses) > 0 {
-		query.Where("status IN ?", params.Statuses)
+type ListMasterSegmentsResult struct {
+	MasterSegments []model.MasterSegment
+	Count          int64
+}
+
+func (r *segmentRepo) ListMasterSegments(ctx context.Context, filter *ListMasterSegmentsFilter) (*ListMasterSegmentsResult, error) {
+	var (
+		masterSegments []model.MasterSegment
+		count          int64
+	)
+	query := r.WithContext(ctx).Table(r.MasterSegmentTableName)
+	if filter.AccountUuid.String() != "" {
+		query = query.Where("account_uuid = ?", filter.AccountUuid)
 	}
-	err := query.Find(&masterSegments).Error
+	if len(filter.Statuses) > 0 {
+		query = query.Where("status IN ?", filter.Statuses)
+	}
+	if filter.Name != "" {
+		query = query.Where("name LIKE ?", "%"+filter.Name+"%")
+	}
+
+	err := query.Count(&count).Scopes(Paginate(filter.Page, filter.PageSize)).Find(&masterSegments).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
 		return nil, err
 	}
 
-	return masterSegments, nil
+	return &ListMasterSegmentsResult{
+		MasterSegments: masterSegments,
+		Count:          count,
+	}, nil
 }
 
 type UpdateMasterSegmentParams struct {
@@ -324,7 +348,7 @@ func (r *segmentRepo) ListSegments(ctx context.Context, filter *ListSegmentFilte
 			"segment.status AS status, " +
 			"segment.created_at AS created_at, " +
 			"segment.updated_at AS updated_at").
-		Scan(&segments).Error
+		Order("segment.updated_at desc").Scan(&segments).Error
 	if err != nil {
 		return nil, err
 	}

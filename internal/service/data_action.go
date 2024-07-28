@@ -6,14 +6,14 @@ import (
 	"google.golang.org/genproto/googleapis/rpc/code"
 )
 
-func (s *Service) GetListDataActions(ctx context.Context, request *api.GetListDataActionsRequest) (*api.GetListDataActionsResponse, error) {
+func (s *Service) GetListDataActionRuns(ctx context.Context, request *api.GetListDataActionRunsRequest) (*api.GetListDataActionRunsResponse, error) {
 	accountUuid, err := GetAccountUuidFromCtx(ctx)
 	if err != nil {
 		s.log.WithName("GetListDataActions").Error(err, "cannot get account uuid from context")
 		return nil, err
 	}
 
-	return s.business.DataActionBusiness.ProcessGetListDataActions(ctx, request, accountUuid)
+	return s.business.DataActionBusiness.ProcessGetListDataActionRuns(ctx, request, accountUuid)
 }
 
 func (s *Service) TriggerDataActionRun(ctx context.Context, request *api.TriggerDataActionRunRequest) (*api.TriggerDataActionRunResponse, error) {

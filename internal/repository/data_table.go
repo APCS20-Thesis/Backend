@@ -136,7 +136,7 @@ func (r *dataTableRepo) ListDataTables(ctx context.Context, filter *ListDataTabl
 	if len(filter.Statuses) > 0 {
 		query = query.Where("status IN ?", filter.Statuses)
 	}
-	err := query.Count(&count).Scopes(Paginate(filter.Page, filter.PageSize)).Find(&dataTables).Error
+	err := query.Order("updated_at desc").Count(&count).Scopes(Paginate(filter.Page, filter.PageSize)).Find(&dataTables).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"github.com/APCS20-Thesis/Backend/api"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/airflow"
-	"github.com/APCS20-Thesis/Backend/internal/constants"
 	"github.com/APCS20-Thesis/Backend/internal/model"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
 	"github.com/google/uuid"
@@ -19,7 +18,7 @@ func (b business) ProcessImportCsv(ctx context.Context, request *api.ImportCsvRe
 	s3Configurations := &airflow.S3Configurations{
 		AccessKeyId:     b.config.S3StorageConfig.AccessKeyID,
 		SecretAccessKey: b.config.S3StorageConfig.SecretAccessKey,
-		BucketName:      constants.S3BucketName,
+		BucketName:      b.config.S3StorageConfig.Bucket,
 		Region:          b.config.S3StorageConfig.Region,
 		Key:             "data/files/" + accountUuid + "/" + dateTime + "_" + request.GetFileName(),
 	}

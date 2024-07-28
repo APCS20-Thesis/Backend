@@ -193,10 +193,9 @@ service CDPService {
     };
   }
 
-  rpc GetListDataActions(GetListDataActionsRequest) returns (GetListDataActionsResponse) {
+  rpc GetListDataActionRuns(GetListDataActionRunsRequest) returns (GetListDataActionRunsResponse) {
     option (google.api.http) = {
-      post: "/api/v1/data-actions"
-      body: "*"
+      get: "/api/v1/data-action-runs"
     };
   }
 
@@ -238,7 +237,7 @@ service CDPService {
     };
   }
 
-  rpc GetMasterSegmentProfiles(GetMasterSegmentProfilesRequest) returns (GetMasterSegmentProfilesResponse) {
+  rpc GetListMasterSegmentProfiles(GetListMasterSegmentProfilesRequest) returns (GetListMasterSegmentProfilesResponse) {
     option (google.api.http) = {
       get: "/api/v1/master-segment/{id}/profiles"
     };
@@ -263,10 +262,22 @@ service CDPService {
       body: "*"
     };
   }
+
+  rpc GetMasterSegmentProfile(GetMasterSegmentProfileRequest) returns (GetMasterSegmentProfileResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/master-segment/profiles/{id}"
+    };
+  }
+
+  rpc GetResultPredictionActions(GetResultPredictionActionsRequest) returns (GetResultPredictionActionsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/master-segment/prediction/{action_id}"
+    };
+  }
 }
 
 // CheckHealthRequest
-message CheckHealthRequest { }
+message CheckHealthRequest {}
 
 //*****************************************//
 // Authentication
@@ -305,7 +316,7 @@ message SignUpRequest {
 }
 
 // GetAccountInfo Request
-message GetAccountInfoRequest { }
+message GetAccountInfoRequest {}
 
 // GetAccountInfo Response
 message GetAccountInfoResponse {
@@ -562,7 +573,7 @@ message CreateConnectionRequest {
   // type
   string type = 2 [(validate.rules).string.min_len = 1];
   // configurations
-  map<string,string> configurations = 3;
+  map<string, string> configurations = 3;
 }
 
 // CreateConnection Response
@@ -643,7 +654,7 @@ message UpdateConnectionRequest {
   // type
   string type = 3;
   // configurations
-  map<string,string> configurations = 4;
+  map<string, string> configurations = 4;
 }
 
 // CreateConnection Response
@@ -810,7 +821,14 @@ message CreateMasterSegmentResponse {
 }
 
 message GetListMasterSegmentsRequest {
-  repeated string statuses = 1;
+  //name
+  string name = 1;
+  // status
+  repeated string statuses = 2;
+  // page
+  int32 page = 3;
+  // page_size
+  int32 page_size = 4;
 }
 
 message GetListMasterSegmentsResponse {
@@ -1038,24 +1056,24 @@ message GetListDataDestinationsResponse {
   repeated DataDestination results = 4;
 }
 
-message GetListDataActionsRequest {
+message GetListDataActionRunsRequest {
   // page
   int32 page = 1;
   // page_size
   int32 page_size = 2;
   // type
   repeated string types = 3;
-  // target_table
-  string target_table = 4;
-  // object_id
-  int64 object_id = 5;
 }
 
-message GetListDataActionsResponse {
+message GetListDataActionRunsResponse {
+  //code
   int32 code = 1;
+  // message
   string message = 2;
+  // count
   int64 count = 3;
-  repeated DataAction results = 4;
+
+  repeated DataActionRun results = 4;
 }
 
 message TrainPredictModelRequest {
@@ -1191,8 +1209,8 @@ message GetMySQLTableSchemaResponse {
   repeated SchemaColumn schema = 3;
 }
 
-// GetMasterSegmentProfiles Request
-message GetMasterSegmentProfilesRequest {
+// GetListMasterSegmentProfiles Request
+message GetListMasterSegmentProfilesRequest {
   // master segment id
   int64 id = 1 [(validate.rules).int64.gt = 0];
   // page
@@ -1202,7 +1220,7 @@ message GetMasterSegmentProfilesRequest {
 }
 
 // GetMasterSegmentProfiles Response
-message GetMasterSegmentProfilesResponse {
+message GetListMasterSegmentProfilesResponse {
   // code
   int32 code = 1;
   // message
@@ -1272,4 +1290,35 @@ message TriggerDataActionRunResponse {
   int32 code = 1;
   // message
   string message = 2;
+}
+
+// GetMasterSegmentProfile Request
+message GetMasterSegmentProfileRequest {
+  // id
+  int64 id = 1;
+}
+
+// GetMasterSegmentProfile Response
+message GetMasterSegmentProfileResponse {
+  // code
+  int32 code = 1;
+  // message
+  string message = 2;
+  // profile
+  string profile = 3;
+}
+
+// GetResultApplyPredictModel Request
+message GetResultPredictionActionsRequest{
+  int64 action_id = 1 [(validate.rules).int64.gt = 0];
+}
+
+// GetResultApplyPredictModel Response
+message GetResultPredictionActionsResponse {
+  // code
+  int32 code = 1;
+  // count
+  int64 count = 2;
+  // data
+  repeated string data = 3;
 }

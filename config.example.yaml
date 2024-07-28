@@ -1,0 +1,44 @@
+SERVER:
+  GRPC:
+    PORT: 14443
+  HTTP:
+    PORT: 14080
+
+LOG:
+  LEVEL: DEBUG
+  MODE: development
+
+MIGRATION_FOLDER: file://sql/migrations
+
+POSTGRESQL:
+  HOST: 127.0.0.1
+  PORT: 5433
+  USERNAME: cdp_service
+  PASSWORD: postgres
+  DATABASE: cdp_service
+
+S3_STORAGE_CONFIG:
+  HOST: https://bucket.s3.ap-southeast-1.amazonaws.com
+  ACCESS_KEY_ID: access_key
+  SECRET_ACCESS_KEY: secret_key
+  REGION: ap-southeast-1
+  BUCKET: bucket
+
+AIRFLOW_ADAPTER_CONFIG:
+  ADDRESS: http://localhost:8080
+  USERNAME: airflow
+  PASSWORD: airflow
+
+QUERY_ADAPTER_CONFIG:
+  ADDRESS: http://localhost:8000
+
+MQTT_ADAPTER_CONFIG:
+  HOST: localhost
+  PORT: 1883
+  CLIENT_ID: go_mqtt_client
+  USERNAME: apcs-thesis-cdp
+  PASSWORD: secret
+
+ALERT_ADAPTER_CONFIG:
+  WEBHOOK: https://channels.com
+  ENABLE_ALERT: false

@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"github.com/APCS20-Thesis/Backend/api"
-	"github.com/APCS20-Thesis/Backend/internal/constants"
 	"github.com/google/uuid"
 	"google.golang.org/genproto/googleapis/rpc/code"
 	"google.golang.org/grpc/codes"
@@ -22,7 +21,7 @@ func (s *Service) ImportCsv(ctx context.Context, request *api.ImportCsvRequest) 
 	dateTime := strconv.FormatInt(time.Now().Unix(), 10)
 
 	err = s.s3Manger.S3Uploader(
-		constants.S3BucketName,
+		s.config.S3StorageConfig.Bucket,
 		"data/files/"+accountUuid+"/"+dateTime+"_"+request.GetFileName(),
 		request.GetFileContent())
 

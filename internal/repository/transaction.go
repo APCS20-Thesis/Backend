@@ -140,17 +140,17 @@ func (r transactionRepo) ImportCsvTransaction(ctx context.Context, params *Impor
 		tx.Rollback()
 		return err
 	}
-	dataActionRun := &model.DataActionRun{
-		ActionId:    dataAction.ID,
-		RunId:       int64(dataAction.RunCount),
-		Status:      model.DataActionRunStatus_Processing,
-		AccountUuid: params.AccountUuid,
-	}
-	err = tx.WithContext(ctx).Table("data_action_run").Create(&dataActionRun).Error
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
+	//dataActionRun := &model.DataActionRun{
+	//	ActionId:    dataAction.ID,
+	//	RunId:       int64(dataAction.RunCount),
+	//	Status:      model.DataActionRunStatus_Processing,
+	//	AccountUuid: params.AccountUuid,
+	//}
+	//err = tx.WithContext(ctx).Table("data_action_run").Create(&dataActionRun).Error
+	//if err != nil {
+	//	tx.Rollback()
+	//	return err
+	//}
 
 	tx.Commit()
 
@@ -179,6 +179,7 @@ func (r transactionRepo) ExportDataToCSVTransaction(ctx context.Context, params 
 	return r.TriggerExportFileCSVTransaction(ctx, params, airflowAdapter, dataAction.ID)
 }
 
+// TriggerExportFileCSVTransaction Deprecated
 func (r transactionRepo) TriggerExportFileCSVTransaction(ctx context.Context, params *ExportDataToCSVTransactionParams, airflowAdapter airflow.AirflowAdapter, dataActionId int64) error {
 	var dataAction model.DataAction
 	err := r.DB.WithContext(ctx).Table("data_action").First(&dataAction, "id = ?", dataActionId).Error
@@ -213,10 +214,9 @@ func (r transactionRepo) TriggerExportFileCSVTransaction(ctx context.Context, pa
 	}
 
 	err = tx.WithContext(ctx).Table("file_export_record").Create(&model.FileExportRecord{
-		DataTableId:     params.TableId,
-		Format:          model.FileType_CSV,
-		AccountUuid:     params.AccountUuid,
-		DataActionRunId: dataActionRun.ID,
+		DataTableId: params.TableId,
+		Format:      model.FileType_CSV,
+		AccountUuid: params.AccountUuid,
 	}).Error
 	if err != nil {
 		tx.Rollback()
@@ -226,6 +226,7 @@ func (r transactionRepo) TriggerExportFileCSVTransaction(ctx context.Context, pa
 	return tx.Commit().Error
 }
 
+// NewExportFileCSVTransaction Deprecated
 func (r transactionRepo) NewExportFileCSVTransaction(ctx context.Context, params *ExportDataToCSVTransactionParams, airflowAdapter airflow.AirflowAdapter) error {
 	var dataTable model.DataTable
 	err := r.DB.WithContext(ctx).Table("data_table").First(&dataTable, "id = ?", params.TableId).Error

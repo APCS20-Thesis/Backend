@@ -64,3 +64,35 @@ func (b business) ProcessNewDataActionRun(ctx context.Context, request *api.Trig
 
 	return nil
 }
+
+func (b business) ProcessGetListDataActionRuns(ctx context.Context, request *api.GetListDataActionRunsRequest, accountUuid string) (*api.GetListDataActionRunsResponse, error) {
+	queryDataActionRuns, err := b.repository.DataActionRunRepository.GetListDataActionRuns(ctx, &repository.GetListDataActionRunsParams{
+		ActionTypes: request.Types,
+		AccountUuid: uuid.MustParse(accountUuid),
+		Page:        int(request.Page),
+		PageSize:    int(request.PageSize),
+	})
+	if err != nil {
+		b.log.WithName("list data actions").Error(err, "cannot get data actions")
+		return nil, err
+	}
+	var returnDataActionRuns []*api.DataActionRun
+	for _, dataActionRun := range queryDataActionRuns.DataActionRuns {
+		returnDataActionRuns = append(returnDataActionRuns, &api.DataActionRun{
+			Id:         dataActionRun.ID,
+			ActionId:   dataActionRun.ActionId,
+			ActionType: string(dataActionRun.ActionType),
+			Status:     string(dataActionRun.Status),
+			CreatedAt:  dataActionRun.CreatedAt.String(),
+			UpdatedAt:  dataActionRun.UpdatedAt.String(),
+		})
+	}
+
+	return &api.GetListDataActionRunsResponse{
+		Code:    0,
+		Message: "Success",
+		Count:   queryDataActionRuns.Count,
+		Results: returnDataActionRuns,
+	}, nil
+
+}

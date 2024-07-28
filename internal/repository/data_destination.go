@@ -92,7 +92,7 @@ func (r *dataDestinationRepo) ListDataDestinations(ctx context.Context, params *
 	if params.Type != "" {
 		query.Where("type = ?", params.Type)
 	}
-	err := query.Count(&count).Scopes(Paginate(params.Page, params.PageSize)).Find(&destinations).Error
+	err := query.Order("updated_at desc").Count(&count).Scopes(Paginate(params.Page, params.PageSize)).Find(&destinations).Error
 	if err != nil {
 		return nil, err
 	}

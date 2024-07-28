@@ -5,4 +5,5 @@ type S3StorageConfig struct {
 	AccessKeyID     string `json:"access_key_id" mapstructure:"access_key_id" yaml:"access_key_id"`
 	SecretAccessKey string `json:"secret_access_key" mapstructure:"secret_access_key" yaml:"secret_access_key"`
 	Region          string `json:"region" mapstructure:"region" yaml:"region"`
+	Bucket          string `json:"bucket" mapstructure:"bucket" yaml:"bucket"`
 }

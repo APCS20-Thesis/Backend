@@ -3,8 +3,10 @@ package segment
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/APCS20-Thesis/Backend/api"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/airflow"
+	"github.com/APCS20-Thesis/Backend/internal/adapter/query"
 	"github.com/APCS20-Thesis/Backend/internal/model"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
 	"github.com/APCS20-Thesis/Backend/utils"
@@ -343,5 +345,37 @@ func (b business) ProcessGetListPredictionActions(ctx context.Context, request *
 		Message: "Success",
 		Count:   queryResult.Count,
 		Results: predictActions,
+	}, nil
+}
+
+func (b business) ProcessGetResultPredictionActions(ctx context.Context, request *api.GetResultPredictionActionsRequest, accountUuid string) (*api.GetResultPredictionActionsResponse, error) {
+	logger := b.log.WithName("ProcessGetResultPredictionActions")
+
+	action, err := b.repository.DataActionRepository.GetDataAction(ctx, request.ActionId)
+	if err != nil {
+		logger.Error(err, "cannot get data actions")
+		return nil, err
+	}
+
+	var config ApplyPredictModelConfig
+	err = json.Unmarshal(action.Payload.RawMessage, &config)
+	if err != nil {
+		logger.Error(err, "cannot unmarshal data action payload", "actionId", action.ID)
+		return nil, err
+	}
+
+	segmentPath := fmt.Sprintf("s3a://%s/%s", b.config.S3StorageConfig.Bucket, config.DagConfig.DataKey)
+	resultPath := fmt.Sprintf("s3a://%s/%s", b.config.S3StorageConfig.Bucket, config.DagConfig.ResultPath)
+	queryResponse, err := b.queryAdapter.QueryRawSQLV2(ctx, &query.QueryRawSQLV2Request{
+		Query: fmt.Sprintf("SELECT * FROM delta.`%s` AS segment LEFT JOIN delta.`%s` AS result ON segment.cdp_system_uuid = result.cdp_system_uuid;", segmentPath, resultPath),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.GetResultPredictionActionsResponse{
+		Code:  0,
+		Count: int64(queryResponse.Count),
+		Data:  queryResponse.Data,
 	}, nil
 }
