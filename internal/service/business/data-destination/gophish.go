@@ -36,7 +36,7 @@ func (b business) CreateGophishUserGroupFromSegment(ctx context.Context, account
 		return err
 	}
 
-	s3path := "s3a://cdp-thesis-apcs/" + utils.GenerateDeltaAudiencePath(segment.MasterSegmentId)
+	s3path := fmt.Sprintf("s3a://%s/%s", b.config.S3StorageConfig.Bucket, utils.GenerateDeltaAudiencePath(segment.MasterSegmentId))
 
 	queryResponse, err := b.queryAdapter.QueryRawSQL(ctx, &query.QueryRawSQLRequest{
 		Query: fmt.Sprintf("SELECT * FROM delta.`%s` WHERE %s;", s3path, segment.SqlCondition),

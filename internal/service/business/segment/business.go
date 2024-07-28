@@ -3,6 +3,7 @@ package segment
 import (
 	"context"
 	"github.com/APCS20-Thesis/Backend/api"
+	"github.com/APCS20-Thesis/Backend/config"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/airflow"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/query"
 	"github.com/APCS20-Thesis/Backend/internal/model"
@@ -35,14 +36,16 @@ type business struct {
 	repository     *repository.Repository
 	airflowAdapter airflow.AirflowAdapter
 	queryAdapter   query.QueryAdapter
+	config         *config.Config
 }
 
-func NewSegmentBusiness(db *gorm.DB, log logr.Logger, repository *repository.Repository, airflowAdapter airflow.AirflowAdapter, queryAdapter query.QueryAdapter) Business {
+func NewSegmentBusiness(db *gorm.DB, log logr.Logger, repository *repository.Repository, airflowAdapter airflow.AirflowAdapter, queryAdapter query.QueryAdapter, config *config.Config) Business {
 	return &business{
 		db:             db,
 		log:            log.WithName("SegmentBiz"),
 		repository:     repository,
 		airflowAdapter: airflowAdapter,
 		queryAdapter:   queryAdapter,
+		config:         config,
 	}
 }

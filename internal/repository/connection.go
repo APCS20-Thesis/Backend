@@ -121,7 +121,7 @@ func (r *ConnectionRepo) ListConnections(ctx context.Context, filter *FilterConn
 	if filter.AccountUuid.String() != "" {
 		query = query.Where("account_uuid = ?", filter.AccountUuid)
 	}
-	err := query.Count(&count).Scopes(Paginate(filter.Page, filter.PageSize)).Find(&connections).Error
+	err := query.Order("updated_at desc").Count(&count).Scopes(Paginate(filter.Page, filter.PageSize)).Find(&connections).Error
 	if err != nil {
 		return nil, 0, err
 	}

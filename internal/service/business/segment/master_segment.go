@@ -201,16 +201,18 @@ func (b business) ListMasterSegmentProfiles(ctx context.Context, request *api.Ge
 		b.log.WithName("ListMasterSegmentProfiles").WithValues("masterSegmentId", request.Id).Error(err, "No have permission with dataTable")
 		return 0, nil, status.Error(codes.PermissionDenied, "No have permission with master segment")
 	}
-	path := "s3a://cdp-thesis-apcs/" + utils.GenerateDeltaAudiencePath(request.Id)
+	path := fmt.Sprintf("s3a://%s/%s", b.config.S3StorageConfig.Bucket, utils.GenerateDeltaAudiencePath(request.Id))
+	limit := request.PageSize
+	offset := (request.Page - 1) / request.PageSize
 	queryResponse, err := b.queryAdapter.QueryRawSQLV2(ctx, &query.QueryRawSQLV2Request{
-		Query: fmt.Sprintf("SELECT * FROM delta.`%s`;", path),
+		Query: fmt.Sprintf("SELECT * FROM delta.`%s` LIMIT %d OFFSET %d;", path, limit, offset),
 	})
 	if err != nil {
 		return 0, nil, err
 	}
 
-	res := query.QueryV2Paginate(request.Page, request.PageSize, queryResponse.Data)
-	return int64(queryResponse.Count), res, nil
+	//res := query.QueryV2Paginate(request.Page, request.PageSize, queryResponse.Data)
+	return int64(queryResponse.Count), queryResponse.Data, nil
 }
 
 func (b business) GetMasterSegmentProfile(ctx context.Context, request *api.GetMasterSegmentProfileRequest, accountUuid string) (string, error) {
@@ -224,7 +226,7 @@ func (b business) GetMasterSegmentProfile(ctx context.Context, request *api.GetM
 		b.log.WithName("ListMasterSegmentProfiles").WithValues("masterSegmentId", request.Id).Error(err, "No have permission with dataTable")
 		return "", status.Error(codes.PermissionDenied, "No have permission with master segment")
 	}
-	path := "s3a://cdp-thesis-apcs/" + utils.GenerateDeltaAudiencePath(request.Id)
+	path := fmt.Sprintf("s3a://%s/%s", b.config.S3StorageConfig.Bucket, utils.GenerateDeltaAudiencePath(request.Id))
 	queryResponse, err := b.queryAdapter.QueryRawSQLV2(ctx, &query.QueryRawSQLV2Request{
 		Query: fmt.Sprintf("SELECT * FROM delta.`%s`;", path),
 	})

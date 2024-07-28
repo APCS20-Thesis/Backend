@@ -364,8 +364,8 @@ func (b business) ProcessGetResultPredictionActions(ctx context.Context, request
 		return nil, err
 	}
 
-	segmentPath := "s3a://cdp-thesis-apcs/" + config.DagConfig.DataKey
-	resultPath := "s3a://cdp-thesis-apcs/" + config.DagConfig.ResultPath
+	segmentPath := fmt.Sprintf("s3a://%s/%s", b.config.S3StorageConfig.Bucket, config.DagConfig.DataKey)
+	resultPath := fmt.Sprintf("s3a://%s/%s", b.config.S3StorageConfig.Bucket, config.DagConfig.ResultPath)
 	queryResponse, err := b.queryAdapter.QueryRawSQLV2(ctx, &query.QueryRawSQLV2Request{
 		Query: fmt.Sprintf("SELECT * FROM delta.`%s` AS segment LEFT JOIN delta.`%s` AS result ON segment.cdp_system_uuid = result.cdp_system_uuid;", segmentPath, resultPath),
 	})

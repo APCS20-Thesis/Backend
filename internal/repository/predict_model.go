@@ -84,7 +84,7 @@ func (r *predictModelRepo) ListPredictModels(ctx context.Context, params *ListPr
 	if len(params.Ids) > 0 {
 		query.Where("id IN ?", params.Ids)
 	}
-	err := query.Count(&count).Scopes(Paginate(params.Page, params.PageSize)).Find(&models).Error
+	err := query.Order("updated_at desc").Count(&count).Scopes(Paginate(params.Page, params.PageSize)).Find(&models).Error
 	if err != nil {
 		return nil, err
 	}

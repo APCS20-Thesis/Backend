@@ -348,7 +348,7 @@ func (r *segmentRepo) ListSegments(ctx context.Context, filter *ListSegmentFilte
 			"segment.status AS status, " +
 			"segment.created_at AS created_at, " +
 			"segment.updated_at AS updated_at").
-		Scan(&segments).Error
+		Order("segment.updated_at desc").Scan(&segments).Error
 	if err != nil {
 		return nil, err
 	}
