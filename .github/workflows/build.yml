@@ -55,7 +55,7 @@ jobs:
     steps:
       - name: Send Discord notification
         run: |
-          if [ "${{ job_needs.build.result }}" == "success" ]; then
+          if [ "${{ jobs.build.result }}" == "success" ]; then
             message="Build Backend succeeded 🎉"
           else
             message="Build Backend failed ❌"
