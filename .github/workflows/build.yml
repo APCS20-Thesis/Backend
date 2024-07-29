@@ -48,18 +48,18 @@ jobs:
         # repository: wilsontanwm/gosimple
         tag_with_ref: true
         
-  notify:
-    runs-on: ubuntu-latest
-    needs: build
-    if: ${{ always() }}  # Run regardless of build result
-    steps:
-      - name: Send Discord notification
-        run: |
-          if [ "${{ jobs.build.result }}" == "success" ]; then
-            message="Build Backend succeeded 🎉"
-          else
-            message="Build Backend failed ❌"
-          fi
-          curl -s -X POST "${{ secrets.DISCORD_WEBHOOK_URL }}" \
-            -H 'Content-Type: application/json' \
-            -d "{\"content\": \"${message}\"}"
+  # notify:
+  #   runs-on: ubuntu-latest
+  #   needs: build
+  #   if: ${{ always() }}  # Run regardless of build result
+  #   steps:
+  #     - name: Send Discord notification
+  #       run: |
+  #         if [ "${{ jobs.build.result }}" == "success" ]; then
+  #           message="Build Backend succeeded 🎉"
+  #         else
+  #           message="Build Backend failed ❌"
+  #         fi
+  #         curl -s -X POST "${{ secrets.DISCORD_WEBHOOK_URL }}" \
+  #           -H 'Content-Type: application/json' \
+  #           -d "{\"content\": \"${message}\"}"
