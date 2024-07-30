@@ -274,6 +274,12 @@ service CDPService {
       get: "/api/v1/master-segment/prediction/{action_id}"
     };
   }
+
+  rpc GetDataActionsOverview(GetDataActionsOverviewRequest) returns (GetDataActionsOverviewResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/data-action/overview"
+    };
+  }
 }
 
 // CheckHealthRequest
@@ -1321,4 +1327,31 @@ message GetResultPredictionActionsResponse {
   int64 count = 2;
   // data
   repeated string data = 3;
+}
+
+message GetDataActionsOverviewRequest {}
+
+message GetDataActionsOverviewResponse {
+  // code
+  int32 code = 1;
+  // message
+  string message = 2;
+  // actions_per_day
+  repeated TotalActionsPerDay actions_per_day = 3;
+  // actions_proportion
+  repeated ActionPercentage actions_proportion = 4;
+
+  message TotalActionsPerDay {
+    // date
+    string date = 1;
+    // total - Total number of actions
+    int32 total = 2;
+  }
+
+  message ActionPercentage {
+    // display_name - Action related display name (Segmentation, Sources, Destinations)
+    string display_name = 1;
+    // percentage
+    float percentage = 2;
+  }
 }
