@@ -14,9 +14,9 @@ jobs:
 
     steps:
     - name: Pull Docker image
-      run: sudo docker pull phat12a/backend:main
+      run: sudo docker pull phat12a/backend
     - name: Delete Old docker container
       run: sudo docker rm -f backend-container || true
     - name: Run Docker Container
-      run: sudo docker run -d -p 11080:11080 -v ./config.yaml:/app/config.yaml --name backend-container phat12a/backend:main
+      run: sudo docker run -d -p 11080:11080 -v ./config.yaml:/app/config.yaml --name backend-container phat12a/backend
       
