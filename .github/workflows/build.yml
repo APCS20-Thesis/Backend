@@ -5,7 +5,7 @@ name: GoBuild
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "vhyen-patch-1" ]
 
 jobs:
 
