@@ -14,7 +14,7 @@ jobs:
 
     steps:
     - name: Pull Docker image
-      run: sudo docker pull phat12a/backend:latest
+      run: sudo docker pull phat12a/backend:main
     - name: Delete Old docker container
       run: sudo docker rm -f backend-container || true
     - name: Run Docker Container
