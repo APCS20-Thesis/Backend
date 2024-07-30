@@ -46,6 +46,7 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
         repository: phat12a/backend
+        ref: latest
         tag_with_ref: true
         
   # notify:
