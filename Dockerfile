@@ -24,7 +24,7 @@ COPY . ./
 
 # Build
 # RUN export GOOS=linux
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build ./...
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o serverrun cmd/*.go
 
 # Optional:
 # To bind to a TCP port, runtime parameters must be supplied to the docker command.
@@ -35,4 +35,4 @@ EXPOSE 11080
 
 # Run
 # CMD ls .
-CMD ["./initialize", "server"]
+CMD ["./serverrun", "server"]
