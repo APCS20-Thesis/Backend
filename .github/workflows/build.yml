@@ -44,7 +44,7 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
         repository: phat12a/backend
-        tags: latest, ${{ steps.vars.outputs.tag }}
+        tags: latest
         
   # notify:
   #   runs-on: ubuntu-latest
