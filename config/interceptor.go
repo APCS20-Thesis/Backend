@@ -43,5 +43,7 @@ func AccessibleRoles() map[string][]string {
 		rootServicePath + "ApplyPredictModel":                 {"admin", "user"},
 		rootServicePath + "TriggerDataActionRun":              {"admin", "user"},
 		rootServicePath + "GetResultPredictionActions":        {"admin", "user"},
+		rootServicePath + "GetDataActionRunsPerDay":           {"admin", "user"},
+		rootServicePath + "GetDataRunsProportion":             {"admin", "user"},
 	}
 }

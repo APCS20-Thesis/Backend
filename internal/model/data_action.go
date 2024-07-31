@@ -18,6 +18,7 @@ const (
 	ActionType_CreateSegment       ActionType = "CREATE_SEGMENT"
 	ActionType_TrainPredictModel   ActionType = "TRAIN_PREDICT_MODEL"
 	ActionType_ApplyPredictModel   ActionType = "APPLY_PREDICT_MODEL"
+	ActionType_ExportGophish       ActionType = "EXPORT_GOPHISH"
 )
 
 type DataActionTargetTable string

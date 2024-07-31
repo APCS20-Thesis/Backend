@@ -275,9 +275,15 @@ service CDPService {
     };
   }
 
-  rpc GetDataActionsOverview(GetDataActionsOverviewRequest) returns (GetDataActionsOverviewResponse) {
+  rpc GetDataActionRunsPerDay(GetDataActionRunsPerDayRequest) returns (GetDataActionRunsPerDayResponse) {
     option (google.api.http) = {
-      get: "/api/v1/data-action/overview"
+      get: "/api/v1/data-actions/runs-per-day"
+    };
+  }
+
+  rpc GetDataRunsProportion(GetDataRunsProportionRequest) returns (GetDataRunsProportionResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/data-actions/runs-proportion"
     };
   }
 }
@@ -1329,29 +1335,38 @@ message GetResultPredictionActionsResponse {
   repeated string data = 3;
 }
 
-message GetDataActionsOverviewRequest {}
+message GetDataActionRunsPerDayRequest {}
 
-message GetDataActionsOverviewResponse {
+message GetDataActionRunsPerDayResponse {
   // code
   int32 code = 1;
   // message
   string message = 2;
   // actions_per_day
-  repeated TotalActionsPerDay actions_per_day = 3;
-  // actions_proportion
-  repeated ActionPercentage actions_proportion = 4;
+  repeated TotalActionRunsPerDay result = 3;
 
-  message TotalActionsPerDay {
+  message TotalActionRunsPerDay {
     // date
     string date = 1;
-    // total - Total number of actions
+    // total - Total number of action runs
     int32 total = 2;
   }
+}
 
-  message ActionPercentage {
-    // display_name - Action related display name (Segmentation, Sources, Destinations)
-    string display_name = 1;
+message GetDataRunsProportionRequest{}
+
+message GetDataRunsProportionResponse {
+  // code
+  int32 code = 1;
+  // message
+  string message = 2;
+  // results
+  repeated CategoryCount result = 3;
+
+  message CategoryCount {
+    // category - Category of data action runs
+    string category = 1;
     // percentage
-    float percentage = 2;
+    int32 count = 2;
   }
 }

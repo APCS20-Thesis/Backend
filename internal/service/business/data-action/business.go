@@ -12,6 +12,8 @@ import (
 type Business interface {
 	ProcessGetListDataActionRuns(ctx context.Context, request *api.GetListDataActionRunsRequest, accountUuid string) (*api.GetListDataActionRunsResponse, error)
 	ProcessNewDataActionRun(ctx context.Context, request *api.TriggerDataActionRunRequest, accountUuid string) error
+	ProcessGetTotalRunsPerDay(ctx context.Context, accountUuid string) (*api.GetDataActionRunsPerDayResponse, error)
+	ProcessGetDataRunsProportion(ctx context.Context, accountUuid string) (*api.GetDataRunsProportionResponse, error)
 }
 
 type business struct {

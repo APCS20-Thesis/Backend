@@ -33,3 +33,23 @@ func (s *Service) TriggerDataActionRun(ctx context.Context, request *api.Trigger
 		Message: "Success",
 	}, nil
 }
+
+func (s *Service) GetDataActionRunsPerDay(ctx context.Context, request *api.GetDataActionRunsPerDayRequest) (*api.GetDataActionRunsPerDayResponse, error) {
+	accountUuid, err := GetAccountUuidFromCtx(ctx)
+	if err != nil {
+		s.log.WithName("GetDataActionRunsPerDay").Error(err, "cannot get account uuid from context")
+		return nil, err
+	}
+
+	return s.business.DataActionBusiness.ProcessGetTotalRunsPerDay(ctx, accountUuid)
+}
+
+func (s *Service) GetDataRunsProportion(ctx context.Context, request *api.GetDataRunsProportionRequest) (*api.GetDataRunsProportionResponse, error) {
+	accountUuid, err := GetAccountUuidFromCtx(ctx)
+	if err != nil {
+		s.log.WithName("GetDataRunsProportion").Error(err, "cannot get account uuid from context")
+		return nil, err
+	}
+
+	return s.business.DataActionBusiness.ProcessGetDataRunsProportion(ctx, accountUuid)
+}

@@ -6,6 +6,7 @@ import (
 	"github.com/APCS20-Thesis/Backend/internal/adapter/airflow"
 	"github.com/APCS20-Thesis/Backend/internal/model"
 	"github.com/APCS20-Thesis/Backend/internal/repository"
+	"github.com/APCS20-Thesis/Backend/utils"
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -95,4 +96,69 @@ func (b business) ProcessGetListDataActionRuns(ctx context.Context, request *api
 		Results: returnDataActionRuns,
 	}, nil
 
+}
+
+func (b business) ProcessGetTotalRunsPerDay(ctx context.Context, accountUuid string) (*api.GetDataActionRunsPerDayResponse, error) {
+	results, err := b.repository.DataActionRunRepository.GetTotalRunsPerDay(ctx, &repository.GetTotalRunsPerDayParams{AccountUuid: accountUuid})
+	if err != nil {
+		b.log.WithName("ProcessGetTotalRunsPerDay").Error(err, "cannot get data action runs per day", "uuid", accountUuid)
+		return nil, err
+	}
+
+	runsPerDay := utils.Map(results, func(data repository.TotalRunsPerDay) *api.GetDataActionRunsPerDayResponse_TotalActionRunsPerDay {
+		return &api.GetDataActionRunsPerDayResponse_TotalActionRunsPerDay{
+			Date:  data.Date.String(),
+			Total: int32(data.Total),
+		}
+	})
+
+	return &api.GetDataActionRunsPerDayResponse{
+		Code:    0,
+		Message: "Success",
+		Result:  runsPerDay,
+	}, nil
+}
+
+func (b business) ProcessGetDataRunsProportion(ctx context.Context, accountUuid string) (*api.GetDataRunsProportionResponse, error) {
+	results, err := b.repository.DataActionRunRepository.GetTotalRunsPerType(ctx, &repository.GetTotalRunsPerTypeParams{AccountUuid: accountUuid})
+	if err != nil {
+		b.log.WithName("ProcessGetTotalRunsPerDay").Error(err, "cannot get data action runs per day", "uuid", accountUuid)
+		return nil, err
+	}
+
+	typeCount := map[string]int32{
+		"segmentation": 0,
+		"source":       0,
+		"destination":  0,
+	}
+	for _, each := range results {
+		switch each.Type {
+		case model.ActionType_ImportDataFromMySQL, model.ActionType_ImportDataFromFile, model.ActionType_ImportDataFromS3:
+			typeCount["source"] = typeCount["source"] + int32(each.Total)
+		case model.ActionType_ExportDataToS3CSV, model.ActionType_ExportToMySQL, model.ActionType_ExportGophish:
+			typeCount["destination"] = typeCount["destination"] + int32(each.Total)
+		case model.ActionType_CreateSegment, model.ActionType_CreateMasterSegment, model.ActionType_TrainPredictModel, model.ActionType_ApplyPredictModel:
+			typeCount["segmentation"] = typeCount["segmentation"] + int32(each.Total)
+		default:
+		}
+	}
+
+	return &api.GetDataRunsProportionResponse{
+		Code:    0,
+		Message: "Success",
+		Result: []*api.GetDataRunsProportionResponse_CategoryCount{
+			{
+				Category: "Source",
+				Count:    typeCount["source"],
+			},
+			{
+				Category: "Destination",
+				Count:    typeCount["destination"],
+			},
+			{
+				Category: "Segmentation",
+				Count:    typeCount["segmentation"],
+			},
+		},
+	}, nil
 }

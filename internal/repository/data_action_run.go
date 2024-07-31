@@ -13,6 +13,8 @@ type DataActionRunRepository interface {
 	UpdateDataActionRunStatus(ctx context.Context, id int64, status model.DataActionRunStatus) error
 	GetListDataActionRuns(ctx context.Context, params *GetListDataActionRunsParams) (*GetListDataActionRunsResult, error)
 	GetListDataActionRunsWithExtraInfo(ctx context.Context, params *GetListDataActionRunsWithExtraInfoParams) ([]DataActionRunWithExtraInfo, error)
+	GetTotalRunsPerDay(ctx context.Context, params *GetTotalRunsPerDayParams) ([]TotalRunsPerDay, error)
+	GetTotalRunsPerType(ctx context.Context, params *GetTotalRunsPerTypeParams) ([]TotalRunsPerType, error)
 }
 
 type dataActionRunRepo struct {
@@ -170,4 +172,50 @@ func (r *dataActionRunRepo) GetListDataActionRunsWithExtraInfo(ctx context.Conte
 	}
 
 	return dataActionRuns, nil
+}
+
+type TotalRunsPerDay struct {
+	Date  time.Time `gorm:"column:date"`
+	Total int       `gorm:"column:total"`
+}
+
+type GetTotalRunsPerDayParams struct {
+	AccountUuid string
+}
+
+func (r *dataActionRunRepo) GetTotalRunsPerDay(ctx context.Context, params *GetTotalRunsPerDayParams) ([]TotalRunsPerDay, error) {
+
+	var result []TotalRunsPerDay
+	err := r.WithContext(ctx).Table(r.TableName).Select("DATE_TRUNC('day', created_at) AS date, count(*) AS total").
+		Where("created_at >= ? AND account_uuid = ?", time.Now().AddDate(0, 0, -15), params.AccountUuid).
+		Group("DATE_TRUNC('day', created_at)").
+		Find(&result).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+type TotalRunsPerType struct {
+	Type  model.ActionType
+	Total int
+}
+type GetTotalRunsPerTypeParams struct {
+	AccountUuid string
+}
+
+func (r *dataActionRunRepo) GetTotalRunsPerType(ctx context.Context, params *GetTotalRunsPerTypeParams) ([]TotalRunsPerType, error) {
+	var result []TotalRunsPerType
+	err := r.WithContext(ctx).Table(r.TableName).
+		Joins("LEFT JOIN data_action ON data_action.id = data_action_run.action_id").
+		Where("data_action_run.account_uuid = ?", params.AccountUuid).
+		Select("data_action.action_type AS type, COUNT(*) AS total").
+		Group("data_action.action_type").
+		Find(&result).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
