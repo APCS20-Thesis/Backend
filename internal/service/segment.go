@@ -206,3 +206,20 @@ func (s *Service) GetResultPredictionActions(ctx context.Context, request *api.G
 
 	return response, nil
 }
+
+func (s *Service) GetBehaviorProfile(ctx context.Context, request *api.GetBehaviorProfileRequest) (*api.GetBehaviorProfileResponse, error) {
+	accountUuid, err := GetAccountUuidFromCtx(ctx)
+	if err != nil {
+		s.log.WithName("GetMasterSegmentProfiles").Error(err, "cannot get account uuid from context")
+		return nil, err
+	}
+
+	behaviorRecords, err := s.business.SegmentBusiness.GetBehaviorProfile(ctx, request, accountUuid)
+
+	return &api.GetBehaviorProfileResponse{
+		Code:            int32(codes.OK),
+		Message:         "Success",
+		Count:           int64(behaviorRecords.Count),
+		BehaviorRecords: behaviorRecords.Records,
+	}, nil
+}

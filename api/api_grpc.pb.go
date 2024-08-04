@@ -18,6 +18,52 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
+const (
+	CDPService_CheckHealth_FullMethodName                       = "/api.CDPService/CheckHealth"
+	CDPService_Login_FullMethodName                             = "/api.CDPService/Login"
+	CDPService_SignUp_FullMethodName                            = "/api.CDPService/SignUp"
+	CDPService_GetAccountInfo_FullMethodName                    = "/api.CDPService/GetAccountInfo"
+	CDPService_UpdateAccountInfo_FullMethodName                 = "/api.CDPService/UpdateAccountInfo"
+	CDPService_UpdateAccountSetting_FullMethodName              = "/api.CDPService/UpdateAccountSetting"
+	CDPService_GetListDataSources_FullMethodName                = "/api.CDPService/GetListDataSources"
+	CDPService_GetDataSource_FullMethodName                     = "/api.CDPService/GetDataSource"
+	CDPService_GetListDataTables_FullMethodName                 = "/api.CDPService/GetListDataTables"
+	CDPService_GetDataTable_FullMethodName                      = "/api.CDPService/GetDataTable"
+	CDPService_GetQueryDataTable_FullMethodName                 = "/api.CDPService/GetQueryDataTable"
+	CDPService_GetConnection_FullMethodName                     = "/api.CDPService/GetConnection"
+	CDPService_GetListConnections_FullMethodName                = "/api.CDPService/GetListConnections"
+	CDPService_CreateConnection_FullMethodName                  = "/api.CDPService/CreateConnection"
+	CDPService_UpdateConnection_FullMethodName                  = "/api.CDPService/UpdateConnection"
+	CDPService_DeleteConnection_FullMethodName                  = "/api.CDPService/DeleteConnection"
+	CDPService_ExportDataToFile_FullMethodName                  = "/api.CDPService/ExportDataToFile"
+	CDPService_ImportCsvFromS3_FullMethodName                   = "/api.CDPService/ImportCsvFromS3"
+	CDPService_GetListFileExportRecords_FullMethodName          = "/api.CDPService/GetListFileExportRecords"
+	CDPService_CreateMasterSegment_FullMethodName               = "/api.CDPService/CreateMasterSegment"
+	CDPService_GetListMasterSegments_FullMethodName             = "/api.CDPService/GetListMasterSegments"
+	CDPService_GetMasterSegmentDetail_FullMethodName            = "/api.CDPService/GetMasterSegmentDetail"
+	CDPService_CreateSegment_FullMethodName                     = "/api.CDPService/CreateSegment"
+	CDPService_GetListSegments_FullMethodName                   = "/api.CDPService/GetListSegments"
+	CDPService_GetSegmentDetail_FullMethodName                  = "/api.CDPService/GetSegmentDetail"
+	CDPService_CreateGophishUserGroupFromSegment_FullMethodName = "/api.CDPService/CreateGophishUserGroupFromSegment"
+	CDPService_ImportFromMySQLSource_FullMethodName             = "/api.CDPService/ImportFromMySQLSource"
+	CDPService_ExportToMySQLDestination_FullMethodName          = "/api.CDPService/ExportToMySQLDestination"
+	CDPService_GetListDataDestinations_FullMethodName           = "/api.CDPService/GetListDataDestinations"
+	CDPService_GetListDataActionRuns_FullMethodName             = "/api.CDPService/GetListDataActionRuns"
+	CDPService_TrainPredictModel_FullMethodName                 = "/api.CDPService/TrainPredictModel"
+	CDPService_GetListPredictModels_FullMethodName              = "/api.CDPService/GetListPredictModels"
+	CDPService_GetListSourceTableMap_FullMethodName             = "/api.CDPService/GetListSourceTableMap"
+	CDPService_GetDataDestinationDetail_FullMethodName          = "/api.CDPService/GetDataDestinationDetail"
+	CDPService_GetPredictModelDetail_FullMethodName             = "/api.CDPService/GetPredictModelDetail"
+	CDPService_GetMySQLTableSchema_FullMethodName               = "/api.CDPService/GetMySQLTableSchema"
+	CDPService_GetListMasterSegmentProfiles_FullMethodName      = "/api.CDPService/GetListMasterSegmentProfiles"
+	CDPService_ApplyPredictModel_FullMethodName                 = "/api.CDPService/ApplyPredictModel"
+	CDPService_GetListPredictionActions_FullMethodName          = "/api.CDPService/GetListPredictionActions"
+	CDPService_TriggerDataActionRun_FullMethodName              = "/api.CDPService/TriggerDataActionRun"
+	CDPService_GetMasterSegmentProfile_FullMethodName           = "/api.CDPService/GetMasterSegmentProfile"
+	CDPService_GetResultPredictionActions_FullMethodName        = "/api.CDPService/GetResultPredictionActions"
+	CDPService_GetBehaviorProfile_FullMethodName                = "/api.CDPService/GetBehaviorProfile"
+)
+
 // CDPServiceClient is the client API for CDPService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
@@ -64,8 +110,7 @@ type CDPServiceClient interface {
 	TriggerDataActionRun(ctx context.Context, in *TriggerDataActionRunRequest, opts ...grpc.CallOption) (*TriggerDataActionRunResponse, error)
 	GetMasterSegmentProfile(ctx context.Context, in *GetMasterSegmentProfileRequest, opts ...grpc.CallOption) (*GetMasterSegmentProfileResponse, error)
 	GetResultPredictionActions(ctx context.Context, in *GetResultPredictionActionsRequest, opts ...grpc.CallOption) (*GetResultPredictionActionsResponse, error)
-	GetDataActionRunsPerDay(ctx context.Context, in *GetDataActionRunsPerDayRequest, opts ...grpc.CallOption) (*GetDataActionRunsPerDayResponse, error)
-	GetDataRunsProportion(ctx context.Context, in *GetDataRunsProportionRequest, opts ...grpc.CallOption) (*GetDataRunsProportionResponse, error)
+	GetBehaviorProfile(ctx context.Context, in *GetBehaviorProfileRequest, opts ...grpc.CallOption) (*GetBehaviorProfileResponse, error)
 }
 
 type cDPServiceClient struct {
@@ -447,25 +492,16 @@ func (c *cDPServiceClient) GetMasterSegmentProfile(ctx context.Context, in *GetM
 
 func (c *cDPServiceClient) GetResultPredictionActions(ctx context.Context, in *GetResultPredictionActionsRequest, opts ...grpc.CallOption) (*GetResultPredictionActionsResponse, error) {
 	out := new(GetResultPredictionActionsResponse)
-	err := c.cc.Invoke(ctx, "/api.CDPService/GetResultPredictionActions", in, out, opts...)
+	err := c.cc.Invoke(ctx, CDPService_GetResultPredictionActions_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *cDPServiceClient) GetDataActionRunsPerDay(ctx context.Context, in *GetDataActionRunsPerDayRequest, opts ...grpc.CallOption) (*GetDataActionRunsPerDayResponse, error) {
-	out := new(GetDataActionRunsPerDayResponse)
-	err := c.cc.Invoke(ctx, "/api.CDPService/GetDataActionRunsPerDay", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *cDPServiceClient) GetDataRunsProportion(ctx context.Context, in *GetDataRunsProportionRequest, opts ...grpc.CallOption) (*GetDataRunsProportionResponse, error) {
-	out := new(GetDataRunsProportionResponse)
-	err := c.cc.Invoke(ctx, "/api.CDPService/GetDataRunsProportion", in, out, opts...)
+func (c *cDPServiceClient) GetBehaviorProfile(ctx context.Context, in *GetBehaviorProfileRequest, opts ...grpc.CallOption) (*GetBehaviorProfileResponse, error) {
+	out := new(GetBehaviorProfileResponse)
+	err := c.cc.Invoke(ctx, CDPService_GetBehaviorProfile_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -518,8 +554,7 @@ type CDPServiceServer interface {
 	TriggerDataActionRun(context.Context, *TriggerDataActionRunRequest) (*TriggerDataActionRunResponse, error)
 	GetMasterSegmentProfile(context.Context, *GetMasterSegmentProfileRequest) (*GetMasterSegmentProfileResponse, error)
 	GetResultPredictionActions(context.Context, *GetResultPredictionActionsRequest) (*GetResultPredictionActionsResponse, error)
-	GetDataActionRunsPerDay(context.Context, *GetDataActionRunsPerDayRequest) (*GetDataActionRunsPerDayResponse, error)
-	GetDataRunsProportion(context.Context, *GetDataRunsProportionRequest) (*GetDataRunsProportionResponse, error)
+	GetBehaviorProfile(context.Context, *GetBehaviorProfileRequest) (*GetBehaviorProfileResponse, error)
 	mustEmbedUnimplementedCDPServiceServer()
 }
 
@@ -653,11 +688,8 @@ func (UnimplementedCDPServiceServer) GetMasterSegmentProfile(context.Context, *G
 func (UnimplementedCDPServiceServer) GetResultPredictionActions(context.Context, *GetResultPredictionActionsRequest) (*GetResultPredictionActionsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetResultPredictionActions not implemented")
 }
-func (UnimplementedCDPServiceServer) GetDataActionRunsPerDay(context.Context, *GetDataActionRunsPerDayRequest) (*GetDataActionRunsPerDayResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetDataActionRunsPerDay not implemented")
-}
-func (UnimplementedCDPServiceServer) GetDataRunsProportion(context.Context, *GetDataRunsProportionRequest) (*GetDataRunsProportionResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetDataRunsProportion not implemented")
+func (UnimplementedCDPServiceServer) GetBehaviorProfile(context.Context, *GetBehaviorProfileRequest) (*GetBehaviorProfileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBehaviorProfile not implemented")
 }
 func (UnimplementedCDPServiceServer) mustEmbedUnimplementedCDPServiceServer() {}
 
@@ -1428,38 +1460,20 @@ func _CDPService_GetResultPredictionActions_Handler(srv interface{}, ctx context
 	return interceptor(ctx, in, info, handler)
 }
 
-func _CDPService_GetDataActionRunsPerDay_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetDataActionRunsPerDayRequest)
+func _CDPService_GetBehaviorProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetBehaviorProfileRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CDPServiceServer).GetDataActionRunsPerDay(ctx, in)
+		return srv.(CDPServiceServer).GetBehaviorProfile(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/api.CDPService/GetDataActionRunsPerDay",
+		FullMethod: CDPService_GetBehaviorProfile_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CDPServiceServer).GetDataActionRunsPerDay(ctx, req.(*GetDataActionRunsPerDayRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _CDPService_GetDataRunsProportion_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetDataRunsProportionRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CDPServiceServer).GetDataRunsProportion(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/api.CDPService/GetDataRunsProportion",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CDPServiceServer).GetDataRunsProportion(ctx, req.(*GetDataRunsProportionRequest))
+		return srv.(CDPServiceServer).GetBehaviorProfile(ctx, req.(*GetBehaviorProfileRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1640,12 +1654,8 @@ var CDPService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _CDPService_GetResultPredictionActions_Handler,
 		},
 		{
-			MethodName: "GetDataActionRunsPerDay",
-			Handler:    _CDPService_GetDataActionRunsPerDay_Handler,
-		},
-		{
-			MethodName: "GetDataRunsProportion",
-			Handler:    _CDPService_GetDataRunsProportion_Handler,
+			MethodName: "GetBehaviorProfile",
+			Handler:    _CDPService_GetBehaviorProfile_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

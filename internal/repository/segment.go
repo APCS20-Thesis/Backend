@@ -23,7 +23,8 @@ type SegmentRepository interface {
 	UpdateAudienceTable(ctx context.Context, params *UpdateAudienceTableParams) error
 
 	CreateBehaviorTable(ctx context.Context, params *CreateBehaviorTableParams) error
-	ListBehaviorTables(ctx context.Context, params ListBehaviorTablesParams) ([]model.BehaviorTable, error)
+	ListBehaviorTables(ctx context.Context, params *ListBehaviorTablesParams) ([]model.BehaviorTable, error)
+	GetBehaviorTable(ctx context.Context, params *GetBehaviorTableParams) (model.BehaviorTable, error)
 	UpdateBehaviorTable(ctx context.Context, params *UpdateBehaviorTableParams) error
 
 	CreateSegment(ctx context.Context, params *CreateSegmentParams) (*model.Segment, error)
@@ -225,7 +226,7 @@ type ListBehaviorTablesParams struct {
 	MasterSegmentId int64
 }
 
-func (r *segmentRepo) ListBehaviorTables(ctx context.Context, params ListBehaviorTablesParams) ([]model.BehaviorTable, error) {
+func (r *segmentRepo) ListBehaviorTables(ctx context.Context, params *ListBehaviorTablesParams) ([]model.BehaviorTable, error) {
 	var behaviorTables []model.BehaviorTable
 	err := r.WithContext(ctx).Table(r.BehaviorTableName).
 		Where("master_segment_id = ?", params.MasterSegmentId).
@@ -274,6 +275,22 @@ func (r *segmentRepo) GetAudienceTable(ctx context.Context, params GetAudienceTa
 	}
 
 	return audienceTable, nil
+}
+
+type GetBehaviorTableParams struct {
+	Id int64
+}
+
+func (r *segmentRepo) GetBehaviorTable(ctx context.Context, params *GetBehaviorTableParams) (model.BehaviorTable, error) {
+	var behaviorTable model.BehaviorTable
+	err := r.WithContext(ctx).Table(r.BehaviorTableName).
+		Where("id = ?", params.Id).
+		Find(&behaviorTable).Error
+	if err != nil {
+		return model.BehaviorTable{}, err
+	}
+
+	return behaviorTable, nil
 }
 
 type UpdateAudienceTableParams struct {

@@ -265,7 +265,7 @@ service CDPService {
 
   rpc GetMasterSegmentProfile(GetMasterSegmentProfileRequest) returns (GetMasterSegmentProfileResponse) {
     option (google.api.http) = {
-      get: "/api/v1/master-segment/profiles/{id}"
+      get: "/api/v1/master-segment/{id}/profile/{cdp_system_uuid}"
     };
   }
 
@@ -284,6 +284,12 @@ service CDPService {
   rpc GetDataRunsProportion(GetDataRunsProportionRequest) returns (GetDataRunsProportionResponse) {
     option (google.api.http) = {
       get: "/api/v1/data-actions/runs-proportion"
+    };
+  }
+
+  rpc GetBehaviorProfile(GetBehaviorProfileRequest) returns (GetBehaviorProfileResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/behavior/profile"
     };
   }
 }
@@ -1308,6 +1314,8 @@ message TriggerDataActionRunResponse {
 message GetMasterSegmentProfileRequest {
   // id
   int64 id = 1;
+  // cdp_system_uuid
+  string cdp_system_uuid = 2;
 }
 
 // GetMasterSegmentProfile Response
@@ -1369,4 +1377,25 @@ message GetDataRunsProportionResponse {
     // percentage
     int32 count = 2;
   }
+}
+
+
+// GetBehaviorProfile Request
+message GetBehaviorProfileRequest {
+  // id
+  int64 id = 1;
+  // foreign_key_value
+  string foreign_key_value = 2;
+}
+
+// GetBehaviorProfile Response
+message GetBehaviorProfileResponse {
+  // code
+  int32 code = 1;
+  // message
+  string message = 2;
+  // count
+  int64 count = 3;
+  // behavior_record
+  repeated string behavior_records = 4;
 }

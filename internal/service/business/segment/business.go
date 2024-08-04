@@ -26,6 +26,7 @@ type Business interface {
 	GetMasterSegmentDetail(ctx context.Context, request *api.GetMasterSegmentDetailRequest, accountUuid string) (*api.MasterSegmentDetail, error)
 	ListMasterSegmentProfiles(ctx context.Context, request *api.GetListMasterSegmentProfilesRequest, accountUuid string) (int64, []string, error)
 	GetMasterSegmentProfile(ctx context.Context, request *api.GetMasterSegmentProfileRequest, accountUuid string) (string, error)
+	GetBehaviorProfile(ctx context.Context, request *api.GetBehaviorProfileRequest, accountUuid string) (*BehaviorProfileRecords, error)
 
 	SyncOnCreateMasterSegment(ctx context.Context, masterSegmentId int64, actionStatus model.DataActionStatus) error
 }
