@@ -1343,7 +1343,7 @@ message GetDataActionRunsPerDayResponse {
   // message
   string message = 2;
   // actions_per_day
-  repeated TotalActionRunsPerDay result = 3;
+  repeated TotalActionRunsPerDay results = 3;
 
   message TotalActionRunsPerDay {
     // date
@@ -1361,7 +1361,7 @@ message GetDataRunsProportionResponse {
   // message
   string message = 2;
   // results
-  repeated CategoryCount result = 3;
+  repeated CategoryCount results = 3;
 
   message CategoryCount {
     // category - Category of data action runs

@@ -11,6 +11,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
+	"time"
 )
 
 func (b business) ProcessNewDataActionRun(ctx context.Context, request *api.TriggerDataActionRunRequest, accountUuid string) error {
@@ -99,13 +100,38 @@ func (b business) ProcessGetListDataActionRuns(ctx context.Context, request *api
 }
 
 func (b business) ProcessGetTotalRunsPerDay(ctx context.Context, accountUuid string) (*api.GetDataActionRunsPerDayResponse, error) {
+	const days = 15
+
 	results, err := b.repository.DataActionRunRepository.GetTotalRunsPerDay(ctx, &repository.GetTotalRunsPerDayParams{AccountUuid: accountUuid})
 	if err != nil {
 		b.log.WithName("ProcessGetTotalRunsPerDay").Error(err, "cannot get data action runs per day", "uuid", accountUuid)
 		return nil, err
 	}
 
-	runsPerDay := utils.Map(results, func(data repository.TotalRunsPerDay) *api.GetDataActionRunsPerDayResponse_TotalActionRunsPerDay {
+	// Generate dates for the last 15 days
+	dates := make([]time.Time, 0, days)
+	currentTime := time.Now()
+	currentDate := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 7, 0, 0, 0, currentTime.Location())
+	for i := days; i > 0; i-- {
+		dates = append(dates, currentDate.AddDate(0, 0, -i))
+	}
+
+	// Check and add missing dates to the data array
+	fulfilledResult := make([]repository.TotalRunsPerDay, 0, days)
+	arrIdx := 0
+	for _, date := range dates {
+		if arrIdx < len(results) && results[arrIdx].Date == date {
+			fulfilledResult = append(fulfilledResult, results[arrIdx])
+			arrIdx++
+		} else {
+			fulfilledResult = append(fulfilledResult, repository.TotalRunsPerDay{
+				Date:  date,
+				Total: 0,
+			})
+		}
+	}
+
+	runsPerDay := utils.Map(fulfilledResult, func(data repository.TotalRunsPerDay) *api.GetDataActionRunsPerDayResponse_TotalActionRunsPerDay {
 		return &api.GetDataActionRunsPerDayResponse_TotalActionRunsPerDay{
 			Date:  data.Date.String(),
 			Total: int32(data.Total),
@@ -115,7 +141,7 @@ func (b business) ProcessGetTotalRunsPerDay(ctx context.Context, accountUuid str
 	return &api.GetDataActionRunsPerDayResponse{
 		Code:    0,
 		Message: "Success",
-		Result:  runsPerDay,
+		Results: runsPerDay,
 	}, nil
 }
 
@@ -146,7 +172,7 @@ func (b business) ProcessGetDataRunsProportion(ctx context.Context, accountUuid 
 	return &api.GetDataRunsProportionResponse{
 		Code:    0,
 		Message: "Success",
-		Result: []*api.GetDataRunsProportionResponse_CategoryCount{
+		Results: []*api.GetDataRunsProportionResponse_CategoryCount{
 			{
 				Category: "Source",
 				Count:    typeCount["source"],

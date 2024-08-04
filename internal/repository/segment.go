@@ -250,9 +250,9 @@ func (r *segmentRepo) UpdateBehaviorTable(ctx context.Context, params *UpdateBeh
 	}
 	var updateErr error
 	if params.Tx != nil {
-		updateErr = params.Tx.WithContext(ctx).Table(r.AudienceTableName).Where("id = ?", params.Id).Updates(&behaviorTable).Error
+		updateErr = params.Tx.WithContext(ctx).Table(r.BehaviorTableName).Where("id = ?", params.Id).Updates(&behaviorTable).Error
 	} else {
-		updateErr = r.WithContext(ctx).Table(r.AudienceTableName).Where("id = ?", params.Id).Updates(&behaviorTable).Error
+		updateErr = r.WithContext(ctx).Table(r.BehaviorTableName).Where("id = ?", params.Id).Updates(&behaviorTable).Error
 	}
 	if updateErr != nil {
 		return updateErr
