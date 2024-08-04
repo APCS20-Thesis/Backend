@@ -274,6 +274,18 @@ service CDPService {
       get: "/api/v1/master-segment/prediction/{action_id}"
     };
   }
+
+  rpc GetDataActionRunsPerDay(GetDataActionRunsPerDayRequest) returns (GetDataActionRunsPerDayResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/data-actions/runs-per-day"
+    };
+  }
+
+  rpc GetDataRunsProportion(GetDataRunsProportionRequest) returns (GetDataRunsProportionResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/data-actions/runs-proportion"
+    };
+  }
 }
 
 // CheckHealthRequest
@@ -1321,4 +1333,40 @@ message GetResultPredictionActionsResponse {
   int64 count = 2;
   // data
   repeated string data = 3;
+}
+
+message GetDataActionRunsPerDayRequest {}
+
+message GetDataActionRunsPerDayResponse {
+  // code
+  int32 code = 1;
+  // message
+  string message = 2;
+  // actions_per_day
+  repeated TotalActionRunsPerDay results = 3;
+
+  message TotalActionRunsPerDay {
+    // date
+    string date = 1;
+    // total - Total number of action runs
+    int32 total = 2;
+  }
+}
+
+message GetDataRunsProportionRequest{}
+
+message GetDataRunsProportionResponse {
+  // code
+  int32 code = 1;
+  // message
+  string message = 2;
+  // results
+  repeated CategoryCount results = 3;
+
+  message CategoryCount {
+    // category - Category of data action runs
+    string category = 1;
+    // percentage
+    int32 count = 2;
+  }
 }

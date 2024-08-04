@@ -34,6 +34,7 @@ type CreateDataActionParams struct {
 	Status      model.DataActionStatus
 	ObjectId    int64
 	Payload     pqtype.NullRawMessage
+	RunCount    int64
 }
 
 func (r *dataActionRepo) CreateDataAction(ctx context.Context, params *CreateDataActionParams) (*model.DataAction, error) {
@@ -46,6 +47,7 @@ func (r *dataActionRepo) CreateDataAction(ctx context.Context, params *CreateDat
 		TargetTable: params.TargetTable,
 		ObjectId:    params.ObjectId,
 		AccountUuid: params.AccountUuid,
+		RunCount:    params.RunCount,
 	}
 
 	createErr := r.WithContext(ctx).Table(r.TableName).Create(&dataAction).Error
