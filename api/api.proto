@@ -599,9 +599,9 @@ message CreateConnectionResponse {
 // GetListConnections Request
 message GetListConnectionsRequest {
   // type
-  string type = 1 [(validate.rules).string.min_len = 1];
+  string type = 1;
   // name
-  string name = 2 [(validate.rules).string.min_len = 1];
+  string name = 2;
   // page
   int32 page = 3;
   // page_size
@@ -922,7 +922,7 @@ message CreateSegmentRequest {
   // master_segment_id
   int64 master_segment_id = 1 [(validate.rules).int64.gt = 0];
   // name
-  string name = 2;
+  string name = 2 [(validate.rules).string.min_len = 1];
   // description
   string description = 3;
   // condition - Audience filter condition in json format
@@ -1040,9 +1040,9 @@ message ExportToMySQLDestinationRequest {
   // segment_id - Export segment to MySQL destination
   int64 segment_id = 3;
   // connection_id - MySQL connection
-  int64 connection_id = 4;
+  int64 connection_id = 4 [(validate.rules).int64.gt = 0];
   // destination_table_name - Output table name
-  string destination_table_name = 5;
+  string destination_table_name = 5 [(validate.rules).string.min_len = 1];
 }
 
 message ExportToMySQLDestinationResponse {
@@ -1090,7 +1090,7 @@ message GetListDataActionRunsResponse {
 
 message TrainPredictModelRequest {
   // name
-  string name = 1;
+  string name = 1 [(validate.rules).string.min_len = 1];
   // master_segment_id
   int64 master_segment_id = 2 [(validate.rules).int64.gt = 0];
   // segment1_id - id of first segment for train data
@@ -1294,7 +1294,7 @@ message GetListPredictionActionsResponse {
 
 message TriggerDataActionRunRequest {
   // id - Data Action id
-  int64 id = 1;
+  int64 id = 1 [(validate.rules).int64.gt = 0];
 }
 
 message TriggerDataActionRunResponse {

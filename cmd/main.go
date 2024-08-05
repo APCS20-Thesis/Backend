@@ -10,6 +10,8 @@ import (
 	"github.com/APCS20-Thesis/Backend/internal/service"
 	"github.com/go-logr/logr"
 	migrateV4 "github.com/golang-migrate/migrate/v4"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/viper"
 	"github.com/urfave/cli/v2"
@@ -100,7 +102,9 @@ func serverAction(cliCtx *cli.Context) error {
 	jwtManager := service.NewJWTManager(secretKey, tokenDuration)
 	interceptor := service.NewAuthInterceptor(jwtManager, config.AccessibleRoles())
 
-	s := grpc.NewServer(grpc.UnaryInterceptor(interceptor.Unary()))
+	s := grpc.NewServer(
+		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(interceptor.Unary(), grpc_validator.UnaryServerInterceptor())),
+	)
 	reflection.Register(s)
 	// Attach the Greeter service to the server
 
