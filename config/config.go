@@ -48,7 +48,7 @@ func loadDefaultConfig() *Config {
 			Username: "airflow",
 			Password: "airflow",
 		},
-		QueryAdapterConfig: QueryConfig{Address: "http://103.109.43.33"},
+		QueryAdapterConfig: QueryConfig{Address: "http://localhost:8000"},
 		MqttAdapterConfig: MqttConfig{
 			Host:     "localhost",
 			Port:     1883,
