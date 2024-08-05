@@ -769,7 +769,7 @@ message ImportCsvFromS3Request {
   // configuration
   ImportCsvConfigurations configurations = 6;
   // table_id
-  int64 table_id = 7 [(validate.rules).int64.gt = 0];
+  int64 table_id = 7 [(validate.rules).int64.gte = 0];
   // new_table_name
   string new_table_name = 8;
   // name
@@ -1016,15 +1016,15 @@ message ImportFromMySQLSourceRequest {
   // name - Name of data source
   string name = 1 [(validate.rules).string.min_len = 1];
   // description - Description of data source
-  string description = 2 [(validate.rules).string.min_len = 1];
+  string description = 2;
   // connection_id - MySQL connection id
   int64 connection_id = 3 [(validate.rules).int64.gt = 0];
   // source_table_name - MySQL table name to import data from
   string source_table_name = 4 [(validate.rules).string.min_len = 1];
   // delta_table_name - Delta table name where data will be stored
-  string delta_table_name = 5 [(validate.rules).string.min_len = 1];
+  string delta_table_name = 5;
   // delta_table_id - Delta table already exist in system
-  int64 delta_table_id = 6 [(validate.rules).int64.gt = 0];
+  int64 delta_table_id = 6 [(validate.rules).int64.gte = 0];
   // write mode - append or overwrite if table exist
   string write_mode = 7;
   // mapping_options

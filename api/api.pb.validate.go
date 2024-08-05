@@ -3117,10 +3117,10 @@ func (m *ImportCsvFromS3Request) Validate() error {
 		}
 	}
 
-	if m.GetTableId() <= 0 {
+	if m.GetTableId() < 0 {
 		return ImportCsvFromS3RequestValidationError{
 			field:  "TableId",
-			reason: "value must be greater than 0",
+			reason: "value must be greater than or equal to 0",
 		}
 	}
 
@@ -4539,12 +4539,7 @@ func (m *ImportFromMySQLSourceRequest) Validate() error {
 		}
 	}
 
-	if utf8.RuneCountInString(m.GetDescription()) < 1 {
-		return ImportFromMySQLSourceRequestValidationError{
-			field:  "Description",
-			reason: "value length must be at least 1 runes",
-		}
-	}
+	// no validation rules for Description
 
 	if m.GetConnectionId() <= 0 {
 		return ImportFromMySQLSourceRequestValidationError{
@@ -4560,17 +4555,12 @@ func (m *ImportFromMySQLSourceRequest) Validate() error {
 		}
 	}
 
-	if utf8.RuneCountInString(m.GetDeltaTableName()) < 1 {
-		return ImportFromMySQLSourceRequestValidationError{
-			field:  "DeltaTableName",
-			reason: "value length must be at least 1 runes",
-		}
-	}
+	// no validation rules for DeltaTableName
 
-	if m.GetDeltaTableId() <= 0 {
+	if m.GetDeltaTableId() < 0 {
 		return ImportFromMySQLSourceRequestValidationError{
 			field:  "DeltaTableId",
-			reason: "value must be greater than 0",
+			reason: "value must be greater than or equal to 0",
 		}
 	}
 
