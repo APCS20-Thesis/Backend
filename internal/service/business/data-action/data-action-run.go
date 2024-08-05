@@ -112,7 +112,7 @@ func (b business) ProcessGetTotalRunsPerDay(ctx context.Context, accountUuid str
 	dates := make([]time.Time, 0, days)
 	currentTime := time.Now()
 	currentDate := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 7, 0, 0, 0, currentTime.Location())
-	for i := days; i > 0; i-- {
+	for i := days - 1; i >= 0; i-- {
 		dates = append(dates, currentDate.AddDate(0, 0, -i))
 	}
 
