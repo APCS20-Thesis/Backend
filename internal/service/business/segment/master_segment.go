@@ -202,8 +202,8 @@ func (b business) ListMasterSegmentProfiles(ctx context.Context, request *api.Ge
 		return 0, nil, status.Error(codes.PermissionDenied, "No have permission with master segment")
 	}
 	path := fmt.Sprintf("s3a://%s/%s", b.config.S3StorageConfig.Bucket, utils.GenerateDeltaAudiencePath(request.Id))
-	limit := request.PageSize
-	offset := (request.Page - 1) / request.PageSize
+
+	limit, offset := covertLimitOffsetFromPageAndPageSize(request.Page, request.PageSize)
 	queryResponse, err := b.queryAdapter.QueryRawSQLV2(ctx, &query.QueryRawSQLV2Request{
 		Query: fmt.Sprintf("SELECT * FROM delta.`%s` LIMIT %d OFFSET %d;", path, limit, offset),
 	})
@@ -213,6 +213,18 @@ func (b business) ListMasterSegmentProfiles(ctx context.Context, request *api.Ge
 
 	//res := query.QueryV2Paginate(request.Page, request.PageSize, queryResponse.Data)
 	return int64(queryResponse.Count), queryResponse.Data, nil
+}
+
+func covertLimitOffsetFromPageAndPageSize(page int32, pageSize int32) (limit int32, offset int32) {
+	limit = pageSize
+	if limit <= 0 || limit > 100 {
+		limit = 100
+	}
+	offset = (page - 1) / limit
+	if offset < 0 {
+		offset = 0
+	}
+	return limit, offset
 }
 
 func (b business) GetMasterSegmentProfile(ctx context.Context, request *api.GetMasterSegmentProfileRequest, accountUuid string) (string, error) {
