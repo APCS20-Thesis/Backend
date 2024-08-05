@@ -1765,6 +1765,17 @@ func request_CDPService_GetMasterSegmentProfile_0(ctx context.Context, marshaler
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 
+	val, ok = pathParams["cdp_system_uuid"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "cdp_system_uuid")
+	}
+
+	protoReq.CdpSystemUuid, err = runtime.String(val)
+
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "cdp_system_uuid", err)
+	}
+
 	msg, err := client.GetMasterSegmentProfile(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
@@ -1790,6 +1801,17 @@ func local_request_CDPService_GetMasterSegmentProfile_0(ctx context.Context, mar
 
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
+	}
+
+	val, ok = pathParams["cdp_system_uuid"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "cdp_system_uuid")
+	}
+
+	protoReq.CdpSystemUuid, err = runtime.String(val)
+
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "cdp_system_uuid", err)
 	}
 
 	msg, err := server.GetMasterSegmentProfile(ctx, &protoReq)
@@ -1883,6 +1905,42 @@ func local_request_CDPService_GetDataRunsProportion_0(ctx context.Context, marsh
 	var metadata runtime.ServerMetadata
 
 	msg, err := server.GetDataRunsProportion(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+var (
+	filter_CDPService_GetBehaviorProfile_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+)
+
+func request_CDPService_GetBehaviorProfile_0(ctx context.Context, marshaler runtime.Marshaler, client CDPServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetBehaviorProfileRequest
+	var metadata runtime.ServerMetadata
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_CDPService_GetBehaviorProfile_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.GetBehaviorProfile(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_CDPService_GetBehaviorProfile_0(ctx context.Context, marshaler runtime.Marshaler, server CDPServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetBehaviorProfileRequest
+	var metadata runtime.ServerMetadata
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_CDPService_GetBehaviorProfile_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.GetBehaviorProfile(ctx, &protoReq)
 	return msg, metadata, err
 
 }
@@ -2770,6 +2828,26 @@ func RegisterCDPServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_CDPService_GetDataRunsProportion_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("GET", pattern_CDPService_GetBehaviorProfile_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_CDPService_GetBehaviorProfile_0(rctx, inboundMarshaler, server, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_CDPService_GetBehaviorProfile_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -3694,6 +3772,26 @@ func RegisterCDPServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 
 	})
 
+	mux.Handle("GET", pattern_CDPService_GetBehaviorProfile_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_CDPService_GetBehaviorProfile_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_CDPService_GetBehaviorProfile_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
 	return nil
 }
 
@@ -3778,13 +3876,15 @@ var (
 
 	pattern_CDPService_TriggerDataActionRun_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"api", "v1", "data-actions", "id", "run"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_CDPService_GetMasterSegmentProfile_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "v1", "master-segment", "profiles", "id"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_CDPService_GetMasterSegmentProfile_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "v1", "master-segment", "id", "profile", "cdp_system_uuid"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_CDPService_GetResultPredictionActions_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "v1", "master-segment", "prediction", "action_id"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_CDPService_GetDataActionRunsPerDay_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "data-actions", "runs-per-day"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_CDPService_GetDataRunsProportion_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "data-actions", "runs-proportion"}, "", runtime.AssumeColonVerbOpt(true)))
+
+	pattern_CDPService_GetBehaviorProfile_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "behavior", "profile"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (
@@ -3875,4 +3975,6 @@ var (
 	forward_CDPService_GetDataActionRunsPerDay_0 = runtime.ForwardResponseMessage
 
 	forward_CDPService_GetDataRunsProportion_0 = runtime.ForwardResponseMessage
+
+	forward_CDPService_GetBehaviorProfile_0 = runtime.ForwardResponseMessage
 )

@@ -66,6 +66,7 @@ type CDPServiceClient interface {
 	GetResultPredictionActions(ctx context.Context, in *GetResultPredictionActionsRequest, opts ...grpc.CallOption) (*GetResultPredictionActionsResponse, error)
 	GetDataActionRunsPerDay(ctx context.Context, in *GetDataActionRunsPerDayRequest, opts ...grpc.CallOption) (*GetDataActionRunsPerDayResponse, error)
 	GetDataRunsProportion(ctx context.Context, in *GetDataRunsProportionRequest, opts ...grpc.CallOption) (*GetDataRunsProportionResponse, error)
+	GetBehaviorProfile(ctx context.Context, in *GetBehaviorProfileRequest, opts ...grpc.CallOption) (*GetBehaviorProfileResponse, error)
 }
 
 type cDPServiceClient struct {
@@ -472,6 +473,15 @@ func (c *cDPServiceClient) GetDataRunsProportion(ctx context.Context, in *GetDat
 	return out, nil
 }
 
+func (c *cDPServiceClient) GetBehaviorProfile(ctx context.Context, in *GetBehaviorProfileRequest, opts ...grpc.CallOption) (*GetBehaviorProfileResponse, error) {
+	out := new(GetBehaviorProfileResponse)
+	err := c.cc.Invoke(ctx, "/api.CDPService/GetBehaviorProfile", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CDPServiceServer is the server API for CDPService service.
 // All implementations must embed UnimplementedCDPServiceServer
 // for forward compatibility
@@ -520,6 +530,7 @@ type CDPServiceServer interface {
 	GetResultPredictionActions(context.Context, *GetResultPredictionActionsRequest) (*GetResultPredictionActionsResponse, error)
 	GetDataActionRunsPerDay(context.Context, *GetDataActionRunsPerDayRequest) (*GetDataActionRunsPerDayResponse, error)
 	GetDataRunsProportion(context.Context, *GetDataRunsProportionRequest) (*GetDataRunsProportionResponse, error)
+	GetBehaviorProfile(context.Context, *GetBehaviorProfileRequest) (*GetBehaviorProfileResponse, error)
 	mustEmbedUnimplementedCDPServiceServer()
 }
 
@@ -658,6 +669,9 @@ func (UnimplementedCDPServiceServer) GetDataActionRunsPerDay(context.Context, *G
 }
 func (UnimplementedCDPServiceServer) GetDataRunsProportion(context.Context, *GetDataRunsProportionRequest) (*GetDataRunsProportionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDataRunsProportion not implemented")
+}
+func (UnimplementedCDPServiceServer) GetBehaviorProfile(context.Context, *GetBehaviorProfileRequest) (*GetBehaviorProfileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBehaviorProfile not implemented")
 }
 func (UnimplementedCDPServiceServer) mustEmbedUnimplementedCDPServiceServer() {}
 
@@ -1464,6 +1478,24 @@ func _CDPService_GetDataRunsProportion_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CDPService_GetBehaviorProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetBehaviorProfileRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDPServiceServer).GetBehaviorProfile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.CDPService/GetBehaviorProfile",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDPServiceServer).GetBehaviorProfile(ctx, req.(*GetBehaviorProfileRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CDPService_ServiceDesc is the grpc.ServiceDesc for CDPService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1646,6 +1678,10 @@ var CDPService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetDataRunsProportion",
 			Handler:    _CDPService_GetDataRunsProportion_Handler,
+		},
+		{
+			MethodName: "GetBehaviorProfile",
+			Handler:    _CDPService_GetBehaviorProfile_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

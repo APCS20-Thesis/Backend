@@ -121,7 +121,7 @@ func (b business) GetMasterSegmentDetail(ctx context.Context, request *api.GetMa
 	}
 
 	// Get behavior tables
-	behaviorTables, err := b.repository.ListBehaviorTables(ctx, repository.ListBehaviorTablesParams{
+	behaviorTables, err := b.repository.ListBehaviorTables(ctx, &repository.ListBehaviorTablesParams{
 		MasterSegmentId: request.Id,
 	})
 	if err != nil {
@@ -198,7 +198,7 @@ func (b business) ListMasterSegmentProfiles(ctx context.Context, request *api.Ge
 	}
 
 	if masterSegment.AccountUuid.String() != accountUuid {
-		b.log.WithName("ListMasterSegmentProfiles").WithValues("masterSegmentId", request.Id).Error(err, "No have permission with dataTable")
+		b.log.WithName("ListMasterSegmentProfiles").WithValues("masterSegmentId", request.Id).Error(err, "No have permission with master segment")
 		return 0, nil, status.Error(codes.PermissionDenied, "No have permission with master segment")
 	}
 	path := fmt.Sprintf("s3a://%s/%s", b.config.S3StorageConfig.Bucket, utils.GenerateDeltaAudiencePath(request.Id))
@@ -228,19 +228,19 @@ func covertLimitOffsetFromPageAndPageSize(page int32, pageSize int32) (limit int
 }
 
 func (b business) GetMasterSegmentProfile(ctx context.Context, request *api.GetMasterSegmentProfileRequest, accountUuid string) (string, error) {
-	masterSegment, err := b.repository.GetMasterSegment(ctx, request.Id)
+	masterSegment, err := b.repository.SegmentRepository.GetMasterSegment(ctx, request.Id)
 	if err != nil {
 		b.log.WithName("GetMasterSegmentDetail").Error(err, "cannot get master segment data")
 		return "", err
 	}
 
 	if masterSegment.AccountUuid.String() != accountUuid {
-		b.log.WithName("ListMasterSegmentProfiles").WithValues("masterSegmentId", request.Id).Error(err, "No have permission with dataTable")
+		b.log.WithName("GetMasterSegmentProfile").Error(err, "No have permission with master segment")
 		return "", status.Error(codes.PermissionDenied, "No have permission with master segment")
 	}
 	path := fmt.Sprintf("s3a://%s/%s", b.config.S3StorageConfig.Bucket, utils.GenerateDeltaAudiencePath(request.Id))
 	queryResponse, err := b.queryAdapter.QueryRawSQLV2(ctx, &query.QueryRawSQLV2Request{
-		Query: fmt.Sprintf("SELECT * FROM delta.`%s`;", path),
+		Query: fmt.Sprintf("SELECT * FROM delta.`%s`WHERE cdp_system_uuid='%s';", path, request.CdpSystemUuid),
 	})
 	if err != nil {
 		return "", err
@@ -268,7 +268,7 @@ func (b business) SyncOnCreateMasterSegment(ctx context.Context, masterSegmentId
 		b.log.WithName("SyncOnCreateMasterSegment").Error(err, "cannot get audience table", "masterSegmentId", masterSegmentId)
 		return err
 	}
-	behaviorTables, err := b.repository.SegmentRepository.ListBehaviorTables(ctx, repository.ListBehaviorTablesParams{MasterSegmentId: masterSegmentId})
+	behaviorTables, err := b.repository.SegmentRepository.ListBehaviorTables(ctx, &repository.ListBehaviorTablesParams{MasterSegmentId: masterSegmentId})
 	if err != nil {
 		b.log.WithName("SyncOnCreateMasterSegment").Error(err, "cannot get behavior tables", "masterSegmentId", masterSegmentId)
 		return err
@@ -349,4 +349,39 @@ func (b business) SyncOnCreateMasterSegment(ctx context.Context, masterSegmentId
 
 	tx.Commit()
 	return nil
+}
+
+type BehaviorProfileRecords struct {
+	Count   int32
+	Records []string
+}
+
+func (b business) GetBehaviorProfile(ctx context.Context, request *api.GetBehaviorProfileRequest, accountUuid string) (*BehaviorProfileRecords, error) {
+	behaviorTable, err := b.repository.SegmentRepository.GetBehaviorTable(ctx, &repository.GetBehaviorTableParams{Id: request.Id})
+	if err != nil {
+		b.log.WithName("GetBehaviorProfile").Error(err, "cannot get behavior table")
+		return nil, err
+	}
+	masterSegment, err := b.repository.SegmentRepository.GetMasterSegment(ctx, behaviorTable.MasterSegmentId)
+	if err != nil {
+		b.log.WithName("GetBehaviorProfile").Error(err, "cannot get master segment")
+		return nil, err
+	}
+
+	if masterSegment.AccountUuid.String() != accountUuid {
+		b.log.WithName("GetBehaviorProfile").Error(err, "No have permission with behavior table")
+		return nil, status.Error(codes.PermissionDenied, "No have permission with behavior")
+	}
+	path := fmt.Sprintf("s3a://%s/%s", b.config.S3StorageConfig.Bucket, utils.GenerateDeltaBehaviorPath(masterSegment.ID, behaviorTable.Name))
+	queryResponse, err := b.queryAdapter.QueryRawSQLV2(ctx, &query.QueryRawSQLV2Request{
+		Query: fmt.Sprintf("SELECT * FROM delta.`%s` WHERE %s='%s';", path, behaviorTable.ForeignKey, request.ForeignKeyValue),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &BehaviorProfileRecords{
+		Count:   int32(queryResponse.Count),
+		Records: queryResponse.Data,
+	}, nil
 }

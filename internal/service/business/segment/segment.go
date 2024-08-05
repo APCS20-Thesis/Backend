@@ -42,7 +42,7 @@ func (b business) CreateSegment(ctx context.Context, request *api.CreateSegmentR
 		return err
 	}
 
-	behaviorTables, err := b.repository.SegmentRepository.ListBehaviorTables(ctx, repository.ListBehaviorTablesParams{
+	behaviorTables, err := b.repository.SegmentRepository.ListBehaviorTables(ctx, &repository.ListBehaviorTablesParams{
 		MasterSegmentId: request.MasterSegmentId,
 	})
 	behaviorTablesMap := make(map[int64]model.BehaviorTable)
