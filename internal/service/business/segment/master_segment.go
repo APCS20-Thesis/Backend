@@ -307,11 +307,13 @@ func (b business) SyncOnCreateMasterSegment(ctx context.Context, masterSegmentId
 	}
 	// Sync behavior schemas
 	for _, behaviorTable := range behaviorTables {
+		b.log.WithName("SyncOnCreateMasterSegment").Info("sync behavior", "behaviorTable", behaviorTable.Name)
 		response, err := b.queryAdapter.GetSchemaTable(ctx, &query.GetSchemaDataTableRequest{
 			TablePath: utils.GenerateDeltaBehaviorPath(masterSegmentId, behaviorTable.Name),
 		})
 		if err != nil {
 			b.log.WithName("job:SyncOnCreateMasterSegment").Error(err, "cannot query behavior table schema")
+			tx.Rollback()
 			return err
 		}
 		schema := utils.Map(response.Schema, func(unit query.FieldSchema) model.SchemaUnit {
@@ -325,6 +327,7 @@ func (b business) SyncOnCreateMasterSegment(ctx context.Context, masterSegmentId
 			b.log.WithName("SyncOnCreateMasterSegment").Error(err, "cannot parse schema")
 			return err
 		}
+		b.log.WithName("SyncOnCreateMasterSegment").Info("update", "behaviorTable", behaviorTable.Name, "schema", jsonSchema)
 		err = b.repository.SegmentRepository.UpdateBehaviorTable(ctx, &repository.UpdateBehaviorTableParams{
 			Tx:     tx,
 			Id:     behaviorTable.ID,
