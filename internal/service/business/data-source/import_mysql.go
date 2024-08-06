@@ -15,6 +15,14 @@ import (
 func (b business) ProcessImportFromMySQLSource(ctx context.Context, request *api.ImportFromMySQLSourceRequest, accountUuid uuid.UUID) error {
 	logger := b.log.WithName("ProcessImportFromMySQLSource").WithValues("request", request)
 
+	// Check if table name is already exist
+	if request.DeltaTableId > 0 {
+		err := b.repository.DataTableRepository.CheckExistsDataTableName(ctx, request.DeltaTableName, accountUuid.String())
+		if err != nil {
+			return err
+		}
+	}
+
 	mySQLConnection, err := b.repository.ConnectionRepository.GetConnection(ctx, request.ConnectionId)
 	if err != nil {
 		logger.Error(err, "cannot get connection")
