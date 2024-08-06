@@ -29,7 +29,7 @@ type SegmentRepository interface {
 
 	CreateSegment(ctx context.Context, params *CreateSegmentParams) (*model.Segment, error)
 	ListSegments(ctx context.Context, filter *ListSegmentFilter) ([]SegmentListItem, error)
-	GetSegment(ctx context.Context, segmentId int64, accountUuid string) (model.Segment, error)
+	GetSegment(ctx context.Context, segmentId int64) (model.Segment, error)
 	UpdateSegment(ctx context.Context, params *UpdateSegmentParams) error
 }
 
@@ -373,10 +373,10 @@ func (r *segmentRepo) ListSegments(ctx context.Context, filter *ListSegmentFilte
 	return segments, nil
 }
 
-func (r *segmentRepo) GetSegment(ctx context.Context, segmentId int64, accountUuid string) (model.Segment, error) {
+func (r *segmentRepo) GetSegment(ctx context.Context, segmentId int64) (model.Segment, error) {
 	var segment model.Segment
 	err := r.WithContext(ctx).Table(r.SegmentTableName).
-		Where("account_uuid = ? AND id = ?", accountUuid, segmentId).
+		Where("id = ?", segmentId).
 		First(&segment).Error
 	if err != nil {
 		return model.Segment{}, err

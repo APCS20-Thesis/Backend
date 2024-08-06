@@ -196,13 +196,13 @@ func (b business) ProcessGetPredictModelDetail(ctx context.Context, request *api
 		return nil, err
 	}
 
-	segment1, err := b.repository.SegmentRepository.GetSegment(ctx, trainConfiguration.Segment1, accountUuid)
+	segment1, err := b.repository.SegmentRepository.GetSegment(ctx, trainConfiguration.Segment1)
 	if err != nil {
 		logger.Error(err, "cannot get segment", "id", trainConfiguration.Segment1)
 		return nil, err
 	}
 
-	segment2, err := b.repository.SegmentRepository.GetSegment(ctx, trainConfiguration.Segment2, accountUuid)
+	segment2, err := b.repository.SegmentRepository.GetSegment(ctx, trainConfiguration.Segment2)
 	if err != nil {
 		logger.Error(err, "cannot get segment", "id", trainConfiguration.Segment2)
 		return nil, err

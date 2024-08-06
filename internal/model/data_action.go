@@ -29,8 +29,11 @@ const (
 	TargetTable_DestSegmentMap       DataActionTargetTable = "dest_segment_map"
 	TargetTable_DestMasterSegmentMap DataActionTargetTable = "dest_ms_segment_map"
 	TargetTable_DataTable            DataActionTargetTable = "data_table"
+	TargetTable_MasterSegment        DataActionTargetTable = "master_segment"
 	TargetTable_Segment              DataActionTargetTable = "segment"
 	TargetTable_PredictModel         DataActionTargetTable = "predict_model"
+	TargetTable_DataSource           DataActionTargetTable = "data_source"
+	TargetTable_DataDestination      DataActionTargetTable = "data_destination"
 )
 
 type DataActionStatus string

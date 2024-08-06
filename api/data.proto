@@ -276,9 +276,11 @@ message DataActionRun {
   string created_at = 5;
   // updated_at
   string updated_at = 6;
+  // metadata
+  MetaData metadata = 7;
 
   message MetaData {
-
+    ObjectReference object_reference = 1;
   }
 
   message ObjectReference {

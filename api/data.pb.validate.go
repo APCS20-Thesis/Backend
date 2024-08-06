@@ -1499,6 +1499,16 @@ func (m *DataActionRun) Validate() error {
 
 	// no validation rules for UpdatedAt
 
+	if v, ok := interface{}(m.GetMetadata()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return DataActionRunValidationError{
+				field:  "Metadata",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -2375,6 +2385,16 @@ var _ interface {
 func (m *DataActionRun_MetaData) Validate() error {
 	if m == nil {
 		return nil
+	}
+
+	if v, ok := interface{}(m.GetObjectReference()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return DataActionRun_MetaDataValidationError{
+				field:  "ObjectReference",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
 	}
 
 	return nil

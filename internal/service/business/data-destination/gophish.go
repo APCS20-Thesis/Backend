@@ -31,7 +31,7 @@ func (b business) CreateGophishUserGroupFromSegment(ctx context.Context, account
 		return err
 	}
 
-	segment, err := b.repository.SegmentRepository.GetSegment(ctx, request.SegmentId, accountUuid)
+	segment, err := b.repository.SegmentRepository.GetSegment(ctx, request.SegmentId)
 	if err != nil {
 		return err
 	}

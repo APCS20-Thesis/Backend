@@ -174,10 +174,13 @@ func (b business) ListSegments(ctx context.Context, request *api.GetListSegments
 
 func (b business) GetSegmentDetail(ctx context.Context, request *api.GetSegmentDetailRequest, accountUuid string) (*api.GetSegmentDetailResponse, error) {
 	logger := b.log.WithName("GetSegmentDetail").WithValues("id", request.Id)
-	segment, err := b.repository.SegmentRepository.GetSegment(ctx, request.Id, accountUuid)
+	segment, err := b.repository.SegmentRepository.GetSegment(ctx, request.Id)
 	if err != nil {
 		logger.Error(err, "cannot get segment")
 		return nil, err
+	}
+	if segment.AccountUuid.String() != accountUuid {
+		return nil, status.Error(codes.PermissionDenied, "Only user can access segment")
 	}
 
 	masterSegment, err := b.repository.SegmentRepository.GetMasterSegment(ctx, segment.MasterSegmentId)
@@ -237,7 +240,7 @@ func (b business) ProcessApplyPredictModel(ctx context.Context, request *api.App
 		return nil, err
 	}
 
-	segment, err := b.repository.SegmentRepository.GetSegment(ctx, request.SegmentId, accountUuid)
+	segment, err := b.repository.SegmentRepository.GetSegment(ctx, request.SegmentId)
 	if err != nil {
 		logger.Error(err, "cannot get segment")
 		return nil, err

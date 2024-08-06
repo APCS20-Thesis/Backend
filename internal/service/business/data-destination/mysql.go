@@ -309,7 +309,7 @@ func (b business) ExportSegmentToMySQL(ctx context.Context, request *api.ExportT
 		return err
 	}
 
-	segment, err := b.repository.SegmentRepository.GetSegment(ctx, request.SegmentId, accountUuid)
+	segment, err := b.repository.SegmentRepository.GetSegment(ctx, request.SegmentId)
 	if err != nil {
 		logger.Error(err, "cannot get segment")
 		return err

@@ -7546,7 +7546,12 @@ func (m *GetListDestinationMapRequest) Validate() error {
 		return nil
 	}
 
-	// no validation rules for DestinationId
+	if m.GetDestinationId() <= 0 {
+		return GetListDestinationMapRequestValidationError{
+			field:  "DestinationId",
+			reason: "value must be greater than 0",
+		}
+	}
 
 	return nil
 }

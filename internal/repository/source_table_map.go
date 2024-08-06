@@ -63,6 +63,7 @@ type (
 	ListSourceTableMapParams struct {
 		TableId  int64
 		SourceId int64
+		Ids      []int64
 	}
 	TableSourceMapWithExtraInfo struct {
 		ID             int64 `gorm:"primaryKey"`
@@ -88,6 +89,9 @@ func (r *sourceTableMapRepo) ListSourceTableMap(ctx context.Context, params *Lis
 	}
 	if params.TableId > 0 {
 		query.Where("source_table_map.table_id = ?", params.TableId)
+	}
+	if len(params.Ids) > 0 {
+		query.Where("source_table_map.id IN ?", params.Ids)
 	}
 	query = query.
 		Joins("LEFT JOIN data_table ON source_table_map.table_id = data_table.id").
