@@ -39,6 +39,25 @@ func (b business) ExportDataTableToMySQL(ctx context.Context, request *api.Expor
 		logger.Error(err, "cannot get data table")
 		return err
 	}
+	var schema []*api.SchemaColumn
+	if dataTable.Schema.Valid && dataTable.Schema.RawMessage != nil {
+		err := json.Unmarshal(dataTable.Schema.RawMessage, &schema)
+		if err != nil {
+			logger.Error(err, "cannot unmarshal schema")
+			schema = []*api.SchemaColumn{}
+		}
+	}
+	mappingOptions := utils.Map(schema, func(col *api.SchemaColumn) *api.MappingOptionItem {
+		return &api.MappingOptionItem{
+			SourceFieldName:      col.ColumnName,
+			DestinationFieldName: col.ColumnName,
+		}
+	})
+	jsonMappingOptions, err := json.Marshal(mappingOptions)
+	if err != nil {
+		logger.Error(err, "cannot marshal mapping options")
+		return err
+	}
 
 	connection, err := b.repository.ConnectionRepository.GetConnection(ctx, request.ConnectionId)
 	if err != nil {
@@ -106,10 +125,10 @@ func (b business) ExportDataTableToMySQL(ctx context.Context, request *api.Expor
 
 	// 2. Create dest table map
 	dstTableMap, err := b.repository.DestTableMapRepository.CreateDestinationTableMap(ctx, &repository.CreateDestinationTableMapParams{
-		Tx:            tx,
-		TableId:       request.DataTableId,
-		DestinationId: destination.ID,
-		//MappingOptions:  pqtype.NullRawMessage{},
+		Tx:             tx,
+		TableId:        request.DataTableId,
+		DestinationId:  destination.ID,
+		MappingOptions: pqtype.NullRawMessage{RawMessage: jsonMappingOptions, Valid: jsonMappingOptions != nil},
 	})
 	if err != nil {
 		logger.Error(err, "cannot create destination table mapping")

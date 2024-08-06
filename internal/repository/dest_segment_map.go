@@ -9,6 +9,7 @@ import (
 
 type DestSegmentMapRepository interface {
 	CreateDestinationSegmentMap(ctx context.Context, params *CreateDestinationSegmentMapParams) (*model.DestSegmentMap, error)
+	ListDestinationSegmentMaps(ctx context.Context, params *ListDestinationSegmentMapsParams) ([]DestinationSegmentMapItem, error)
 }
 
 type destSegmentMapRepo struct {
@@ -45,4 +46,35 @@ func (r *destSegmentMapRepo) CreateDestinationSegmentMap(ctx context.Context, pa
 	}
 
 	return destSegmentMap, nil
+}
+
+type ListDestinationSegmentMapsParams struct {
+	DestinationId int64
+}
+
+type DestinationSegmentMapItem struct {
+	ID             int64 `gorm:"primaryKey"`
+	SegmentId      int64
+	SegmentName    string
+	MappingOptions pqtype.NullRawMessage
+	DataActionId   int64
+}
+
+func (r *destSegmentMapRepo) ListDestinationSegmentMaps(ctx context.Context, params *ListDestinationSegmentMapsParams) ([]DestinationSegmentMapItem, error) {
+	var mappings []DestinationSegmentMapItem
+	query := r.WithContext(ctx).Table(r.TableName).Where("destination_id = ?", params.DestinationId).
+		Joins("LEFT JOIN segment ON dest_segment_map.segment_id = segment.id " +
+			"LEFT JOIN data_action ON data_action.target_table = 'dest_segment_map' AND data_action.object_id = dest_segment_map.id").
+		Select("dest_segment_map.id AS id, " +
+			"dest_segment_map.segment_id AS segment_id, " +
+			"dest_segment_map.mapping_options AS mapping_options, " +
+			"segment.name AS segment_id, " +
+			"data_action.id AS data_action_id")
+
+	err := query.Find(&mappings).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return mappings, err
 }

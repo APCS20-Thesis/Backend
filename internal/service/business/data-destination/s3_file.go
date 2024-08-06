@@ -327,6 +327,31 @@ func (b business) ExportMasterSegmentToS3File(ctx context.Context, request *api.
 	dagId := utils.GenerateDagId(accountUuid, model.ActionType_ExportDataToS3CSV)
 	audiencePathKey := utils.GenerateDeltaAudiencePath(request.MasterSegmentId)
 
+	audience, err := b.repository.SegmentRepository.GetAudienceTable(ctx, repository.GetAudienceTableParams{MasterSegmentId: request.MasterSegmentId})
+	if err != nil {
+		logger.Error(err, "cannot get audience")
+		return err
+	}
+	var schema []*api.SchemaColumn
+	if audience.Schema.Valid && audience.Schema.RawMessage != nil {
+		err = json.Unmarshal(audience.Schema.RawMessage, &schema)
+		if err != nil {
+			logger.Error(err, "cannot unmarshal audience schema")
+			return err
+		}
+	}
+	mappingOptions := utils.Map(schema, func(col *api.SchemaColumn) *api.MappingOptionItem {
+		return &api.MappingOptionItem{
+			SourceFieldName:      col.ColumnName,
+			DestinationFieldName: col.ColumnName,
+		}
+	})
+	jsonMappingOptions, err := json.Marshal(mappingOptions)
+	if err != nil {
+		logger.Error(err, "cannot marshal mapping options")
+		return err
+	}
+
 	// BEGIN TRANSACTION
 	tx := b.db.Begin()
 
@@ -348,7 +373,7 @@ func (b business) ExportMasterSegmentToS3File(ctx context.Context, request *api.
 		Tx:              tx,
 		MasterSegmentId: request.MasterSegmentId,
 		DestinationId:   destination.ID,
-		//MappingOptions: pqtype.NullRawMessage{},
+		MappingOptions:  pqtype.NullRawMessage{RawMessage: jsonMappingOptions, Valid: jsonMappingOptions != nil},
 	})
 	if err != nil {
 		logger.Error(err, "cannot create destination segment map")

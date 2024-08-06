@@ -19,6 +19,8 @@ type Business interface {
 
 	ProcessGetListDataDestinations(ctx context.Context, request *api.GetListDataDestinationsRequest, accountUuid string) (*api.GetListDataDestinationsResponse, error)
 	ProcessGetDataDestinationDetail(ctx context.Context, request *api.GetDataDestinationDetailRequest, accountUuid string) (*api.GetDataDestinationDetailResponse, error)
+
+	ProcessGetListDestinationMap(ctx context.Context, request *api.GetListDestinationMapRequest, accountUuid string) (*api.GetListDestinationMapResponse, error)
 }
 
 type business struct {

@@ -1820,6 +1820,8 @@ func (m *SourceTableMap) Validate() error {
 
 	}
 
+	// no validation rules for DataActionId
+
 	return nil
 }
 
@@ -1876,6 +1878,100 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = SourceTableMapValidationError{}
+
+// Validate checks the field values on DestinationMappings with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *DestinationMappings) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Id
+
+	// no validation rules for Type
+
+	// no validation rules for ObjectType
+
+	// no validation rules for ObjectName
+
+	// no validation rules for ObjectId
+
+	for idx, item := range m.GetMappings() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return DestinationMappingsValidationError{
+					field:  fmt.Sprintf("Mappings[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	// no validation rules for DataActionId
+
+	return nil
+}
+
+// DestinationMappingsValidationError is the validation error returned by
+// DestinationMappings.Validate if the designated constraints aren't met.
+type DestinationMappingsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e DestinationMappingsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e DestinationMappingsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e DestinationMappingsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e DestinationMappingsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e DestinationMappingsValidationError) ErrorName() string {
+	return "DestinationMappingsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e DestinationMappingsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sDestinationMappings.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = DestinationMappingsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = DestinationMappingsValidationError{}
 
 // Validate checks the field values on EnrichedMasterSegment with the rules
 // defined in the proto definition for this message. If any rules are
@@ -2272,3 +2368,144 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = BehaviorCondition_HavingConditionValidationError{}
+
+// Validate checks the field values on DataActionRun_MetaData with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *DataActionRun_MetaData) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	return nil
+}
+
+// DataActionRun_MetaDataValidationError is the validation error returned by
+// DataActionRun_MetaData.Validate if the designated constraints aren't met.
+type DataActionRun_MetaDataValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e DataActionRun_MetaDataValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e DataActionRun_MetaDataValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e DataActionRun_MetaDataValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e DataActionRun_MetaDataValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e DataActionRun_MetaDataValidationError) ErrorName() string {
+	return "DataActionRun_MetaDataValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e DataActionRun_MetaDataValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sDataActionRun_MetaData.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = DataActionRun_MetaDataValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = DataActionRun_MetaDataValidationError{}
+
+// Validate checks the field values on DataActionRun_ObjectReference with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *DataActionRun_ObjectReference) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Type
+
+	// no validation rules for Name
+
+	// no validation rules for Id
+
+	return nil
+}
+
+// DataActionRun_ObjectReferenceValidationError is the validation error
+// returned by DataActionRun_ObjectReference.Validate if the designated
+// constraints aren't met.
+type DataActionRun_ObjectReferenceValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e DataActionRun_ObjectReferenceValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e DataActionRun_ObjectReferenceValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e DataActionRun_ObjectReferenceValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e DataActionRun_ObjectReferenceValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e DataActionRun_ObjectReferenceValidationError) ErrorName() string {
+	return "DataActionRun_ObjectReferenceValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e DataActionRun_ObjectReferenceValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sDataActionRun_ObjectReference.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = DataActionRun_ObjectReferenceValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = DataActionRun_ObjectReferenceValidationError{}

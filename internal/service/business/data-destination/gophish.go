@@ -4,16 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/APCS20-Thesis/Backend/internal/repository"
-	"github.com/google/uuid"
-	"github.com/sqlc-dev/pqtype"
-	"gorm.io/gorm"
-
 	"github.com/APCS20-Thesis/Backend/api"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/gophish"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/query"
 	"github.com/APCS20-Thesis/Backend/internal/model"
+	"github.com/APCS20-Thesis/Backend/internal/repository"
 	"github.com/APCS20-Thesis/Backend/utils"
+	"github.com/google/uuid"
+	"github.com/sqlc-dev/pqtype"
+	"gorm.io/gorm"
 )
 
 func (b business) CreateGophishUserGroupFromSegment(ctx context.Context, accountUuid string, request *api.CreateGophishUserGroupFromSegmentRequest) error {
@@ -37,29 +36,95 @@ func (b business) CreateGophishUserGroupFromSegment(ctx context.Context, account
 		return err
 	}
 
-	dataAction, err := b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
-		TargetTable: model.TargetTable_Segment,
-		ActionType:  model.ActionType_ExportGophish,
-		AccountUuid: uuid.MustParse(accountUuid),
-		Status:      model.DataActionStatus_Success,
-		ObjectId:    request.SegmentId,
-		RunCount:    1,
+	config, err := json.Marshal(model.GophishDestinationConfiguration{
+		UserGroupName: request.Name,
+		Mapping:       request.Mapping,
 	})
 	if err != nil {
-		logger.Error(err, " cannot create data action")
+		logger.Error(err, "cannot marshal gophish config")
 		return err
 	}
-	dataActionRun, err := b.repository.DataActionRunRepository.CreateDataActionRun(ctx, &repository.CreateDataActionRunParams{
-		ActionId:    dataAction.ID,
-		RunId:       1,
-		DagRunId:    "",
-		Status:      model.DataActionRunStatus_Processing,
-		AccountUuid: uuid.MustParse(accountUuid),
-	})
 
-	s3path := fmt.Sprintf("s3a://%s/%s", b.config.S3StorageConfig.Bucket, utils.GenerateDeltaAudiencePath(segment.MasterSegmentId))
+	mappingOptions := []*api.MappingOptionItem{
+		{
+			SourceFieldName:      request.Mapping.Email,
+			DestinationFieldName: "email",
+		},
+		{
+			SourceFieldName:      request.Mapping.FirstName,
+			DestinationFieldName: "first_name",
+		},
+		{
+			SourceFieldName:      request.Mapping.LastName,
+			DestinationFieldName: "last_name",
+		},
+		{
+			SourceFieldName:      request.Mapping.Position,
+			DestinationFieldName: "position",
+		},
+	}
+	jsonMappingOptions, err := json.Marshal(mappingOptions)
+	if err != nil {
+		logger.Error(err, "cannot marshal mapping options")
+		return err
+	}
 
+	var dataActionRun *model.DataActionRun
 	txErr := b.db.Transaction(func(tx *gorm.DB) error {
+		destination, err := b.repository.DataDestinationRepository.CreateDataDestination(ctx, &repository.CreateDataDestinationParams{
+			Name:          request.Name,
+			AccountUuid:   uuid.MustParse(accountUuid),
+			Type:          model.DataDestinationType_GOPHISH,
+			Configuration: pqtype.NullRawMessage{RawMessage: config, Valid: config != nil},
+			ConnectionId:  0,
+		})
+		if err != nil {
+			logger.Error(err, "cannot create data destination")
+			return err
+		}
+
+		destSegmentMap, err := b.repository.DestSegmentMapRepository.CreateDestinationSegmentMap(ctx, &repository.CreateDestinationSegmentMapParams{
+			SegmentId:      request.SegmentId,
+			DestinationId:  destination.ID,
+			MappingOptions: pqtype.NullRawMessage{RawMessage: jsonMappingOptions, Valid: jsonMappingOptions != nil},
+		})
+		if err != nil {
+			logger.Error(err, "cannot create destination segment map")
+			return err
+		}
+
+		dataAction, err := b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
+			TargetTable: model.TargetTable_DestSegmentMap,
+			ActionType:  model.ActionType_ExportGophish,
+			AccountUuid: uuid.MustParse(accountUuid),
+			Status:      model.DataActionStatus_Success,
+			ObjectId:    destSegmentMap.ID,
+			RunCount:    1,
+		})
+		if err != nil {
+			logger.Error(err, " cannot create data action")
+			return err
+		}
+		dataActionRun, err = b.repository.DataActionRunRepository.CreateDataActionRun(ctx, &repository.CreateDataActionRunParams{
+			ActionId:    dataAction.ID,
+			RunId:       1,
+			Status:      model.DataActionRunStatus_Processing,
+			AccountUuid: uuid.MustParse(accountUuid),
+		})
+		if err != nil {
+			logger.Error(err, " cannot create data action run")
+			return err
+		}
+		return nil
+	})
+	if txErr != nil {
+		return txErr
+	}
+
+	// Process export Gophish
+	txErr = b.db.Transaction(func(tx *gorm.DB) error {
+		s3path := fmt.Sprintf("s3a://%s/%s", b.config.S3StorageConfig.Bucket, utils.GenerateDeltaAudiencePath(segment.MasterSegmentId))
+
 		queryResponse, err := b.queryAdapter.QueryRawSQL(ctx, &query.QueryRawSQLRequest{
 			Query: fmt.Sprintf("SELECT * FROM delta.`%s` WHERE %s;", s3path, segment.SqlCondition),
 		})
@@ -75,7 +140,7 @@ func (b business) CreateGophishUserGroupFromSegment(ctx context.Context, account
 				profile["first_name"] = fmt.Sprintf("%s", data[request.Mapping.FirstName])
 			}
 			if request.Mapping.LastName != "" {
-				profile["first_name"] = fmt.Sprintf("%s", data[request.Mapping.LastName])
+				profile["last_name"] = fmt.Sprintf("%s", data[request.Mapping.LastName])
 			}
 			if request.Mapping.Position != "" {
 				profile["position"] = fmt.Sprintf("%s", data[request.Mapping.Position])
@@ -96,28 +161,9 @@ func (b business) CreateGophishUserGroupFromSegment(ctx context.Context, account
 		}
 		logger.Info("create gophish user group response", "response", resp)
 
-		config, err := json.Marshal(model.GophishDestinationConfiguration{
-			UserGroupName: request.Name,
-			Mapping:       request.Mapping,
-		})
-
-		_, err = b.repository.DataDestinationRepository.CreateDataDestination(ctx, &repository.CreateDataDestinationParams{
-			Name:          request.Name,
-			AccountUuid:   uuid.MustParse(accountUuid),
-			Type:          model.DataDestinationType_GOPHISH,
-			Configuration: pqtype.NullRawMessage{RawMessage: config, Valid: config != nil},
-			ConnectionId:  0,
-		})
-		if err != nil {
-			logger.Error(err, "cannot create data destination")
-			tx.Rollback()
-			return err
-		}
-
 		err = b.repository.DataActionRunRepository.UpdateDataActionRunStatus(ctx, dataActionRun.ID, model.DataActionRunStatus_Success)
 		if err != nil {
 			logger.Error(err, "cannot update data action run status", "dataActionStatusId", dataActionRun.ID)
-			tx.Rollback()
 			return err
 		}
 
