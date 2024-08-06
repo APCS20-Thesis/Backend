@@ -131,7 +131,8 @@ func (b business) ExportDataTableToS3File(ctx context.Context, request *api.Expo
 		tx.Rollback()
 		return err
 	}
-	_, err = b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
+	dataAction, err := b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
+		Tx:          tx,
 		TargetTable: model.TargetTable_DestTableMap,
 		ActionType:  model.ActionType_ExportDataToS3CSV,
 		Schedule:    "",
@@ -143,6 +144,19 @@ func (b business) ExportDataTableToS3File(ctx context.Context, request *api.Expo
 	})
 	if err != nil {
 		logger.Error(err, "cannot create data action")
+		tx.Rollback()
+		return err
+	}
+
+	_, err = b.repository.DataActionRunRepository.CreateDataActionRun(ctx, &repository.CreateDataActionRunParams{
+		Tx:          tx,
+		ActionId:    dataAction.ID,
+		RunId:       0,
+		Status:      model.DataActionRunStatus_Creating,
+		AccountUuid: uuid.MustParse(accountUuid),
+	})
+	if err != nil {
+		logger.Error(err, "cannot create data action run")
 		tx.Rollback()
 		return err
 	}
@@ -246,7 +260,8 @@ func (b business) ExportSegmentToS3File(ctx context.Context, request *api.Export
 		tx.Rollback()
 		return err
 	}
-	_, err = b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
+	dataAction, err := b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
+		Tx:          tx,
 		TargetTable: model.TargetTable_DestSegmentMap,
 		ActionType:  model.ActionType_ExportDataToS3CSV,
 		Schedule:    "",
@@ -258,6 +273,19 @@ func (b business) ExportSegmentToS3File(ctx context.Context, request *api.Export
 	})
 	if err != nil {
 		logger.Error(err, "cannot create data action")
+		tx.Rollback()
+		return err
+	}
+
+	_, err = b.repository.DataActionRunRepository.CreateDataActionRun(ctx, &repository.CreateDataActionRunParams{
+		Tx:          tx,
+		ActionId:    dataAction.ID,
+		RunId:       0,
+		Status:      model.DataActionRunStatus_Creating,
+		AccountUuid: uuid.MustParse(accountUuid),
+	})
+	if err != nil {
+		logger.Error(err, "cannot create data action run")
 		tx.Rollback()
 		return err
 	}
@@ -355,7 +383,8 @@ func (b business) ExportMasterSegmentToS3File(ctx context.Context, request *api.
 		tx.Rollback()
 		return err
 	}
-	_, err = b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
+	dataAction, err := b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
+		Tx:          tx,
 		TargetTable: model.TargetTable_DestMasterSegmentMap,
 		ActionType:  model.ActionType_ExportDataToS3CSV,
 		Schedule:    "",
@@ -367,6 +396,19 @@ func (b business) ExportMasterSegmentToS3File(ctx context.Context, request *api.
 	})
 	if err != nil {
 		logger.Error(err, "cannot create data action")
+		tx.Rollback()
+		return err
+	}
+
+	_, err = b.repository.DataActionRunRepository.CreateDataActionRun(ctx, &repository.CreateDataActionRunParams{
+		Tx:          tx,
+		ActionId:    dataAction.ID,
+		RunId:       0,
+		Status:      model.DataActionRunStatus_Creating,
+		AccountUuid: uuid.MustParse(accountUuid),
+	})
+	if err != nil {
+		logger.Error(err, "cannot create data action run")
 		tx.Rollback()
 		return err
 	}

@@ -140,17 +140,17 @@ func (r transactionRepo) ImportCsvTransaction(ctx context.Context, params *Impor
 		tx.Rollback()
 		return err
 	}
-	//dataActionRun := &model.DataActionRun{
-	//	ActionId:    dataAction.ID,
-	//	RunId:       int64(dataAction.RunCount),
-	//	Status:      model.DataActionRunStatus_Processing,
-	//	AccountUuid: params.AccountUuid,
-	//}
-	//err = tx.WithContext(ctx).Table("data_action_run").Create(&dataActionRun).Error
-	//if err != nil {
-	//	tx.Rollback()
-	//	return err
-	//}
+	dataActionRun := &model.DataActionRun{
+		ActionId:    dataAction.ID,
+		RunId:       0,
+		Status:      model.DataActionRunStatus_Creating,
+		AccountUuid: params.AccountUuid,
+	}
+	err = tx.WithContext(ctx).Table("data_action_run").Create(&dataActionRun).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
 
 	tx.Commit()
 
@@ -260,6 +260,16 @@ func (r transactionRepo) NewExportFileCSVTransaction(ctx context.Context, params
 		ObjectId:    dataTable.ID,
 	}
 	err = tx.WithContext(ctx).Table("data_action").Create(&dataAction).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	err = tx.WithContext(ctx).Table(model.DataActionRun{}.TableName()).Create(&model.DataActionRun{
+		ActionId: dataAction.ID,
+		RunId:    0,
+		Status:   model.DataActionRunStatus_Creating,
+	}).Error
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -479,7 +489,7 @@ func (r transactionRepo) TriggerAirflowCreateMasterSegment(ctx context.Context, 
 		return err
 	}
 
-	tx.WithContext(ctx).Table("data_action").Create(&model.DataAction{
+	action := model.DataAction{
 		ActionType:  model.ActionType_CreateMasterSegment,
 		Payload:     pqtype.NullRawMessage{RawMessage: payload, Valid: payload != nil},
 		Status:      model.DataActionStatus_Pending,
@@ -488,7 +498,21 @@ func (r transactionRepo) TriggerAirflowCreateMasterSegment(ctx context.Context, 
 		TargetTable: tableMasterSegment,
 		ObjectId:    masterSegmentId,
 		AccountUuid: params.AccountUuid,
-	})
+	}
+	err = tx.WithContext(ctx).Table("data_action").Create(&action).Error
+	if err != nil {
+		return err
+	}
+
+	err = tx.WithContext(ctx).Table(model.DataActionRun{}.TableName()).Create(&model.DataActionRun{
+		ActionId:    action.ID,
+		RunId:       0,
+		Status:      model.DataActionRunStatus_Creating,
+		AccountUuid: params.AccountUuid,
+	}).Error
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

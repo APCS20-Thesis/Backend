@@ -66,7 +66,8 @@ func (b business) ProcessTrainPredictModel(ctx context.Context, request *api.Tra
 			return err
 		}
 		// 3. Save data action
-		_, err = b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
+		dataAction, err := b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
+			Tx:          tx,
 			TargetTable: model.TargetTable_PredictModel,
 			ActionType:  model.ActionType_TrainPredictModel,
 			Schedule:    "",
@@ -78,6 +79,19 @@ func (b business) ProcessTrainPredictModel(ctx context.Context, request *api.Tra
 		})
 		if err != nil {
 			logger.Error(err, "cannot create data action")
+			return err
+		}
+		// 4. Create data action run
+		_, err = b.repository.DataActionRunRepository.CreateDataActionRun(ctx, &repository.CreateDataActionRunParams{
+			Tx:          tx,
+			ActionId:    dataAction.ID,
+			RunId:       0,
+			Status:      model.DataActionRunStatus_Creating,
+			AccountUuid: uuid.MustParse(accountUuid),
+		})
+		if err != nil {
+			logger.Error(err, "cannot create data action run")
+			tx.Rollback()
 			return err
 		}
 		return nil

@@ -59,6 +59,9 @@ func (j *job) TriggerDagRuns(ctx context.Context) {
 			AccountUuid: dataAction.AccountUuid,
 		})
 
+		// - Xoá DataActionRun dummy
+		tx.WithContext(ctx).Table("data_action_run").Where("action_id = ? and run_id = ?", dataAction.ID, 0).Delete(&model.DataActionRun{})
+
 		tx.WithContext(ctx).Table("data_action").Where("id = ?", dataAction.ID).Update("run_count", 1)
 
 		err = tx.Commit().Error
