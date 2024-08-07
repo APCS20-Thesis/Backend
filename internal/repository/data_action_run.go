@@ -195,6 +195,7 @@ func (r *dataActionRunRepo) GetTotalRunsPerDay(ctx context.Context, params *GetT
 	err := r.WithContext(ctx).Table(r.TableName).Select("DATE_TRUNC('day', created_at) AS date, count(*) AS total").
 		Where("created_at >= ? AND account_uuid = ?", time.Now().AddDate(0, 0, -15), params.AccountUuid).
 		Group("DATE_TRUNC('day', created_at)").
+		Order("date ASC").
 		Find(&result).Error
 	if err != nil {
 		return nil, err
