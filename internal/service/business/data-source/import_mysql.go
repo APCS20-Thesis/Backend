@@ -41,6 +41,12 @@ func (b business) ProcessImportFromMySQLSource(ctx context.Context, request *api
 		return err
 	}
 
+	jsonMappingOptions, err := json.Marshal(request.MappingOptions)
+	if err != nil {
+		logger.Error(err, "cannot marshal mapping options")
+		return err
+	}
+
 	tx := b.db.Begin()
 
 	dataSource, err := b.repository.DataSourceRepository.CreateDataSource(ctx, &repository.CreateDataSourceParams{
@@ -91,9 +97,10 @@ func (b business) ProcessImportFromMySQLSource(ctx context.Context, request *api
 	}
 
 	sourceTableMap, err := b.repository.SourceTableMapRepository.CreateSourceTableMap(ctx, &repository.CreateSourceTableMapParams{
-		Tx:       tx,
-		TableId:  dataTable.ID,
-		SourceId: dataSource.ID,
+		Tx:             tx,
+		TableId:        dataTable.ID,
+		SourceId:       dataSource.ID,
+		MappingOptions: pqtype.NullRawMessage{RawMessage: jsonMappingOptions, Valid: jsonMappingOptions != nil},
 	})
 	if err != nil {
 		logger.Error(err, "cannot create source table map")

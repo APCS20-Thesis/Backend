@@ -24,15 +24,17 @@ func NewSourceTableMapRepository(db *gorm.DB) SourceTableMapRepository {
 }
 
 type CreateSourceTableMapParams struct {
-	Tx       *gorm.DB
-	TableId  int64
-	SourceId int64
+	Tx             *gorm.DB
+	TableId        int64
+	SourceId       int64
+	MappingOptions pqtype.NullRawMessage
 }
 
 func (r *sourceTableMapRepo) CreateSourceTableMap(ctx context.Context, params *CreateSourceTableMapParams) (*model.SourceTableMap, error) {
 	sourceTableMap := &model.SourceTableMap{
-		TableId:  params.TableId,
-		SourceId: params.SourceId,
+		TableId:        params.TableId,
+		SourceId:       params.SourceId,
+		MappingOptions: params.MappingOptions,
 	}
 
 	var createErr error
