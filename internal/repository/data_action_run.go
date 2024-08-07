@@ -104,7 +104,9 @@ func (r *dataActionRunRepo) GetListDataActionRuns(ctx context.Context, params *G
 			"data_action_run.account_uuid AS account_uuid, " +
 			"data_action_run.created_at AS created_at, " +
 			"data_action_run.updated_at AS updated_at, " +
-			"data_action.action_type AS action_type ",
+			"data_action.action_type AS action_type, " +
+			"data_action.target_table AS target_table," +
+			"data_action.object_id AS object_id ",
 	)
 
 	var dataActionRuns []DataActionRunWithExtraInfo
@@ -135,6 +137,8 @@ type DataActionRunWithExtraInfo struct {
 	AccountUuid uuid.UUID                 `gorm:"column:account_uuid"`
 	CreatedAt   time.Time                 `gorm:"column:created_at"`
 	UpdatedAt   time.Time                 `gorm:"column:updated_at"`
+	TargetTable string                    `gorm:"column:target_table"`
+	ObjectId    int64                     `gorm:"column:object_id"`
 	// extra
 	DagId      string           `gorm:"column:dag_id"`
 	ActionType model.ActionType `gorm:"column:action_type"`
@@ -162,7 +166,9 @@ func (r *dataActionRunRepo) GetListDataActionRunsWithExtraInfo(ctx context.Conte
 			"data_action_run.error AS error, " +
 			"data_action_run.account_uuid AS account_uuid, " +
 			"data_action.dag_id AS dag_id," +
-			"data_action.action_type AS action_type ",
+			"data_action.action_type AS action_type," +
+			"data_action.target_table AS target_table," +
+			"data_action.object_id AS object_id ",
 	)
 
 	var dataActionRuns []DataActionRunWithExtraInfo

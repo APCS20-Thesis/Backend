@@ -9,6 +9,7 @@ import (
 
 type DestTableMapRepository interface {
 	CreateDestinationTableMap(ctx context.Context, params *CreateDestinationTableMapParams) (*model.DestTableMap, error)
+	ListDestinationTableMaps(ctx context.Context, params *ListDestinationTableMapsParams) ([]DestinationTableMapItem, error)
 }
 
 type destTableMapRepo struct {
@@ -47,10 +48,45 @@ func (r *destTableMapRepo) CreateDestinationTableMap(ctx context.Context, params
 	return destTableMap, nil
 }
 
-//type GetDestinationTableMapParams struct {
-//	Id            int64
-//}
-//
-//func (r *destTableMapRepo) GetDestinationTableMap(ctx context.Context, params *GetDestinationTableMapParams) (*model.DestTableMap, error) {
-//
-//}
+type ListDestinationTableMapsParams struct {
+	DestinationId int64
+	Ids           []int64
+}
+
+type DestinationTableMapItem struct {
+	ID              int64 `gorm:"primaryKey"`
+	DestinationId   int64
+	DestinationName string
+	TableId         int64
+	TableName       string
+	MappingOptions  pqtype.NullRawMessage
+	DataActionId    int64
+}
+
+func (r *destTableMapRepo) ListDestinationTableMaps(ctx context.Context, params *ListDestinationTableMapsParams) ([]DestinationTableMapItem, error) {
+	var mappings []DestinationTableMapItem
+	query := r.WithContext(ctx).Table(r.TableName).
+		Joins("LEFT JOIN data_table ON dest_table_map.table_id = data_table.id " +
+			"LEFT JOIN data_destination ON dest_table_map.destination_id = data_destination.id " +
+			"LEFT JOIN data_action ON data_action.target_table = 'dest_table_map' AND data_action.object_id = dest_table_map.id").
+		Select("dest_table_map.id AS id, " +
+			"dest_table_map.destination_id AS destination_id, " +
+			"data_destination.name AS destination_name, " +
+			"dest_table_map.table_id AS table_id, " +
+			"dest_table_map.mapping_options AS mapping_options, " +
+			"data_table.name AS table_name, " +
+			"data_action.id AS data_action_id")
+	if params.DestinationId > 0 {
+		query = query.Where("dest_table_map.destination_id = ?", params.DestinationId)
+	}
+	if len(params.Ids) > 0 {
+		query = query.Where("dest_table_map.id IN ?", params.Ids)
+	}
+
+	err := query.Find(&mappings).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return mappings, err
+}

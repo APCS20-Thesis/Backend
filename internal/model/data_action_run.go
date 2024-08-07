@@ -12,6 +12,7 @@ const (
 	DataActionRunStatus_Processing DataActionRunStatus = "PROCESSING"
 	DataActionRunStatus_Failed     DataActionRunStatus = "FAILED"
 	DataActionRunStatus_Canceled   DataActionRunStatus = "CANCELED"
+	DataActionRunStatus_Creating   DataActionRunStatus = "CREATING"
 )
 
 type DataActionRun struct {

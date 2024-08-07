@@ -26,6 +26,7 @@ func NewDataActionRepository(db *gorm.DB) DataActionRepository {
 }
 
 type CreateDataActionParams struct {
+	Tx          *gorm.DB
 	TargetTable model.DataActionTargetTable
 	ActionType  model.ActionType
 	Schedule    string
@@ -50,7 +51,12 @@ func (r *dataActionRepo) CreateDataAction(ctx context.Context, params *CreateDat
 		RunCount:    params.RunCount,
 	}
 
-	createErr := r.WithContext(ctx).Table(r.TableName).Create(&dataAction).Error
+	var createErr error
+	if params.Tx != nil {
+		createErr = params.Tx.WithContext(ctx).Table(r.TableName).Create(&dataAction).Error
+	} else {
+		createErr = r.WithContext(ctx).Table(r.TableName).Create(&dataAction).Error
+	}
 	if createErr != nil {
 		return nil, createErr
 	}

@@ -75,11 +75,16 @@ func (b business) ProcessGetListDataActionRuns(ctx context.Context, request *api
 		PageSize:    int(request.PageSize),
 	})
 	if err != nil {
-		b.log.WithName("list data actions").Error(err, "cannot get data actions")
+		b.log.WithName("ProcessGetListDataActionRuns").Error(err, "cannot get data action runs")
 		return nil, err
 	}
 	var returnDataActionRuns []*api.DataActionRun
 	for _, dataActionRun := range queryDataActionRuns.DataActionRuns {
+		metadata, err := b.EnrichDataActionRunMetaData(ctx, dataActionRun)
+		if err != nil {
+			b.log.WithName("ProcessGetListDataActionRuns").Error(err, "cannot enrich data action run")
+			return nil, err
+		}
 		returnDataActionRuns = append(returnDataActionRuns, &api.DataActionRun{
 			Id:         dataActionRun.ID,
 			ActionId:   dataActionRun.ActionId,
@@ -87,6 +92,7 @@ func (b business) ProcessGetListDataActionRuns(ctx context.Context, request *api
 			Status:     string(dataActionRun.Status),
 			CreatedAt:  dataActionRun.CreatedAt.String(),
 			UpdatedAt:  dataActionRun.UpdatedAt.String(),
+			Metadata:   metadata,
 		})
 	}
 
@@ -96,7 +102,109 @@ func (b business) ProcessGetListDataActionRuns(ctx context.Context, request *api
 		Count:   queryDataActionRuns.Count,
 		Results: returnDataActionRuns,
 	}, nil
+}
 
+func (b business) EnrichDataActionRunMetaData(ctx context.Context, dataActionRun repository.DataActionRunWithExtraInfo) (*api.DataActionRun_MetaData, error) {
+	switch dataActionRun.ActionType {
+	case model.ActionType_ImportDataFromMySQL, model.ActionType_ImportDataFromFile, model.ActionType_ImportDataFromS3:
+		sourceMapQuery, err := b.repository.SourceTableMapRepository.ListSourceTableMap(ctx, &repository.ListSourceTableMapParams{Ids: []int64{dataActionRun.ObjectId}})
+		if err != nil {
+			return nil, err
+		}
+		if len(sourceMapQuery.TableSourceMaps) == 0 {
+			return &api.DataActionRun_MetaData{}, nil
+		}
+		return &api.DataActionRun_MetaData{ObjectReference: &api.DataActionRun_ObjectReference{
+			Type: string(model.TargetTable_DataSource),
+			Name: sourceMapQuery.TableSourceMaps[0].SourceName,
+			Id:   sourceMapQuery.TableSourceMaps[0].SourceId,
+		}}, nil
+	case model.ActionType_ExportDataToS3CSV, model.ActionType_ExportGophish, model.ActionType_ExportToMySQL:
+		if dataActionRun.TargetTable == string(model.TargetTable_DestTableMap) {
+			dstMap, err := b.repository.DestTableMapRepository.ListDestinationTableMaps(ctx, &repository.ListDestinationTableMapsParams{
+				Ids: []int64{dataActionRun.ObjectId},
+			})
+			if err != nil {
+				return nil, err
+			}
+			if len(dstMap) == 0 {
+				return &api.DataActionRun_MetaData{}, nil
+			}
+			return &api.DataActionRun_MetaData{ObjectReference: &api.DataActionRun_ObjectReference{
+				Type: string(model.TargetTable_DataDestination),
+				Name: dstMap[0].DestinationName,
+				Id:   dstMap[0].DestinationId,
+			}}, nil
+		} else if dataActionRun.TargetTable == string(model.TargetTable_DestSegmentMap) {
+			dstMap, err := b.repository.DestSegmentMapRepository.ListDestinationSegmentMaps(ctx, &repository.ListDestinationSegmentMapsParams{
+				Ids: []int64{dataActionRun.ObjectId},
+			})
+			if err != nil {
+				return nil, err
+			}
+			if len(dstMap) == 0 {
+				return &api.DataActionRun_MetaData{}, nil
+			}
+			return &api.DataActionRun_MetaData{ObjectReference: &api.DataActionRun_ObjectReference{
+				Type: string(model.TargetTable_DataDestination),
+				Name: dstMap[0].DestinationName,
+				Id:   dstMap[0].DestinationId,
+			}}, nil
+		} else if dataActionRun.TargetTable == string(model.TargetTable_DestMasterSegmentMap) {
+			dstMap, err := b.repository.DestMasterSegmentMapRepository.ListDestinationMasterSegmentMaps(ctx, &repository.ListDestinationMasterSegmentMapsParams{
+				Ids: []int64{dataActionRun.ObjectId},
+			})
+			if err != nil {
+				return nil, err
+			}
+			if len(dstMap) == 0 {
+				return &api.DataActionRun_MetaData{}, nil
+			}
+			return &api.DataActionRun_MetaData{ObjectReference: &api.DataActionRun_ObjectReference{
+				Type: string(model.TargetTable_DataDestination),
+				Name: dstMap[0].DestinationName,
+				Id:   dstMap[0].DestinationId,
+			}}, nil
+		}
+	case model.ActionType_CreateMasterSegment:
+		masterSegment, err := b.repository.SegmentRepository.GetMasterSegment(ctx, dataActionRun.ObjectId)
+		if err != nil {
+			return nil, err
+		}
+		return &api.DataActionRun_MetaData{ObjectReference: &api.DataActionRun_ObjectReference{
+			Type: string(model.TargetTable_MasterSegment),
+			Name: masterSegment.Name,
+			Id:   masterSegment.ID,
+		}}, nil
+	case model.ActionType_CreateSegment, model.ActionType_ApplyPredictModel:
+		segment, err := b.repository.SegmentRepository.GetSegment(ctx, dataActionRun.ObjectId)
+		if err != nil {
+			return nil, err
+		}
+		return &api.DataActionRun_MetaData{
+			ObjectReference: &api.DataActionRun_ObjectReference{
+				Type: string(model.TargetTable_Segment),
+				Name: segment.Name,
+				Id:   segment.ID,
+			},
+			MasterSegmentId: segment.MasterSegmentId,
+		}, nil
+	case model.ActionType_TrainPredictModel:
+		predictModel, err := b.repository.PredictModelRepository.GetPredictModel(ctx, dataActionRun.ObjectId)
+		if err != nil {
+			return nil, err
+		}
+		return &api.DataActionRun_MetaData{
+			ObjectReference: &api.DataActionRun_ObjectReference{
+				Type: string(model.TargetTable_PredictModel),
+				Name: predictModel.Name,
+				Id:   predictModel.ID,
+			},
+			MasterSegmentId: predictModel.MasterSegmentId,
+		}, nil
+	}
+
+	return &api.DataActionRun_MetaData{}, nil
 }
 
 func (b business) ProcessGetTotalRunsPerDay(ctx context.Context, accountUuid string) (*api.GetDataActionRunsPerDayResponse, error) {
@@ -112,7 +220,7 @@ func (b business) ProcessGetTotalRunsPerDay(ctx context.Context, accountUuid str
 	dates := make([]time.Time, 0, days)
 	currentTime := time.Now()
 	currentDate := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 7, 0, 0, 0, currentTime.Location())
-	for i := days; i > 0; i-- {
+	for i := days - 1; i >= 0; i-- {
 		dates = append(dates, currentDate.AddDate(0, 0, -i))
 	}
 

@@ -292,6 +292,12 @@ service CDPService {
       get: "/api/v1/behavior/profile"
     };
   }
+
+  rpc GetListDestinationMap(GetListDestinationMapRequest) returns (GetListDestinationMapResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/destination-map"
+    };
+  }
 }
 
 // CheckHealthRequest
@@ -1398,4 +1404,21 @@ message GetBehaviorProfileResponse {
   int64 count = 3;
   // behavior_record
   repeated string behavior_records = 4;
+}
+
+// GetListDestinationMapRequest
+message GetListDestinationMapRequest {
+  // destination_id
+  int64 destination_id = 1 [(validate.rules).int64.gt = 0];
+}
+
+message GetListDestinationMapResponse {
+  // code
+  int32 code = 1;
+  // message
+  string message = 2;
+  // count
+  int64 count = 3;
+  // results
+  repeated DestinationMappings results = 4;
 }

@@ -131,7 +131,8 @@ func (b business) ExportDataTableToS3File(ctx context.Context, request *api.Expo
 		tx.Rollback()
 		return err
 	}
-	_, err = b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
+	dataAction, err := b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
+		Tx:          tx,
 		TargetTable: model.TargetTable_DestTableMap,
 		ActionType:  model.ActionType_ExportDataToS3CSV,
 		Schedule:    "",
@@ -143,6 +144,19 @@ func (b business) ExportDataTableToS3File(ctx context.Context, request *api.Expo
 	})
 	if err != nil {
 		logger.Error(err, "cannot create data action")
+		tx.Rollback()
+		return err
+	}
+
+	_, err = b.repository.DataActionRunRepository.CreateDataActionRun(ctx, &repository.CreateDataActionRunParams{
+		Tx:          tx,
+		ActionId:    dataAction.ID,
+		RunId:       0,
+		Status:      model.DataActionRunStatus_Creating,
+		AccountUuid: uuid.MustParse(accountUuid),
+	})
+	if err != nil {
+		logger.Error(err, "cannot create data action run")
 		tx.Rollback()
 		return err
 	}
@@ -168,7 +182,7 @@ func (b business) ExportSegmentToS3File(ctx context.Context, request *api.Export
 		return err
 	}
 
-	segment, err := b.repository.SegmentRepository.GetSegment(ctx, request.SegmentId, accountUuid)
+	segment, err := b.repository.SegmentRepository.GetSegment(ctx, request.SegmentId)
 	if err != nil {
 		logger.Error(err, "cannot get segment")
 		return err
@@ -246,7 +260,8 @@ func (b business) ExportSegmentToS3File(ctx context.Context, request *api.Export
 		tx.Rollback()
 		return err
 	}
-	_, err = b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
+	dataAction, err := b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
+		Tx:          tx,
 		TargetTable: model.TargetTable_DestSegmentMap,
 		ActionType:  model.ActionType_ExportDataToS3CSV,
 		Schedule:    "",
@@ -258,6 +273,19 @@ func (b business) ExportSegmentToS3File(ctx context.Context, request *api.Export
 	})
 	if err != nil {
 		logger.Error(err, "cannot create data action")
+		tx.Rollback()
+		return err
+	}
+
+	_, err = b.repository.DataActionRunRepository.CreateDataActionRun(ctx, &repository.CreateDataActionRunParams{
+		Tx:          tx,
+		ActionId:    dataAction.ID,
+		RunId:       0,
+		Status:      model.DataActionRunStatus_Creating,
+		AccountUuid: uuid.MustParse(accountUuid),
+	})
+	if err != nil {
+		logger.Error(err, "cannot create data action run")
 		tx.Rollback()
 		return err
 	}
@@ -299,6 +327,31 @@ func (b business) ExportMasterSegmentToS3File(ctx context.Context, request *api.
 	dagId := utils.GenerateDagId(accountUuid, model.ActionType_ExportDataToS3CSV)
 	audiencePathKey := utils.GenerateDeltaAudiencePath(request.MasterSegmentId)
 
+	audience, err := b.repository.SegmentRepository.GetAudienceTable(ctx, repository.GetAudienceTableParams{MasterSegmentId: request.MasterSegmentId})
+	if err != nil {
+		logger.Error(err, "cannot get audience")
+		return err
+	}
+	var schema []*api.SchemaColumn
+	if audience.Schema.Valid && audience.Schema.RawMessage != nil {
+		err = json.Unmarshal(audience.Schema.RawMessage, &schema)
+		if err != nil {
+			logger.Error(err, "cannot unmarshal audience schema")
+			return err
+		}
+	}
+	mappingOptions := utils.Map(schema, func(col *api.SchemaColumn) *api.MappingOptionItem {
+		return &api.MappingOptionItem{
+			SourceFieldName:      col.ColumnName,
+			DestinationFieldName: col.ColumnName,
+		}
+	})
+	jsonMappingOptions, err := json.Marshal(mappingOptions)
+	if err != nil {
+		logger.Error(err, "cannot marshal mapping options")
+		return err
+	}
+
 	// BEGIN TRANSACTION
 	tx := b.db.Begin()
 
@@ -320,7 +373,7 @@ func (b business) ExportMasterSegmentToS3File(ctx context.Context, request *api.
 		Tx:              tx,
 		MasterSegmentId: request.MasterSegmentId,
 		DestinationId:   destination.ID,
-		//MappingOptions: pqtype.NullRawMessage{},
+		MappingOptions:  pqtype.NullRawMessage{RawMessage: jsonMappingOptions, Valid: jsonMappingOptions != nil},
 	})
 	if err != nil {
 		logger.Error(err, "cannot create destination segment map")
@@ -355,7 +408,8 @@ func (b business) ExportMasterSegmentToS3File(ctx context.Context, request *api.
 		tx.Rollback()
 		return err
 	}
-	_, err = b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
+	dataAction, err := b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
+		Tx:          tx,
 		TargetTable: model.TargetTable_DestMasterSegmentMap,
 		ActionType:  model.ActionType_ExportDataToS3CSV,
 		Schedule:    "",
@@ -367,6 +421,19 @@ func (b business) ExportMasterSegmentToS3File(ctx context.Context, request *api.
 	})
 	if err != nil {
 		logger.Error(err, "cannot create data action")
+		tx.Rollback()
+		return err
+	}
+
+	_, err = b.repository.DataActionRunRepository.CreateDataActionRun(ctx, &repository.CreateDataActionRunParams{
+		Tx:          tx,
+		ActionId:    dataAction.ID,
+		RunId:       0,
+		Status:      model.DataActionRunStatus_Creating,
+		AccountUuid: uuid.MustParse(accountUuid),
+	})
+	if err != nil {
+		logger.Error(err, "cannot create data action run")
 		tx.Rollback()
 		return err
 	}

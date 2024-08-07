@@ -7538,6 +7538,170 @@ var _ interface {
 	ErrorName() string
 } = GetBehaviorProfileResponseValidationError{}
 
+// Validate checks the field values on GetListDestinationMapRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *GetListDestinationMapRequest) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if m.GetDestinationId() <= 0 {
+		return GetListDestinationMapRequestValidationError{
+			field:  "DestinationId",
+			reason: "value must be greater than 0",
+		}
+	}
+
+	return nil
+}
+
+// GetListDestinationMapRequestValidationError is the validation error returned
+// by GetListDestinationMapRequest.Validate if the designated constraints
+// aren't met.
+type GetListDestinationMapRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetListDestinationMapRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetListDestinationMapRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetListDestinationMapRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetListDestinationMapRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetListDestinationMapRequestValidationError) ErrorName() string {
+	return "GetListDestinationMapRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetListDestinationMapRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetListDestinationMapRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetListDestinationMapRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetListDestinationMapRequestValidationError{}
+
+// Validate checks the field values on GetListDestinationMapResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *GetListDestinationMapResponse) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Code
+
+	// no validation rules for Message
+
+	// no validation rules for Count
+
+	for idx, item := range m.GetResults() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetListDestinationMapResponseValidationError{
+					field:  fmt.Sprintf("Results[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// GetListDestinationMapResponseValidationError is the validation error
+// returned by GetListDestinationMapResponse.Validate if the designated
+// constraints aren't met.
+type GetListDestinationMapResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetListDestinationMapResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetListDestinationMapResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetListDestinationMapResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetListDestinationMapResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetListDestinationMapResponseValidationError) ErrorName() string {
+	return "GetListDestinationMapResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetListDestinationMapResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetListDestinationMapResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetListDestinationMapResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetListDestinationMapResponseValidationError{}
+
 // Validate checks the field values on GetListDataSourcesResponse_DataSource
 // with the rules defined in the proto definition for this message. If any
 // rules are violated, an error is returned.

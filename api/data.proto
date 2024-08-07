@@ -276,6 +276,22 @@ message DataActionRun {
   string created_at = 5;
   // updated_at
   string updated_at = 6;
+  // metadata
+  MetaData metadata = 7;
+
+  message MetaData {
+    ObjectReference object_reference = 1;
+    int64 master_segment_id = 2;
+  }
+
+  message ObjectReference {
+    // type - Type of object
+    string type = 1;
+    // name - Object name
+    string name = 2;
+    // id - Id of object
+    int64 id = 3;
+  }
 }
 
 message PredictModel {
@@ -320,6 +336,25 @@ message SourceTableMap {
   EnrichedDataSource source = 3;
   // mappings
   repeated MappingOptionItem mappings = 4;
+  // data_action_id
+  int64 data_action_id = 5;
+}
+
+message DestinationMappings {
+  // id
+  int64 id = 1;
+  // type
+  string type = 2;
+  // object_type
+  string object_type = 3;
+  // object_name
+  string object_name = 4;
+  // object_id
+  int64 object_id = 5;
+  // mappings
+  repeated MappingOptionItem mappings = 6;
+  // data_action_id
+  int64 data_action_id = 7;
 }
 
 message EnrichedMasterSegment {

@@ -39,6 +39,25 @@ func (b business) ExportDataTableToMySQL(ctx context.Context, request *api.Expor
 		logger.Error(err, "cannot get data table")
 		return err
 	}
+	var schema []*api.SchemaColumn
+	if dataTable.Schema.Valid && dataTable.Schema.RawMessage != nil {
+		err := json.Unmarshal(dataTable.Schema.RawMessage, &schema)
+		if err != nil {
+			logger.Error(err, "cannot unmarshal schema")
+			schema = []*api.SchemaColumn{}
+		}
+	}
+	mappingOptions := utils.Map(schema, func(col *api.SchemaColumn) *api.MappingOptionItem {
+		return &api.MappingOptionItem{
+			SourceFieldName:      col.ColumnName,
+			DestinationFieldName: col.ColumnName,
+		}
+	})
+	jsonMappingOptions, err := json.Marshal(mappingOptions)
+	if err != nil {
+		logger.Error(err, "cannot marshal mapping options")
+		return err
+	}
 
 	connection, err := b.repository.ConnectionRepository.GetConnection(ctx, request.ConnectionId)
 	if err != nil {
@@ -106,10 +125,10 @@ func (b business) ExportDataTableToMySQL(ctx context.Context, request *api.Expor
 
 	// 2. Create dest table map
 	dstTableMap, err := b.repository.DestTableMapRepository.CreateDestinationTableMap(ctx, &repository.CreateDestinationTableMapParams{
-		Tx:            tx,
-		TableId:       request.DataTableId,
-		DestinationId: destination.ID,
-		//MappingOptions:  pqtype.NullRawMessage{},
+		Tx:             tx,
+		TableId:        request.DataTableId,
+		DestinationId:  destination.ID,
+		MappingOptions: pqtype.NullRawMessage{RawMessage: jsonMappingOptions, Valid: jsonMappingOptions != nil},
 	})
 	if err != nil {
 		logger.Error(err, "cannot create destination table mapping")
@@ -118,7 +137,8 @@ func (b business) ExportDataTableToMySQL(ctx context.Context, request *api.Expor
 	}
 
 	// 3. Create data action
-	_, err = b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
+	dataAction, err := b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
+		Tx:          tx,
 		TargetTable: model.TargetTable_DestTableMap,
 		ActionType:  model.ActionType_ExportToMySQL,
 		Schedule:    "",
@@ -130,6 +150,20 @@ func (b business) ExportDataTableToMySQL(ctx context.Context, request *api.Expor
 	})
 	if err != nil {
 		logger.Error(err, "cannot create data action")
+		tx.Rollback()
+		return err
+	}
+
+	// 4. Create data action run
+	_, err = b.repository.DataActionRunRepository.CreateDataActionRun(ctx, &repository.CreateDataActionRunParams{
+		Tx:          tx,
+		ActionId:    dataAction.ID,
+		RunId:       0,
+		Status:      model.DataActionRunStatus_Creating,
+		AccountUuid: uuid.MustParse(accountUuid),
+	})
+	if err != nil {
+		logger.Error(err, "cannot create data action run")
 		tx.Rollback()
 		return err
 	}
@@ -222,7 +256,8 @@ func (b business) ExportMasterSegmentAudienceToMySQL(ctx context.Context, reques
 	}
 
 	// 3. Create data action
-	_, err = b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
+	dataAction, err := b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
+		Tx:          tx,
 		TargetTable: model.TargetTable_DestMasterSegmentMap,
 		ActionType:  model.ActionType_ExportToMySQL,
 		Schedule:    "",
@@ -234,6 +269,20 @@ func (b business) ExportMasterSegmentAudienceToMySQL(ctx context.Context, reques
 	})
 	if err != nil {
 		logger.Error(err, "cannot create data action")
+		tx.Rollback()
+		return err
+	}
+
+	// 4. Create data action run
+	_, err = b.repository.DataActionRunRepository.CreateDataActionRun(ctx, &repository.CreateDataActionRunParams{
+		Tx:          tx,
+		ActionId:    dataAction.ID,
+		RunId:       0,
+		Status:      model.DataActionRunStatus_Creating,
+		AccountUuid: uuid.MustParse(accountUuid),
+	})
+	if err != nil {
+		logger.Error(err, "cannot create data action run")
 		tx.Rollback()
 		return err
 	}
@@ -260,7 +309,7 @@ func (b business) ExportSegmentToMySQL(ctx context.Context, request *api.ExportT
 		return err
 	}
 
-	segment, err := b.repository.SegmentRepository.GetSegment(ctx, request.SegmentId, accountUuid)
+	segment, err := b.repository.SegmentRepository.GetSegment(ctx, request.SegmentId)
 	if err != nil {
 		logger.Error(err, "cannot get segment")
 		return err
@@ -332,7 +381,8 @@ func (b business) ExportSegmentToMySQL(ctx context.Context, request *api.ExportT
 	}
 
 	// 3. Create data action
-	_, err = b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
+	dataAction, err := b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
+		Tx:          tx,
 		TargetTable: model.TargetTable_DestSegmentMap,
 		ActionType:  model.ActionType_ExportToMySQL,
 		Schedule:    "",
@@ -344,6 +394,20 @@ func (b business) ExportSegmentToMySQL(ctx context.Context, request *api.ExportT
 	})
 	if err != nil {
 		logger.Error(err, "cannot create data action")
+		tx.Rollback()
+		return err
+	}
+
+	// 4. Create data action run
+	_, err = b.repository.DataActionRunRepository.CreateDataActionRun(ctx, &repository.CreateDataActionRunParams{
+		Tx:          tx,
+		ActionId:    dataAction.ID,
+		RunId:       0,
+		Status:      model.DataActionRunStatus_Creating,
+		AccountUuid: uuid.MustParse(accountUuid),
+	})
+	if err != nil {
+		logger.Error(err, "cannot create data action run")
 		tx.Rollback()
 		return err
 	}

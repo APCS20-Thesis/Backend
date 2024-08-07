@@ -15,6 +15,14 @@ import (
 func (b business) ProcessImportFromMySQLSource(ctx context.Context, request *api.ImportFromMySQLSourceRequest, accountUuid uuid.UUID) error {
 	logger := b.log.WithName("ProcessImportFromMySQLSource").WithValues("request", request)
 
+	// Check if table name is already exist
+	if request.DeltaTableId > 0 {
+		err := b.repository.DataTableRepository.CheckExistsDataTableName(ctx, request.DeltaTableName, accountUuid.String())
+		if err != nil {
+			return err
+		}
+	}
+
 	mySQLConnection, err := b.repository.ConnectionRepository.GetConnection(ctx, request.ConnectionId)
 	if err != nil {
 		logger.Error(err, "cannot get connection")
@@ -95,7 +103,8 @@ func (b business) ProcessImportFromMySQLSource(ctx context.Context, request *api
 
 	dagId := utils.GenerateDagId(accountUuid.String(), model.ActionType_ImportDataFromMySQL)
 
-	_, err = b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
+	dataAction, err := b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
+		Tx:          tx,
 		TargetTable: model.TargetTable_SourceTableMap,
 		ActionType:  model.ActionType_ImportDataFromMySQL,
 		Schedule:    "",
@@ -109,14 +118,25 @@ func (b business) ProcessImportFromMySQLSource(ctx context.Context, request *api
 		tx.Rollback()
 		return err
 	}
+	// Create data action run
+	_, err = b.repository.DataActionRunRepository.CreateDataActionRun(ctx, &repository.CreateDataActionRunParams{
+		Tx:          tx,
+		ActionId:    dataAction.ID,
+		RunId:       0,
+		Status:      model.DataActionRunStatus_Creating,
+		AccountUuid: accountUuid,
+	})
+	if err != nil {
+		logger.Error(err, "cannot create data action run")
+		tx.Rollback()
+		return err
+	}
 
 	_, err = b.airflowAdapter.TriggerGenerateDagImportMySQL(ctx, &airflow.TriggerGenerateDagImportMySQLRequest{
 		Conf: airflow.DagImportMySQLConfig{
 			DagId:         dagId,
 			DeltaTableKey: utils.GenerateDeltaTablePath(accountUuid.String(), request.DeltaTableName),
-			Headers: utils.Map(request.MappingOptions, func(mapping *api.MappingOptionItem) string {
-				return mapping.DestinationFieldName
-			}),
+			Headers:       request.MappingOptions,
 			DatabaseConfiguration: airflow.DagImportMySQLDatabaseConfiguration{
 				Host:     dbConfiguration.Host,
 				Port:     dbConfiguration.Port,

@@ -113,7 +113,8 @@ func (b business) CreateSegment(ctx context.Context, request *api.CreateSegmentR
 	}
 
 	// 3. Save data action
-	_, err = b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
+	dataAction, err := b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
+		Tx:          tx,
 		TargetTable: model.TargetTable_Segment,
 		ActionType:  model.ActionType_CreateSegment,
 		Schedule:    "",
@@ -125,6 +126,19 @@ func (b business) CreateSegment(ctx context.Context, request *api.CreateSegmentR
 	})
 	if err != nil {
 		logger.Error(err, "cannot create data action")
+		tx.Rollback()
+		return err
+	}
+	// 4. Create data action run
+	_, err = b.repository.DataActionRunRepository.CreateDataActionRun(ctx, &repository.CreateDataActionRunParams{
+		Tx:          tx,
+		ActionId:    dataAction.ID,
+		RunId:       0,
+		Status:      model.DataActionRunStatus_Creating,
+		AccountUuid: uuid.MustParse(accountUuid),
+	})
+	if err != nil {
+		logger.Error(err, "cannot create data action run")
 		tx.Rollback()
 		return err
 	}
@@ -160,10 +174,13 @@ func (b business) ListSegments(ctx context.Context, request *api.GetListSegments
 
 func (b business) GetSegmentDetail(ctx context.Context, request *api.GetSegmentDetailRequest, accountUuid string) (*api.GetSegmentDetailResponse, error) {
 	logger := b.log.WithName("GetSegmentDetail").WithValues("id", request.Id)
-	segment, err := b.repository.SegmentRepository.GetSegment(ctx, request.Id, accountUuid)
+	segment, err := b.repository.SegmentRepository.GetSegment(ctx, request.Id)
 	if err != nil {
 		logger.Error(err, "cannot get segment")
 		return nil, err
+	}
+	if segment.AccountUuid.String() != accountUuid {
+		return nil, status.Error(codes.PermissionDenied, "Only user can access segment")
 	}
 
 	masterSegment, err := b.repository.SegmentRepository.GetMasterSegment(ctx, segment.MasterSegmentId)
@@ -223,7 +240,7 @@ func (b business) ProcessApplyPredictModel(ctx context.Context, request *api.App
 		return nil, err
 	}
 
-	segment, err := b.repository.SegmentRepository.GetSegment(ctx, request.SegmentId, accountUuid)
+	segment, err := b.repository.SegmentRepository.GetSegment(ctx, request.SegmentId)
 	if err != nil {
 		logger.Error(err, "cannot get segment")
 		return nil, err
@@ -266,7 +283,7 @@ func (b business) ProcessApplyPredictModel(ctx context.Context, request *api.App
 		return nil, err
 	}
 
-	_, err = b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
+	dataAction, err := b.repository.DataActionRepository.CreateDataAction(ctx, &repository.CreateDataActionParams{
 		TargetTable: model.TargetTable_Segment,
 		ActionType:  model.ActionType_ApplyPredictModel,
 		Schedule:    "",
@@ -279,6 +296,18 @@ func (b business) ProcessApplyPredictModel(ctx context.Context, request *api.App
 	if err != nil {
 		logger.Error(err, "cannot create data action")
 		return nil, err
+	}
+
+	// Create data action run
+	_, err = b.repository.DataActionRunRepository.CreateDataActionRun(ctx, &repository.CreateDataActionRunParams{
+		ActionId:    dataAction.ID,
+		RunId:       0,
+		Status:      model.DataActionRunStatus_Creating,
+		AccountUuid: uuid.MustParse(accountUuid),
+	})
+	if err != nil {
+		logger.Error(err, "cannot create data action run")
+		// not return this error
 	}
 
 	return &api.ApplyPredictModelResponse{
