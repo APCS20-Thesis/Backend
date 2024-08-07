@@ -298,6 +298,12 @@ service CDPService {
       get: "/api/v1/destination-map"
     };
   }
+
+  rpc TotalProfilesMasterSegment(TotalProfilesMasterSegmentRequest) returns (TotalProfilesMasterSegmentResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/master-segment/{id}/total-profiles"
+    };
+  }
 }
 
 // CheckHealthRequest
@@ -1421,4 +1427,20 @@ message GetListDestinationMapResponse {
   int64 count = 3;
   // results
   repeated DestinationMappings results = 4;
+}
+
+// TotalProfileMasterSegment Request
+message TotalProfilesMasterSegmentRequest {
+  // master_segment_id
+  int64 id = 1 [(validate.rules).int64.gt = 0];
+}
+
+// TotalProfileMasterSegment Response
+message TotalProfilesMasterSegmentResponse {
+  // code
+  int32 code = 1;
+  // message
+  string message = 2;
+  // count
+  int64 count = 3;
 }

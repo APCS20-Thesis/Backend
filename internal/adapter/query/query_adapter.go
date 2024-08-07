@@ -7,11 +7,12 @@ import (
 )
 
 const (
-	Endpoint_GET_DATA_TABLE    string = "/api/data-table"
-	Endpoint_GET_SCHEMA_TABLE  string = "/api/schema-table"
-	Endpoint_GET_DATA_TABLE_V2 string = "/api/v2/data-table"
-	Endpoint_QUERY_SQL         string = "/api/delta-query"
-	Endpoint_QUERY_SQL_V2      string = "/api/v2/delta-query"
+	Endpoint_GET_DATA_TABLE       string = "/api/data-table"
+	Endpoint_GET_SCHEMA_TABLE     string = "/api/schema-table"
+	Endpoint_GET_DATA_TABLE_V2    string = "/api/v2/data-table"
+	Endpoint_QUERY_SQL            string = "/api/delta-query"
+	Endpoint_QUERY_SQL_V2         string = "/api/v2/delta-query"
+	Endpoint_GET_COUNT_DATA_TABLE string = "/api/count-table"
 )
 
 type QueryAdapter interface {
@@ -20,6 +21,7 @@ type QueryAdapter interface {
 	GetSchemaTable(ctx context.Context, request *GetSchemaDataTableRequest) (*GetSchemaDataTableResponse, error)
 	QueryRawSQL(ctx context.Context, request *QueryRawSQLRequest) (*QueryRawSQLResponse, error)
 	QueryRawSQLV2(ctx context.Context, request *QueryRawSQLV2Request) (*QueryRawSQLV2Response, error)
+	GetCountDataTable(ctx context.Context, request *GetCountDataTableRequest) (*GetCountDataTableResponse, error)
 }
 
 type query struct {
@@ -176,4 +178,26 @@ func QueryV2Paginate(page int32, pageSize int32, list []string) []string {
 
 	offset := (page - 1) * pageSize
 	return list[offset : offset+pageSize]
+}
+
+type (
+	GetCountDataTableRequest struct {
+		TablePath string `json:"table_path"`
+	}
+	GetCountDataTableResponse struct {
+		Count int `json:"count"`
+	}
+)
+
+func (c *query) GetCountDataTable(ctx context.Context, request *GetCountDataTableRequest) (*GetCountDataTableResponse, error) {
+	response := &GetCountDataTableResponse{}
+
+	err := c.client.SendHttpRequest(ctx, utils.Request{
+		Endpoint: Endpoint_GET_COUNT_DATA_TABLE,
+		Method:   utils.Method_POST,
+		Body:     request,
+		Headers:  map[string]string{utils.Header_CONTENT_TYPE: "application/json"},
+	}, response)
+
+	return response, err
 }
