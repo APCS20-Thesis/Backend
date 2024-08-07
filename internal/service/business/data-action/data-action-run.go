@@ -219,7 +219,7 @@ func (b business) ProcessGetTotalRunsPerDay(ctx context.Context, accountUuid str
 	// Generate dates for the last 15 days
 	dates := make([]time.Time, 0, days)
 	currentTime := time.Now()
-	currentDate := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 7, 0, 0, 0, currentTime.Location())
+	currentDate := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 0, 0, 0, 0, currentTime.Location())
 	for i := days - 1; i >= 0; i-- {
 		dates = append(dates, currentDate.AddDate(0, 0, -i))
 	}
@@ -228,7 +228,7 @@ func (b business) ProcessGetTotalRunsPerDay(ctx context.Context, accountUuid str
 	fulfilledResult := make([]repository.TotalRunsPerDay, 0, days)
 	arrIdx := 0
 	for _, date := range dates {
-		if arrIdx < len(results) && results[arrIdx].Date == date {
+		if arrIdx < len(results) && utils.CompareDay(date, results[arrIdx].Date) {
 			fulfilledResult = append(fulfilledResult, results[arrIdx])
 			arrIdx++
 		} else {
