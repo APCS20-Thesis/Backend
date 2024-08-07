@@ -2397,6 +2397,8 @@ func (m *DataActionRun_MetaData) Validate() error {
 		}
 	}
 
+	// no validation rules for MasterSegmentId
+
 	return nil
 }
 

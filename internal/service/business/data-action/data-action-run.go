@@ -181,21 +181,27 @@ func (b business) EnrichDataActionRunMetaData(ctx context.Context, dataActionRun
 		if err != nil {
 			return nil, err
 		}
-		return &api.DataActionRun_MetaData{ObjectReference: &api.DataActionRun_ObjectReference{
-			Type: string(model.TargetTable_Segment),
-			Name: segment.Name,
-			Id:   segment.ID,
-		}}, nil
+		return &api.DataActionRun_MetaData{
+			ObjectReference: &api.DataActionRun_ObjectReference{
+				Type: string(model.TargetTable_Segment),
+				Name: segment.Name,
+				Id:   segment.ID,
+			},
+			MasterSegmentId: segment.MasterSegmentId,
+		}, nil
 	case model.ActionType_TrainPredictModel:
 		predictModel, err := b.repository.PredictModelRepository.GetPredictModel(ctx, dataActionRun.ObjectId)
 		if err != nil {
 			return nil, err
 		}
-		return &api.DataActionRun_MetaData{ObjectReference: &api.DataActionRun_ObjectReference{
-			Type: string(model.TargetTable_PredictModel),
-			Name: predictModel.Name,
-			Id:   predictModel.ID,
-		}}, nil
+		return &api.DataActionRun_MetaData{
+			ObjectReference: &api.DataActionRun_ObjectReference{
+				Type: string(model.TargetTable_PredictModel),
+				Name: predictModel.Name,
+				Id:   predictModel.ID,
+			},
+			MasterSegmentId: predictModel.MasterSegmentId,
+		}, nil
 	}
 
 	return &api.DataActionRun_MetaData{}, nil

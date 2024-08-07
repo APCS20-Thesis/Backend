@@ -2,6 +2,7 @@ package airflow
 
 import (
 	"context"
+	"github.com/APCS20-Thesis/Backend/api"
 
 	"github.com/APCS20-Thesis/Backend/utils"
 )
@@ -15,7 +16,7 @@ type (
 		DagId                 string                              `json:"dag_id"`
 		DeltaTableKey         string                              `json:"delta_table_key"`
 		WriteMode             DeltaWriteMode                      `json:"write_mode"`
-		Headers               []string                            `json:"headers"`
+		Headers               []*api.MappingOptionItem            `json:"headers"`
 		DatabaseConfiguration DagImportMySQLDatabaseConfiguration `json:"database_configuration"`
 	}
 
