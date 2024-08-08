@@ -223,3 +223,19 @@ func (s *Service) GetBehaviorProfile(ctx context.Context, request *api.GetBehavi
 		BehaviorRecords: behaviorRecords.Records,
 	}, nil
 }
+
+func (s *Service) TotalProfilesMasterSegment(ctx context.Context, request *api.TotalProfilesMasterSegmentRequest) (*api.TotalProfilesMasterSegmentResponse, error) {
+	accountUuid, err := GetAccountUuidFromCtx(ctx)
+	if err != nil {
+		s.log.WithName("GetMasterSegmentProfiles").Error(err, "cannot get account uuid from context")
+		return nil, err
+	}
+
+	count, err := s.business.SegmentBusiness.TotalProfilesMasterSegment(ctx, request, accountUuid)
+
+	return &api.TotalProfilesMasterSegmentResponse{
+		Code:    int32(codes.OK),
+		Message: "Success",
+		Count:   count,
+	}, nil
+}

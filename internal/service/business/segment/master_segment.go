@@ -385,3 +385,25 @@ func (b business) GetBehaviorProfile(ctx context.Context, request *api.GetBehavi
 		Records: queryResponse.Data,
 	}, nil
 }
+
+func (b business) TotalProfilesMasterSegment(ctx context.Context, request *api.TotalProfilesMasterSegmentRequest, accountUuid string) (int64, error) {
+	masterSegment, err := b.repository.GetMasterSegment(ctx, request.Id)
+	if err != nil {
+		b.log.WithName("GetMasterSegmentDetail").Error(err, "cannot get master segment data")
+		return 0, err
+	}
+
+	if masterSegment.AccountUuid.String() != accountUuid {
+		b.log.WithName("ListMasterSegmentProfiles").WithValues("masterSegmentId", request.Id).Error(err, "No have permission with master segment")
+		return 0, status.Error(codes.PermissionDenied, "No have permission with master segment")
+	}
+	path := utils.GenerateDeltaAudiencePath(masterSegment.ID)
+
+	queryResponse, err := b.queryAdapter.GetCountDataTable(ctx, &query.GetCountDataTableRequest{TablePath: path})
+	if err != nil {
+		return 0, err
+	}
+
+	//res := query.QueryV2Paginate(request.Page, request.PageSize, queryResponse.Data)
+	return int64(queryResponse.Count), nil
+}
