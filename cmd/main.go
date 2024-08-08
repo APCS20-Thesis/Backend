@@ -103,6 +103,8 @@ func serverAction(cliCtx *cli.Context) error {
 	interceptor := service.NewAuthInterceptor(jwtManager, config.AccessibleRoles())
 
 	s := grpc.NewServer(
+		grpc.MaxRecvMsgSize(20*1024*1024), // Set max receive message size to 50MB
+		grpc.MaxSendMsgSize(20*1024*1024), // Set max send message size to 50MB
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(interceptor.Unary(), grpc_validator.UnaryServerInterceptor())),
 	)
 	reflection.Register(s)
