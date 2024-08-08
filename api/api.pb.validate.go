@@ -9720,6 +9720,10 @@ func (m *GetListMasterSegmentProfilesRequest) validate(all bool) error {
 
 	// no validation rules for PageSize
 
+	// no validation rules for SearchField
+
+	// no validation rules for SearchValue
+
 	if len(errors) > 0 {
 		return GetListMasterSegmentProfilesRequestMultiError(errors)
 	}
@@ -10958,6 +10962,14 @@ func (m *GetResultPredictionActionsResponse) validate(all bool) error {
 	// no validation rules for Code
 
 	// no validation rules for Count
+
+	// no validation rules for SegmentName
+
+	// no validation rules for ModelName
+
+	// no validation rules for Label_1
+
+	// no validation rules for Label_2
 
 	if len(errors) > 0 {
 		return GetResultPredictionActionsResponseMultiError(errors)

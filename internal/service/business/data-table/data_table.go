@@ -173,6 +173,7 @@ func (b business) GetQueryDataTable(ctx context.Context, request *api.GetQueryDa
 	}
 
 	res, err := b.queryAdapter.GetDataTableV2(ctx, &query.GetQueryDataTableV2Request{
+		Offset:    0,
 		Limit:     request.Limit,
 		TablePath: utils.GenerateDeltaTablePath(accountUuid, dataTable.Name),
 	})
