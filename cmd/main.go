@@ -6,6 +6,7 @@ import (
 	pb "github.com/APCS20-Thesis/Backend/api"
 	"github.com/APCS20-Thesis/Backend/config"
 	"github.com/APCS20-Thesis/Backend/internal/adapter/mqtt"
+	"github.com/APCS20-Thesis/Backend/internal/job"
 	"github.com/APCS20-Thesis/Backend/internal/service"
 	"github.com/go-logr/logr"
 	migrateV4 "github.com/golang-migrate/migrate/v4"
@@ -135,13 +136,13 @@ func serverAction(cliCtx *cli.Context) error {
 	mqtt.Connect()
 
 	// job
-	//job, err := job.NewJob(cfg, logger, gormDb, mqtt)
-	//if err != nil {
-	//	log.Fatalln("Failed to create new job:", err)
-	//	return err
-	//}
-	//job.RegisterCronJobs()
-	//job.StartCron()
+	job, err := job.NewJob(cfg, logger, gormDb, mqtt)
+	if err != nil {
+		log.Fatalln("Failed to create new job:", err)
+		return err
+	}
+	job.RegisterCronJobs()
+	job.StartCron()
 
 	// Create a client connection to the gRPC server we just started
 	// This is where the gRPC-Gateway proxies the requests
