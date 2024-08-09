@@ -393,6 +393,25 @@ func (b business) ProcessGetResultPredictionActions(ctx context.Context, request
 		return nil, err
 	}
 
+	segment, err := b.repository.SegmentRepository.GetSegment(ctx, config.SegmentId)
+	if err != nil {
+		logger.Error(err, "can not get segment", "segmentId", config.SegmentId)
+		return nil, err
+	}
+
+	predictModel, err := b.repository.PredictModelRepository.GetPredictModel(ctx, config.PredictModelId)
+	if err != nil {
+		logger.Error(err, "can not get predict model", "predictModelId", config.PredictModelId)
+		return nil, err
+	}
+
+	var trainConfig model.PredictModelTrainConfiguration
+	err = json.Unmarshal(predictModel.TrainConfigurations.RawMessage, &trainConfig)
+	if err != nil {
+		logger.Error(err, "cannot unmarshal data action payload", "actionId", action.ID)
+		return nil, err
+	}
+
 	segmentPath := fmt.Sprintf("s3a://%s/%s", b.config.S3StorageConfig.Bucket, config.DagConfig.DataKey)
 	resultPath := fmt.Sprintf("s3a://%s/%s", b.config.S3StorageConfig.Bucket, config.DagConfig.ResultPath)
 	queryResponse, err := b.queryAdapter.QueryRawSQLV2(ctx, &query.QueryRawSQLV2Request{
@@ -403,8 +422,12 @@ func (b business) ProcessGetResultPredictionActions(ctx context.Context, request
 	}
 
 	return &api.GetResultPredictionActionsResponse{
-		Code:  0,
-		Count: int64(queryResponse.Count),
-		Data:  queryResponse.Data,
+		Code:        0,
+		Count:       int64(queryResponse.Count),
+		ModelName:   predictModel.Name,
+		SegmentName: segment.Name,
+		Label_1:     trainConfig.Label1,
+		Label_2:     trainConfig.Label2,
+		Data:        queryResponse.Data,
 	}, nil
 }

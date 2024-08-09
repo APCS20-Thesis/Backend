@@ -201,11 +201,21 @@ func (b business) ListMasterSegmentProfiles(ctx context.Context, request *api.Ge
 		b.log.WithName("ListMasterSegmentProfiles").WithValues("masterSegmentId", request.Id).Error(err, "No have permission with master segment")
 		return 0, nil, status.Error(codes.PermissionDenied, "No have permission with master segment")
 	}
-	path := fmt.Sprintf("s3a://%s/%s", b.config.S3StorageConfig.Bucket, utils.GenerateDeltaAudiencePath(request.Id))
+	path := utils.GenerateDeltaAudiencePath(request.Id)
 
 	limit, offset := covertLimitOffsetFromPageAndPageSize(request.Page, request.PageSize)
-	queryResponse, err := b.queryAdapter.QueryRawSQLV2(ctx, &query.QueryRawSQLV2Request{
-		Query: fmt.Sprintf("SELECT * FROM delta.`%s` LIMIT %d OFFSET %d;", path, limit, offset),
+	var fields = make([]string, 0, 1)
+	var values = make([]string, 0, 1)
+	if request.SearchField != "" {
+		fields = append(fields, request.SearchField)
+		values = append(values, request.SearchValue)
+	}
+	queryResponse, err := b.queryAdapter.GetDataTableV2(ctx, &query.GetQueryDataTableV2Request{
+		Limit:     limit,
+		Offset:    offset,
+		Fields:    fields,
+		Values:    values,
+		TablePath: path,
 	})
 	if err != nil {
 		return 0, nil, err
@@ -220,7 +230,7 @@ func covertLimitOffsetFromPageAndPageSize(page int32, pageSize int32) (limit int
 	if limit <= 0 || limit > 100 {
 		limit = 100
 	}
-	offset = (page - 1) / limit
+	offset = (page - 1) * limit
 	if offset < 0 {
 		offset = 0
 	}

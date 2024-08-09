@@ -1247,6 +1247,10 @@ message GetListMasterSegmentProfilesRequest {
   int32 page = 3;
   // page_size
   int32 page_size = 4;
+  // search field
+  string search_field = 5;
+  // search value
+  string search_value = 6;
 }
 
 // GetMasterSegmentProfiles Response
@@ -1351,8 +1355,16 @@ message GetResultPredictionActionsResponse {
   int32 code = 1;
   // count
   int64 count = 2;
+  // segment_name
+  string segment_name = 3;
+  // model_name
+  string model_name = 4;
+  //label 1
+  string label_1 = 5;
+  // label 2
+  string label_2 = 6;
   // data
-  repeated string data = 3;
+  repeated string data = 7;
 }
 
 message GetDataActionRunsPerDayRequest {}

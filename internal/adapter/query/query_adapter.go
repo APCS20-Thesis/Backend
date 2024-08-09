@@ -40,8 +40,11 @@ func NewQueryAdapter(log logr.Logger, host string) (QueryAdapter, error) {
 
 type (
 	GetQueryDataTableV2Request struct {
-		Limit     int32  `json:"limit"`
-		TablePath string `json:"table_path"`
+		Limit     int32    `json:"limit"`
+		Offset    int32    `json:"offset"`
+		Fields    []string `json:"fields"`
+		Values    []string `json:"values"`
+		TablePath string   `json:"table_path"`
 	}
 
 	GetQueryDataTableV2Response struct {
@@ -52,7 +55,12 @@ type (
 
 func (c *query) GetDataTableV2(ctx context.Context, request *GetQueryDataTableV2Request) (*GetQueryDataTableV2Response, error) {
 	response := &GetQueryDataTableV2Response{}
-
+	if request.Fields == nil {
+		request.Fields = []string{}
+	}
+	if request.Values == nil {
+		request.Values = []string{}
+	}
 	err := c.client.SendHttpRequest(ctx, utils.Request{
 		Endpoint: Endpoint_GET_DATA_TABLE_V2,
 		Method:   utils.Method_POST,
@@ -65,8 +73,11 @@ func (c *query) GetDataTableV2(ctx context.Context, request *GetQueryDataTableV2
 
 type (
 	GetQueryDataTableRequest struct {
-		Limit     int32  `json:"limit"`
-		TablePath string `json:"table_path"`
+		Limit     int32    `json:"limit"`
+		Offset    int32    `json:"offset"`
+		Fields    []string `json:"fields"`
+		Values    []string `json:"values"`
+		TablePath string   `json:"table_path"`
 	}
 
 	GetQueryDataTableResponse struct {
@@ -77,6 +88,12 @@ type (
 
 func (c *query) GetDataTable(ctx context.Context, request *GetQueryDataTableRequest) (*GetQueryDataTableResponse, error) {
 	response := &GetQueryDataTableResponse{}
+	if request.Fields == nil {
+		request.Fields = []string{}
+	}
+	if request.Values == nil {
+		request.Values = []string{}
+	}
 
 	err := c.client.SendHttpRequest(ctx, utils.Request{
 		Endpoint: Endpoint_GET_DATA_TABLE,
