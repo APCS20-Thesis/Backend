@@ -20,5 +20,5 @@ jobs:
     - name: Debug
       run: pwd
     - name: Run Docker Container
-      run: sudo docker run -d -p 11080:11080 -v /root/config.yaml:/app/config.yaml --name backend-container phat12a/backend
+      run: sudo docker run -d -p 11080:11080 -v /root/config.yaml:/app/config.yaml --name backend-container --network=host phat12a/backend
       
